@@ -13,7 +13,7 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
-          credentials_json: '${{ secrets.gcp_service_key }}'
+          credentials_json: '${{ secrets.GCP_SERVICE_KEY }}'
       - id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
