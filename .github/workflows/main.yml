@@ -18,5 +18,4 @@ jobs:
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
           project_id: donut-app-337308
-          working_directory: ./build/web
           deliverables: app.yaml
