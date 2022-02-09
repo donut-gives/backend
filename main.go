@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 func defaultHander(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+	fmt.Fprintf(w, "There is nothing at %s!", r.URL.Path)
 }
 
 func main() {
@@ -18,6 +19,11 @@ func main() {
 }
 
 func signIn(w http.ResponseWriter, r *http.Request) {
-	key := r.Header.Get("Auth-Key")
-	fmt.Fprintf(w, "%s", key)
+	p, err := ioutil.ReadAll(r.Body)
+	if err == nil {
+		fmt.Fprintf(w, "%s", p)
+	} else {
+		fmt.Fprintln(w, err)
+		log.Fatalln(err)
+	}
 }
