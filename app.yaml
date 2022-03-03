@@ -1,5 +1,7 @@
 runtime: go116
 service: api
+includes: 
+  - env.yaml
 #  handlers:
 #      - url: /
 #        static_files: index.html
