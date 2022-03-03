@@ -1,2 +1,4 @@
 runtime: go116
 service: api
+includes: 
+  - env.yaml
