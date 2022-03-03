@@ -1,16 +1,21 @@
 package main
 
 import (
+	"donutBackend/handlers"
 	"fmt"
+	_ "golang.org/x/oauth2"
 	"log"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":8080"),
+		Handler: handlers.New(),
+	}
+
+	log.Printf("Starting HTTP Server. Listening at %q", server.Addr)
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		log.Printf("%v", err)
+	}
 }
