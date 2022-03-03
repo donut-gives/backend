@@ -14,25 +14,28 @@ import (
 	"time"
 )
 
-var googleOauthConfig = &oauth2.Config{
-	RedirectURL:  "https://api.donutorg.ayushsuman.com/auth/google/callback",
-	ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
-	ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"), //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
-	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-	Endpoint:     google.Endpoint,
-}
+var googleOauthConfig = &oauth2.Config{}
 
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
 func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
-
 	// Create oauthState cookie
 	oauthState := generateStateOauthCookie(w)
 
-	/*
-	   AuthCodeURL receive state that is a token to protect the user from CSRF attacks. You must always provide a non-empty string and
-	   validate that it matches the state query parameter on your redirect callback.
-	*/
+	var scheme string
+	if r.TLS == nil {
+		scheme = "http://"
+	} else {
+		scheme = "https://"
+	}
+
+	googleOauthConfig = &oauth2.Config{
+		RedirectURL:  scheme + r.Host + "/auth/google/callback",
+		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+		Endpoint:     google.Endpoint,
+	}
 	u := googleOauthConfig.AuthCodeURL(oauthState)
 	http.Redirect(w, r, u, http.StatusTemporaryRedirect)
 }

@@ -14,7 +14,7 @@ func main() {
 		Handler: handlers.New(),
 	}
 
-	log.Printf("Starting HTTP Server. Listening at %q", server.Addr)
+	log.Printf("Starting HTTPS Server. Listening at %q", server.Addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	}
