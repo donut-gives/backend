@@ -19,18 +19,9 @@ var googleOauthConfig = &oauth2.Config{}
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
 func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
-	// Create oauthState cookie
 	oauthState := generateStateOauthCookie(w)
-
-	var scheme string
-	if r.TLS == nil {
-		scheme = "http://"
-	} else {
-		scheme = "https://"
-	}
-
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  scheme + r.Host + "/auth/google/callback",
+		RedirectURL:  "https://" + r.Host + "/auth/google/callback",
 		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
@@ -41,12 +32,11 @@ func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	// Read oauthState from Cookie
 	oauthState, _ := r.Cookie("oauthstate")
 
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth google state")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -56,9 +46,6 @@ func oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-
-	// GetOrCreate User in your db.
-	// Redirect or response with a token.
 	fmt.Fprintf(w, "UserInfo: %s\n", data)
 }
 
