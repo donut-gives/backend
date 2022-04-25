@@ -1,0 +1,96 @@
+@font-face {
+    font-family: 'Manrope';
+    src: url("../font/Manrope-Regular.ttf") format('truetype');
+}
+
+@font-face {
+    font-family: 'Manrope';
+    src: url("../font/Manrope-SemiBold.ttf") format('truetype');
+    font-weight: 600;
+}
+
+body {
+    font-family: 'Manrope', serif;
+}
+
+.sign-in-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    justify-content: center;
+    text-align: center;
+    padding: 8px 4px 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px #28282A33;
+}
+
+.sign-in {
+    font-weight: 600;
+}
+
+.heading {
+    color: #676B71FF;
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing: 0.02em;
+}
+
+.divider {
+    border-top: 1px solid #D4D4D488;
+}
+
+.button {
+    margin-top: 60px;
+    margin-left: 32px;
+    margin-right: 32px;
+    display: inline-block;
+    white-space: nowrap;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #D4D4D44c;
+    justify-content: center;
+    text-align: center;
+    padding-left: 65px;
+    padding-right: 65px;
+}
+
+
+.google {
+    background: url('../assets/google.svg') transparent 5px 50% no-repeat;;
+    display: inline-block;
+    vertical-align: middle;
+    height: 40px;
+    width: 40px;
+}
+
+.sign-in-text {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    color: #02091399
+}
+
+.terms-div {
+    margin: 18px 24px 60px;
+}
+
+.terms {
+    display: block;
+    font-size: 10px;
+    line-height: 14px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+#terms {
+    color: #1E7BEE;
+}
+
+#privacy {
+    color: #1E7BEE;
+}
+
