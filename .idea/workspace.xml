@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4c150b01-970d-4d77-a494-fc880466f977" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/handlers/oauth.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/view/auth.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/view/consent.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/view/css/main.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/view/font/Manrope-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/view/font/Manrope-SemiBold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/awesomeProject.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/sign_in.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/base.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/handlers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/oauth.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/oauth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/oauth_google.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/oauth_google.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +58,7 @@
     &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ayushsuman/Donut/backend/font&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ayushsuman&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -88,6 +86,19 @@
       <filePath value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <configuration name="go build donutBackend" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="backend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="GOOGLE_OAUTH_CLIENT_ID" value="174384113313-k5f7c9qi3bdkp3kpvnq098icpnicouiq.apps.googleusercontent.com" />
+        <env name="GOOGLE_OAUTH_CLIENT_SECRET" value="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" />
+      </envs>
+      <kind value="PACKAGE" />
+      <package value="donutBackend" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
       <module name="backend" />
       <working_directory value="$PROJECT_DIR$" />
@@ -98,6 +109,11 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build donutBackend" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
