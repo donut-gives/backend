@@ -25,7 +25,10 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, err.Error())
 		} else {
 			googleID := &GoogleID{}
-			json.Unmarshal(token, googleID)
+			if err := json.Unmarshal(token, googleID); err != nil {
+				fmt.Fprintf(w, "There was a problem unmarshalling id token")
+				return
+			}
 			fmt.Fprintf(w, "Hello %s", googleID.FirstName)
 		}
 	}
