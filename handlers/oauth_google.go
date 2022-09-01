@@ -13,8 +13,9 @@ import (
 var googleOauthConfig *oauth2.Config = nil
 
 func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
+	os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "https://" + r.Host + "/auth/google/callback",
+		RedirectURL:  "http://" + r.Host + "/auth/google/callback",
 		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
