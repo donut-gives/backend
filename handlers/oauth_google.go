@@ -38,6 +38,8 @@ func oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
-	url := fmt.Sprintf("/auth/signin?id_token=%s", idToken)
+	//fmt.Println(token.AccessToken)
+	accessToken :=token.AccessToken
+	url := fmt.Sprintf("/auth/signin?id_token=%s&acess_token=%s", idToken,accessToken)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
