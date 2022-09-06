@@ -74,7 +74,9 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			//respondWithJson(w, http.StatusCreated, place)
-			fmt.Fprintf(w, "%s", tokenString)
+			//fmt.Fprintf(w, "%s", tokenString)
+
+			respondWithJson(w, http.StatusCreated, map[string]string{"token": tokenString,"firstname":googleUser.FirstName,"lastname":googleUser.LastName,"email":googleUser.Email,"photo":googleUser.Photo})
 		}
 	}
 }

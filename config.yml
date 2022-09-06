@@ -4,4 +4,5 @@ database:
   username: ""
   password: ""
 server:
-  port: ":8080"
+  HttpPort: ":8080"
+  HttpsPort: ":8448"

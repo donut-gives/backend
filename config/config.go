@@ -12,7 +12,8 @@ type Config struct {
 }
 
 type Server struct {
-	Port string
+	HttpPort string
+	HttpsPort string
 }
 
 type Database struct {
