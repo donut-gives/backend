@@ -1,4 +1,6 @@
 localhost.pem
 localhost-key.pem
 .idea
+secrets
 init.bat
+init.sh
