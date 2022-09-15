@@ -1,16 +1,31 @@
 package main
 
 import (
+	. "donutBackend/config"
 	"donutBackend/handlers"
-	_ "golang.org/x/oauth2"
+	//"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+
+	_ "golang.org/x/oauth2"
 )
 
-const httpAddr = ":8080"
-const httpsAddr = ":8443"
+var config Config
+
+var httpAddr string
+var httpsAddr string
+
+
+
+func init() {
+	config.Read()
+	//fmt.Println(config)
+
+	httpAddr = config.Server.HttpPort
+	httpsAddr = config.Server.HttpsPort
+}
 
 func main() {
 

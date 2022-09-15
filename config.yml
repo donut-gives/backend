@@ -1,0 +1,8 @@
+database:
+  uri: "mongodb://localhost:27017/"
+  databasename: "donut"
+  username: ""
+  password: ""
+server:
+  HttpPort: ":8080"
+  HttpsPort: ":8448"

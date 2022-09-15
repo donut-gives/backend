@@ -13,10 +13,11 @@ import (
 var googleOauthConfig *oauth2.Config = nil
 
 func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
+	os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "https://" + r.Host + "/auth/google/callback",
-		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  "http://" + r.Host + "/auth/google/callback",
+		ClientID:     "29400535476-f3gedm1unsa2nn7asn1q6k57bkq8grhj.apps.googleusercontent.com",//os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: "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",//os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
@@ -37,6 +38,8 @@ func oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
-	url := fmt.Sprintf("/auth/signin?id_token=%s", idToken)
+	//fmt.Println(token.AccessToken)
+	accessToken :=token.AccessToken
+	url := fmt.Sprintf("/auth/signin?id_token=%s&acess_token=%s", idToken,accessToken)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
