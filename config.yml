@@ -1,8 +1,13 @@
-database:
-  uri: "mongodb://localhost:27017/"
-  databasename: "donut"
-  username: ""
-  password: ""
+app:
+  name: "Donut Backend"
+  version: "0.0.1-dev"
+  desc: "Shaping new gen change makers"
 server:
-  HttpPort: ":8080"
-  HttpsPort: ":8448"
+  host: ""
+db:
+  url: ""
+auth:
+  jwt_secret: "donut-secret"
+  google:
+    client_id: ""
+    client_secret: ""

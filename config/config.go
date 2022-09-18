@@ -1,40 +1,73 @@
 package config
 
 import (
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
 )
 
 type Config struct {
-	Server   Server
-	Database Database
+	App    App
+	Server Server
+	DB     DB
+	Auth   Auth
+	Env    string
+}
+
+type App struct {
+	Name    string
+	Version string
+	Desc    string
 }
 
 type Server struct {
-	HttpPort string
-	HttpsPort string
+	Host string
+	Port string
 }
 
-type Database struct {
-	Uri          string
-	DatabaseName string
-	Username     string
-	Password     string
+type DB struct {
+	Url string
 }
 
-func (c *Config) Read() {
+type Auth struct {
+	JWTSecret string
+	Google    Google
+}
+
+type Google struct {
+	ClientId     string
+	ClientSecret string
+}
+
+var Configs *Config
+
+func init() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalf("Error loading env file, %s", err)
+	}
+
+	viper.AddConfigPath(".")
+
+	viper.AutomaticEnv()
+
+	if err := viper.BindEnv("Server.Port", "PORT"); err != nil {
+		log.Fatalf("Error binding PORT env var, %s", err)
+	}
+
 	viper.SetConfigType("yml")
 	if os.Getenv("ENV") == "prod" {
 		viper.SetConfigName("config-prod")
 	} else {
 		viper.SetConfigName("config")
 	}
-	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config, %s", err)
 	}
-	err := viper.Unmarshal(&c)
+
+	log.Infof("%s", viper.AllKeys())
+
+	err := viper.Unmarshal(&Configs)
 	if err != nil {
 		log.Fatalf("Error decoding config, %v", err)
 	}

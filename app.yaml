@@ -1,4 +1,9 @@
 runtime: go116
 service: api
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
+    redirect_http_response_code: 301
 includes: 
   - env.yaml

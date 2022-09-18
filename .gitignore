@@ -1,6 +1,17 @@
 localhost.pem
 localhost-key.pem
 .idea
+
+#secrets
 secrets
+
+# config files
+config.yml
+config-prod.yml
+
+# environment variables
+.env
+
+# scripts
 init.bat
 init.sh

@@ -1,23 +1,27 @@
 package handlers
 
 import (
+	. "donutBackend/config"
+	. "donutBackend/logger"
 	"fmt"
+
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"log"
 	"net/http"
-	"os"
 )
 
 var googleOauthConfig *oauth2.Config = nil
 
 func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
-	os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
+	redirectProto := "http://"
+	if Configs.Env == "prod" {
+		redirectProto = "https://"
+	}
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://" + r.Host + "/auth/google/callback",
-		ClientID:     "29400535476-f3gedm1unsa2nn7asn1q6k57bkq8grhj.apps.googleusercontent.com",//os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
-		ClientSecret: "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",//os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  redirectProto + r.Host + "/auth/google/callback",
+		ClientID:     Configs.Auth.Google.ClientId,     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: Configs.Auth.Google.ClientSecret, //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
@@ -27,19 +31,15 @@ func oauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 func oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("state") != "donut" {
-		log.Println("invalid oauth google state")
+		Logger.Errorf("Invalid Oauth state")
 		http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
 		return
 	}
 	code := r.FormValue("code")
 	token, err := googleOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		fmt.Fprintf(w, "code exchange wrong: %s", err.Error())
+		Logger.Errorf("code exchange wrong: %s", err.Error())
 	}
-	id := token.Extra("id_token")
-	idToken := fmt.Sprint(id)
-	//fmt.Println(token.AccessToken)
-	accessToken :=token.AccessToken
-	url := fmt.Sprintf("/auth/signin?id_token=%s&acess_token=%s", idToken,accessToken)
+	url := fmt.Sprintf("/auth/signin?&token=%s", token.AccessToken)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }

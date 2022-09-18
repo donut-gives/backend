@@ -2,39 +2,36 @@ package users
 
 import (
 	"context"
-	//"fmt"
-	."donutBackend/config"
+	. "donutBackend/config"
+	. "donutBackend/logger"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/bson"
-	"log"
+	"strings"
 	"time"
 )
 
-type UsersRepository struct {}
-const usersCollectionName = "users"
+type UsersRepository struct{}
 
-var config Config
+const usersCollectionName = "users"
 
 var usersCollection = new(mongo.Collection)
 
 func init() {
-	config.Read()
 	// Connect to DB
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.Database.Uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(Configs.DB.Url))
 	if err != nil {
-		log.Fatal(err)
+		Logger.Fatal(err)
 	}
 	// defer client.Disconnect(ctx)
+	segments := strings.Split(Configs.DB.Url, string('/'))
+	database := client.Database(segments[len(segments)-1])
 
-	database := client.Database(config.Database.DatabaseName)
-	
 	usersCollection = database.Collection(usersCollectionName)
-	
-}
 
+}
 
 // Create a new user
 func (p *UsersRepository) Insert(user *GoogleUser) (interface{}, error) {
@@ -58,16 +55,15 @@ func (p *UsersRepository) Insert(user *GoogleUser) (interface{}, error) {
 				return nil, err
 			}
 			//fmt.Println("Inserted a single user: ", result.InsertedID)
-			id:=result.InsertedID
-			string_id:=id.(primitive.ObjectID).Hex()
+			id := result.InsertedID
+			string_id := id.(primitive.ObjectID).Hex()
 			return string_id, nil
 		}
 		return nil, err
 	}
 	//fmt.Printf("found document %v", find_result)
 
-	id:=find_result["_id"]
-	string_id:=id.(primitive.ObjectID).Hex()
+	id := find_result["_id"]
+	string_id := id.(primitive.ObjectID).Hex()
 	return string_id, nil
 }
-
