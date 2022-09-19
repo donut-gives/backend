@@ -10,12 +10,10 @@ import (
 	"time"
 )
 
-const usersCollectionName = "users"
-
 var usersCollection = new(mongo.Collection)
 
 func init() {
-	usersCollection = db.Get().Collection(usersCollectionName)
+	usersCollection = db.Get().Collection("users")
 }
 
 // Insert : Create a new user

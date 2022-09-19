@@ -10,6 +10,6 @@ func New() http.Handler {
 	mux.Handle("/", controllers.BaseHandler(http.Dir("view/")))
 
 	addAuthRoutes(mux)
-
+	addMiscRoutes(mux)
 	return mux
 }
