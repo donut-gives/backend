@@ -8,39 +8,45 @@ import (
 )
 
 type Config struct {
-	App    App
-	Server Server
-	DB     DB
-	Auth   Auth
+	App    AppStruct
+	Server ServerStruct
+	DB     DBStruct
+	Auth   AuthStruct
 	Env    string
 }
 
-type App struct {
+type AppStruct struct {
 	Name    string
 	Version string
 	Desc    string
 }
 
-type Server struct {
+type ServerStruct struct {
 	Host string
 	Port string
 }
 
-type DB struct {
+type DBStruct struct {
 	Url string
 }
 
-type Auth struct {
-	JWTSecret string
-	Google    Google
+type AuthStruct struct {
+	JWTSecret string `mapstructure:"jwt_secret"`
+	Google    GoogleStruct
 }
 
-type Google struct {
-	ClientId     string
-	ClientSecret string
+type GoogleStruct struct {
+	ClientId     string `mapstructure:"client_id"`
+	ClientSecret string `mapstructure:"client_secret"`
 }
 
-var Configs *Config
+var configs *Config
+
+var App *AppStruct
+var Server *ServerStruct
+var DB *DBStruct
+var Auth *AuthStruct
+var Env *string
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -67,8 +73,15 @@ func init() {
 
 	log.Infof("%s", viper.AllKeys())
 
-	err := viper.Unmarshal(&Configs)
+	err := viper.Unmarshal(&configs)
 	if err != nil {
 		log.Fatalf("Error decoding config, %v", err)
 	}
+
+	App = &configs.App
+	Server = &configs.Server
+	DB = &configs.DB
+	Auth = &configs.Auth
+	Env = &configs.Env
+
 }

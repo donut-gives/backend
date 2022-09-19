@@ -1,18 +1,24 @@
 package main
 
 import (
-	. "donutBackend/config"
-	"donutBackend/handlers"
+	"donutBackend/config"
+	"donutBackend/routes"
 	_ "golang.org/x/oauth2"
+	"strings"
+
 	//"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
+	addr := strings.Builder{}
+	addr.WriteString(":")
+	addr.WriteString(config.Server.Port)
+
 	server := &http.Server{
-		Addr:    Configs.Server.Port,
-		Handler: handlers.New(),
+		Addr:    addr.String(),
+		Handler: routes.New(),
 	}
 	listenOnHttp(server)
 }
