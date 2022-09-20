@@ -10,6 +10,7 @@ import (
 type Config struct {
 	App    AppStruct
 	Server ServerStruct
+	Paytm  PaytmStruct
 	DB     DBStruct
 	Auth   AuthStruct
 	Env    string
@@ -24,6 +25,11 @@ type AppStruct struct {
 type ServerStruct struct {
 	Host string
 	Port string
+}
+
+type PaytmStruct struct {
+	MerchantID  string
+	MerchantKey string
 }
 
 type DBStruct struct {
@@ -45,6 +51,7 @@ var configs *Config
 var App *AppStruct
 var Server *ServerStruct
 var DB *DBStruct
+var Paytm *PaytmStruct
 var Auth *AuthStruct
 var Env *string
 
@@ -81,6 +88,7 @@ func init() {
 	App = &configs.App
 	Server = &configs.Server
 	DB = &configs.DB
+	Paytm = &configs.Paytm
 	Auth = &configs.Auth
 	Env = &configs.Env
 

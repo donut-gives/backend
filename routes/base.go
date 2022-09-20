@@ -11,5 +11,6 @@ func New() http.Handler {
 
 	addAuthRoutes(mux)
 	addMiscRoutes(mux)
+	addPaymentRoutes(mux)
 	return mux
 }
