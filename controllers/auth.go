@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -18,29 +19,29 @@ import (
 
 var googleOauthConfig *oauth2.Config = nil
 
-func OauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
+func OAuthGoogleLogin(c *gin.Context) {
 	redirectProto := "http://"
 	if *config.Env == "prod" {
 		redirectProto = "https://"
 	}
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  redirectProto + r.Host + "/auth/google/callback",
+		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/google/callback",
 		ClientID:     config.Auth.Google.ClientId,     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.Auth.Google.ClientSecret, //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
 	u := googleOauthConfig.AuthCodeURL("donut")
-	http.Redirect(w, r, u, http.StatusTemporaryRedirect)
+	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
-func OauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	if r.FormValue("state") != "donut" {
+func OAuthGoogleCallback(c *gin.Context) {
+	if c.Query("state") != "donut" {
 		Logger.Errorf("Invalid Oauth state")
-		http.Redirect(w, r, "/auth/google/login", http.StatusTemporaryRedirect)
+		c.Redirect(http.StatusTemporaryRedirect, "/v1/auth/google/login")
 		return
 	}
-	code := r.FormValue("code")
+	code := c.Query("code")
 	token, err := googleOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		Logger.Errorf("code exchange wrong: %s", err.Error())
@@ -49,15 +50,19 @@ func OauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
-	response, err := signInWithIdToken(idToken)
+	payload, err := signInWithIdToken(idToken)
 	if err != nil {
-		fmt.Fprint(w, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(response)
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User Created",
+		"data":    payload,
+	})
 }
 
 type claims struct {
@@ -69,7 +74,7 @@ type claims struct {
 	jwt.StandardClaims
 }
 
-func signInWithIdToken(idToken string) ([]byte, error) {
+func signInWithIdToken(idToken string) (map[string]string, error) {
 	_, err := idtoken.Validate(context.Background(), idToken, config.Auth.Google.ClientId)
 	if err != nil {
 		Logger.Errorf("Invalid Token")
@@ -112,8 +117,13 @@ func signInWithIdToken(idToken string) ([]byte, error) {
 		}
 		//respondWithJson(w, http.StatusCreated, place)
 		//fmt.Fprintf(w, "%s", tokenString)
-		payload := map[string]string{"token": tokenString, "firstname": googleUser.FirstName, "lastname": googleUser.LastName, "email": googleUser.Email, "photo": googleUser.Photo}
-		response, err := json.Marshal(payload)
-		return response, err
+		payload := map[string]string{
+			"token":     tokenString,
+			"firstname": googleUser.FirstName,
+			"lastname":  googleUser.LastName,
+			"email":     googleUser.Email,
+			"photo":     googleUser.Photo,
+		}
+		return payload, err
 	}
 }

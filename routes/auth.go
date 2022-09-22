@@ -2,10 +2,17 @@ package routes
 
 import (
 	"donutBackend/controllers"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
-func addAuthRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/auth/google/login", controllers.OauthGoogleLogin)
-	mux.HandleFunc("/auth/google/callback", controllers.OauthGoogleCallback)
+//func addAuthRoutes(mux *http.ServeMux) {
+//	mux.HandleFunc("/auth/google/login", controllers.OAuthGoogleLogin)
+//	mux.HandleFunc("/auth/google/callback", controllers.OAuthGoogleCallback)
+//}
+
+func addAuthRoutes(g *gin.RouterGroup) {
+	auth := g.Group("/auth")
+	google := auth.Group("/google")
+	google.GET("/login", controllers.OAuthGoogleLogin)
+	google.GET("/callback", controllers.OAuthGoogleCallback)
 }

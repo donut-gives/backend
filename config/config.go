@@ -8,12 +8,12 @@ import (
 )
 
 type Config struct {
-	App    AppStruct
-	Server ServerStruct
-	Paytm  PaytmStruct
-	DB     DBStruct
-	Auth   AuthStruct
-	Env    string
+	App     AppStruct
+	Server  ServerStruct
+	DB      DBStruct
+	Auth    AuthStruct
+	Payment PaymentStruct
+	Env     string
 }
 
 type AppStruct struct {
@@ -27,23 +27,27 @@ type ServerStruct struct {
 	Port string
 }
 
-type PaytmStruct struct {
-	MerchantID  string
-	MerchantKey string
-}
-
 type DBStruct struct {
 	Url string
 }
 
 type AuthStruct struct {
 	JWTSecret string `mapstructure:"jwt_secret"`
-	Google    GoogleStruct
+	Google    Google
 }
 
-type GoogleStruct struct {
+type Google struct {
 	ClientId     string `mapstructure:"client_id"`
 	ClientSecret string `mapstructure:"client_secret"`
+}
+
+type PaymentStruct struct {
+	Paytm Paytm
+}
+
+type Paytm struct {
+	MerchantId  string
+	MerchantKey string
 }
 
 var configs *Config
@@ -51,8 +55,8 @@ var configs *Config
 var App *AppStruct
 var Server *ServerStruct
 var DB *DBStruct
-var Paytm *PaytmStruct
 var Auth *AuthStruct
+var Payment *PaymentStruct
 var Env *string
 
 func init() {
@@ -88,7 +92,7 @@ func init() {
 	App = &configs.App
 	Server = &configs.Server
 	DB = &configs.DB
-	Paytm = &configs.Paytm
+	Payment = &configs.Payment
 	Auth = &configs.Auth
 	Env = &configs.Env
 
