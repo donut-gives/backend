@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"donutBackend/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,8 @@ import (
 
 func Get() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(middleware.CORSMiddleware())
 
 	v1 := r.Group("/v1")
 	{
