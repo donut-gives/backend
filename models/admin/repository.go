@@ -3,13 +3,13 @@ package admin
 import (
 	"context"
 	"donutBackend/db"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
-	"errors"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 var adminCollection = new(mongo.Collection)
@@ -29,7 +29,7 @@ func Insert(admin *Admin) (string, error) {
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func Check(email string) (bool,error) {
+func Check(email string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -40,17 +40,17 @@ func Check(email string) (bool,error) {
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return false, nil
 		}
 		return false, err
 	}
-	
+
 	return true, nil
 }
 
-func Get(email string,password string) (*Admin, error) {
+func Get(email string, password string) (*Admin, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	opts := options.FindOne()
@@ -66,7 +66,7 @@ func Get(email string,password string) (*Admin, error) {
 		return nil, err
 	}
 
-	check:=VerifyPassword(password,findResult.Password)
+	check := VerifyPassword(password, findResult.Password)
 
 	findResult.Password = ""
 
@@ -78,23 +78,23 @@ func Get(email string,password string) (*Admin, error) {
 }
 
 //HashPassword is used to encrypt the password before it is stored in the DB
-func HashPassword(password string) (string,error) {
-    bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-    if err != nil {
-        return "", err
-    }
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return "", err
+	}
 
-    return string(bytes), nil
+	return string(bytes), nil
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
 func VerifyPassword(userPassword string, providedPassword string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
-    check := true
+	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
+	check := true
 
-    if err != nil {
-        check = false
-    }
+	if err != nil {
+		check = false
+	}
 
-    return check
+	return check
 }

@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 func addOrganizationRoutes(g *gin.RouterGroup) {
 	org := g.Group("/org")
 	verificationList := org.Group("/verificationList")

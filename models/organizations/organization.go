@@ -1,8 +1,7 @@
 package organization
 
-
 type Organization struct {
-	Id 	 string `bson:"_id,omitempty" json:"_id,omitempty"`
+	Id       string `bson:"_id,omitempty" json:"_id,omitempty"`
 	Email    string `bson:"email,omitempty" json:"email,omitempty"`
 	Password string `bson:"password,omitempty" json:"password,omitempty"`
 	Name     string `bson:"name,omitempty" json:"name,omitempty"`
@@ -10,4 +9,3 @@ type Organization struct {
 	Address  string `bson:"address,omitempty" json:"address,omitempty"`
 	Phone    string `bson:"phone,omitempty" json:"phone,omitempty"`
 }
-

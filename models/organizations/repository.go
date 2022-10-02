@@ -22,17 +22,17 @@ func init() {
 
 func Insert(org *Organization) (interface{}, error) {
 
-	password,err := HashPassword(org.Password)
-	if err!=nil {
+	password, err := HashPassword(org.Password)
+	if err != nil {
 		return nil, err
 	}
 
-	existingOrg,err := orgVerification.Get(org.Email)
-	if err!=nil {
+	existingOrg, err := orgVerification.Get(org.Email)
+	if err != nil {
 		return nil, err
 	}
 
-	if existingOrg.Verified=="false" {
+	if existingOrg.Verified == "false" {
 		return nil, errors.New("Organization not verified")
 	}
 
@@ -76,7 +76,7 @@ func Insert(org *Organization) (interface{}, error) {
 	return stringId, nil
 }
 
-func Get(email string,password string) (*Organization, error) {
+func Get(email string, password string) (*Organization, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	opts := options.FindOne()
@@ -92,7 +92,7 @@ func Get(email string,password string) (*Organization, error) {
 		return nil, err
 	}
 
-	check:=VerifyPassword(password,findResult.Password)
+	check := VerifyPassword(password, findResult.Password)
 
 	findResult.Password = ""
 
@@ -104,23 +104,23 @@ func Get(email string,password string) (*Organization, error) {
 }
 
 //HashPassword is used to encrypt the password before it is stored in the DB
-func HashPassword(password string) (string,error) {
-    bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-    if err != nil {
-        return "", err
-    }
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return "", err
+	}
 
-    return string(bytes), nil
+	return string(bytes), nil
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
 func VerifyPassword(userPassword string, providedPassword string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
-    check := true
+	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
+	check := true
 
-    if err != nil {
-        check = false
-    }
+	if err != nil {
+		check = false
+	}
 
-    return check
+	return check
 }

@@ -90,4 +90,3 @@ func Verify(email string) (interface{}, error) {
 
 	return &updatedDocument, nil
 }
-

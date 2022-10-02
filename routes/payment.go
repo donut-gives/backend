@@ -11,7 +11,7 @@ import (
 //}
 
 func addPaymentRoutes(g *gin.RouterGroup) {
-	
+
 	g.POST("/payment/initiate", controllers.InitiatePayment)
 	g.GET("/payment/status", controllers.VerifyPaymentStatus)
 }

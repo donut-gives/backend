@@ -5,7 +5,7 @@ import (
 	. "donutBackend/logger"
 	"donutBackend/models/orgVerificationList"
 	"donutBackend/models/organizations"
-	
+
 	"net/http"
 	"time"
 
@@ -14,10 +14,10 @@ import (
 )
 
 type OrgClaims struct {
-	Id        string `json:"_id"`
-	Name	  string `json:"name"`
-	Email     string `json:"email"`
-	Photo     string `json:"photo"`
+	Id    string `json:"_id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Photo string `json:"photo"`
 	jwt.StandardClaims
 }
 
@@ -49,9 +49,9 @@ func AddVerificationOrg(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &OrgClaims{
-		Id:        id.(string),
-		Email:     org.Email,
-		Photo:     org.Photo,
+		Id:    id.(string),
+		Email: org.Email,
+		Photo: org.Photo,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -64,23 +64,21 @@ func AddVerificationOrg(c *gin.Context) {
 	if err != nil {
 		Logger.Errorf("Error while signing jwt, %s", err)
 		// If there is an error in creating the JWT return an internal server error
-		return 		
+		return
 	}
 	//respondWithJson(w, http.StatusCreated, place)
 	//fmt.Fprintf(w, "%s", tokenString)
 	payload := map[string]string{
-		"token":     tokenString,
-		"id":		 id.(string),
-		"name": 	 org.Name,
-		"email":     org.Email,
-		"photo":     org.Photo,
+		"token": tokenString,
+		"id":    id.(string),
+		"name":  org.Name,
+		"email": org.Email,
+		"photo": org.Photo,
 	}
-
-
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization created successfully",
-		"data":   payload,
+		"data":    payload,
 	})
 }
 
@@ -102,7 +100,7 @@ func GetVerificationOrg(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organizations fetched successfully",
-		"data":   orgs,
+		"data":    orgs,
 	})
 }
 
@@ -129,9 +127,9 @@ func SignUpOrg(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &OrgClaims{
-		Id:        id.(string),
-		Email:     org.Email,
-		Photo:     org.Photo,
+		Id:    id.(string),
+		Email: org.Email,
+		Photo: org.Photo,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -144,31 +142,31 @@ func SignUpOrg(c *gin.Context) {
 	if err != nil {
 		Logger.Errorf("Error while signing jwt, %s", err)
 		// If there is an error in creating the JWT return an internal server error
-		return 		
+		return
 	}
 	//respondWithJson(w, http.StatusCreated, place)
 	//fmt.Fprintf(w, "%s", tokenString)
 	payload := map[string]string{
-		"token":     tokenString,
-		"id":		 id.(string),
-		"name": 	 org.Name,
-		"email":     org.Email,
-		"photo":     org.Photo,
+		"token": tokenString,
+		"id":    id.(string),
+		"name":  org.Name,
+		"email": org.Email,
+		"photo": org.Photo,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization signed up successfully",
-		"data":   payload,
+		"data":    payload,
 	})
 }
 
 func SignInOrg(c *gin.Context) {
-	
+
 	var details Details
 
 	err := c.BindJSON(&details)
-	
-	org, err := organization.Get(details.Email,details.Password)
+
+	org, err := organization.Get(details.Email, details.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -180,8 +178,8 @@ func SignInOrg(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &OrgClaims{
-		Email:     org.Email,
-		Photo:     org.Photo,
+		Email: org.Email,
+		Photo: org.Photo,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -194,26 +192,26 @@ func SignInOrg(c *gin.Context) {
 	if err != nil {
 		Logger.Errorf("Error while signing jwt, %s", err)
 		// If there is an error in creating the JWT return an internal server error
-		return 		
+		return
 	}
 	//respondWithJson(w, http.StatusCreated, place)
 	//fmt.Fprintf(w, "%s", tokenString)
 	payload := map[string]string{
-		"token":     tokenString,
-		"id":		 org.Id,
-		"name": 	 org.Name,
-		"email":     org.Email,
-		"photo":     org.Photo,
+		"token": tokenString,
+		"id":    org.Id,
+		"name":  org.Name,
+		"email": org.Email,
+		"photo": org.Photo,
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization signed in successfully",
-		"data":   payload,
+		"data":    payload,
 	})
 }
 
 func VerifyOrg(c *gin.Context) {
-	
+
 	details := struct {
 		Email string `json:"email"`
 	}{}
@@ -226,7 +224,7 @@ func VerifyOrg(c *gin.Context) {
 		return
 	}
 
-	org,err := orgVerification.Verify(details.Email)
+	org, err := orgVerification.Verify(details.Email)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -237,6 +235,6 @@ func VerifyOrg(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization verified successfully",
-		"data":   org,
+		"data":    org,
 	})
 }

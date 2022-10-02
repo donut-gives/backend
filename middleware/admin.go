@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"donutBackend/models/admin"
 	"donutBackend/config"
+	"donutBackend/models/admin"
 	"errors"
 	"net/http"
 	"strings"
@@ -30,8 +30,8 @@ func extractBearerToken(header string) (string, error) {
 
 func extractClaims(tokenStr string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		 // check token signing method etc
-		 return []byte(config.Auth.JWTSecret), nil
+		// check token signing method etc
+		return []byte(config.Auth.JWTSecret), nil
 	})
 
 	if err != nil {
@@ -41,13 +41,12 @@ func extractClaims(tokenStr string) (jwt.MapClaims, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	} else {
-		
+
 		return nil, err
 	}
 }
 
 func AdminCheck() gin.HandlerFunc {
-	
 
 	return func(c *gin.Context) {
 		jwtToken, err := extractBearerToken(c.GetHeader("token"))
@@ -61,7 +60,7 @@ func AdminCheck() gin.HandlerFunc {
 			respondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
-		
+
 		admin.Check(token["email"].(string))
 
 		c.Next()
@@ -69,12 +68,10 @@ func AdminCheck() gin.HandlerFunc {
 	}
 }
 
-
-
 func DummyMiddleware1() gin.HandlerFunc {
 	// Do some initialization logic here
 	// Foo()
 	return func(c *gin.Context) {
-	  c.Next()
+		c.Next()
 	}
 }

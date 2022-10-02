@@ -12,14 +12,13 @@ import (
 )
 
 type AdminClaims struct {
-	Email     string `json:"email"`
-	Password     string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 	jwt.StandardClaims
 }
 
-
 func AdminSignin(c *gin.Context) {
-	details:=struct{
+	details := struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
@@ -32,7 +31,7 @@ func AdminSignin(c *gin.Context) {
 		return
 	}
 
-	admin, err := admin.Get(details.Email,details.Password)
+	admin, err := admin.Get(details.Email, details.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -45,7 +44,7 @@ func AdminSignin(c *gin.Context) {
 	// Create the JWT claims, which includes the username and expiry time
 
 	claims := &AdminClaims{
-		Email:     admin.Email,
+		Email: admin.Email,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -65,8 +64,6 @@ func AdminSignin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "successefully signed in",
-		"token": tokenString,
+		"token":   tokenString,
 	})
 }
-
-
