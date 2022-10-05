@@ -38,7 +38,7 @@ func ContactUs(c *gin.Context) {
 	var message messages.Message
 	if err := c.BindJSON(&message); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Failed to Add to Waitlist",
+			"message": "Failed to Add to Save Message",
 			"error":   err.Error(),
 		})
 	}
@@ -52,7 +52,7 @@ func ContactUs(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Successfully Saved Message",
+		"message": "Successfully Sent the Message",
 	})
 }
 

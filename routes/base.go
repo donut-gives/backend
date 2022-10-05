@@ -18,7 +18,7 @@ import (
 func Get() *gin.Engine {
 	r := gin.Default()
 
-	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.CORS())
 
 	v1 := r.Group("/v1")
 	{
