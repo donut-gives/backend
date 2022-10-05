@@ -65,7 +65,7 @@ func OAuthGoogleCallback(c *gin.Context) {
 	})
 }
 
-type claims struct {
+type UserClaims struct {
 	Id        string `json:"_id"`
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
@@ -95,7 +95,7 @@ func signInWithIdToken(idToken string) (map[string]string, error) {
 		//fmt.Println("db_id",db_id.(string),)
 		expirationTime := time.Now().Add(5 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
-		claims := &claims{
+		claims := &UserClaims{
 			Id:        id.(string),
 			FirstName: googleUser.FirstName,
 			LastName:  googleUser.LastName,
