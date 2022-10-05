@@ -20,10 +20,11 @@ func Get() *gin.Engine {
 	v1 := r.Group("/v1")
 	{
 		addAuthRoutes(v1)
-		addPaymentRoutes(v1)
+		//addPaymentRoutes(v1)
 		addMiscRoutes(v1)
 		addOrganizationRoutes(v1)
-		addAdminRoutes(v1)
+		addUserRoutes(v1)
+		addEventRoutes(v1)
 	}
 
 	return r

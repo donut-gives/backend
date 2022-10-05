@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"donutBackend/db"
+	."donutBackend/models/events"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,6 +52,123 @@ func Insert(user *GoogleUser) (interface{}, error) {
 	return stringId, nil
 }
 
+func Find(email string) (bool,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult bson.M
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+	
+	return true, nil
+}
+
+func GetEvents(email string) ([]Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult GoogleUser
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		return nil, err
+	}
+
+	return findResult.Events, nil
+}
+
+func AddEvent(email string, eventId string) (error) {
+	
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	opts := options.FindOne()
+
+	var find_result bson.M
+	
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&find_result)
+	if err != nil {
+		return err
+	}
+
+	option := options.FindOneAndUpdate()
+	option.SetReturnDocument(options.After)
+
+	filter := bson.D{{Key: "email", Value: email}}
+	update := bson.D{
+		{Key: "$push", Value: bson.D{
+			{Key: "events", Value: eventId},
+		}},
+	}
+
+	var updatedDocument bson.M
+	err = usersCollection.FindOneAndUpdate(
+		ctx,
+		filter,
+		update,
+		option,
+	).Decode(&updatedDocument)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteEvent(email string, eventId string) (error) {
+	
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	opts := options.FindOne()
+
+	var find_result bson.M
+	
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&find_result)
+	if err != nil {
+		return err
+	}
+
+	option := options.FindOneAndUpdate()
+	option.SetReturnDocument(options.After)
+
+	filter := bson.D{{Key: "email", Value: email}}
+	update := bson.D{
+		{Key: "$pull", Value: bson.D{
+			{Key: "events", Value: eventId},
+		}},
+	}
+
+	var updatedDocument bson.M
+	err = usersCollection.FindOneAndUpdate(
+		ctx,
+		filter,
+		update,
+		option,
+	).Decode(&updatedDocument)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 //Update : Insert a new transaction
 func InsertTransaction(userId string, transaction *Transaction) (interface{}, error) {

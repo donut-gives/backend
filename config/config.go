@@ -14,6 +14,12 @@ type Config struct {
 	Auth    AuthStruct
 	Payment PaymentStruct
 	Env     string
+	Emailer EmailerStruct
+}
+
+type EmailerStruct struct {
+	Email string
+	AppPassword  string
 }
 
 type AppStruct struct {
@@ -46,8 +52,8 @@ type PaymentStruct struct {
 }
 
 type Paytm struct {
-	MerchantId  string
-	MerchantKey string
+	MerchantId  string 
+	MerchantKey string 
 }
 
 var configs *Config
@@ -58,6 +64,7 @@ var DB *DBStruct
 var Auth *AuthStruct
 var Payment *PaymentStruct
 var Env *string
+var Emailer *EmailerStruct
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -95,5 +102,5 @@ func init() {
 	Payment = &configs.Payment
 	Auth = &configs.Auth
 	Env = &configs.Env
-
+	Emailer = &configs.Emailer
 }

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	. "donutBackend/utils/token"
-	"donutBackend/models/admin"
+	"donutBackend/models/users"
 	
 	"net/http"
 	"github.com/gin-gonic/gin"
@@ -10,8 +10,8 @@ import (
 
 
 
-func VerifyAdminToken() gin.HandlerFunc {
-	
+func VerifyUserToken() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
 		
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
@@ -20,13 +20,13 @@ func VerifyAdminToken() gin.HandlerFunc {
 			return
 		}
 		
-		found,err :=admin.Find(token["email"].(string))
+		found,err :=users.Find(token["email"].(string))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
 		if !found{
-			RespondWithError(c, http.StatusUnauthorized, "Not an admin")
+			RespondWithError(c, http.StatusUnauthorized, "Not a user")
 			return
 		}
 		c.Next()
