@@ -28,9 +28,12 @@ jobs:
             url: "${{ secret.DB_URL }}"
           auth:
             jwt_secret: "${{ secrets.JWT_SECRET }}"
-          google:
-            client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
-            client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
+            google:
+              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
+              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
+          emailer:
+            email: "${{ secrets.GMAIL }}"
+            apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
