@@ -35,6 +35,11 @@ jobs:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           EOF
+      - run: |
+          cat > .env << EOF
+          PORT=37227
+          GIN_MODE="debug"
+          EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
