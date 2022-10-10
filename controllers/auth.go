@@ -19,6 +19,7 @@ import (
 
 var googleOauthConfig *oauth2.Config = nil
 
+// OAuthGoogleLogin This function is used to sign in to google
 func OAuthGoogleLogin(c *gin.Context) {
 	redirectProto := "http://"
 	if *config.Env == "prod" {

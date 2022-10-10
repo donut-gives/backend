@@ -5,12 +5,13 @@ import (
 	"donutBackend/models/messages"
 	"donutBackend/models/waitlist"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
 func JoinWaitlist(c *gin.Context) {
 	var waitlistedUser waitlist.WaitlistedUser
-	if err := c.BindJSON(&waitlistedUser); err != nil {
+	if err := c.ShouldBindBodyWith(&waitlistedUser, binding.JSON); err != nil {
 		logger.Logger.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Failed to Add to Waitlist",
@@ -34,9 +35,8 @@ func JoinWaitlist(c *gin.Context) {
 }
 
 func ContactUs(c *gin.Context) {
-
 	var message messages.Message
-	if err := c.BindJSON(&message); err != nil {
+	if err := c.ShouldBindBodyWith(&message, binding.JSON); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Failed to Add to Save Message",
 			"error":   err.Error(),
