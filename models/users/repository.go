@@ -3,22 +3,39 @@ package users
 import (
 	"context"
 	"donutBackend/db"
-	."donutBackend/models/events"
+	. "donutBackend/logger"
+	events "donutBackend/models/events"
+	"errors"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 var usersCollection = new(mongo.Collection)
 
 func init() {
 	usersCollection = db.Get().Collection("users")
+	//create email index
+	indexview:=usersCollection.Indexes()
+	index := mongo.IndexModel{
+		Keys: bson.M{
+			"email": 1,
+		},
+		Options: options.Index().SetUnique(true),
+	}
+	_,err:=indexview.CreateOne(context.Background(), index)
+	if err!=nil{
+		Logger.Errorf("Error creating index for users collection: %v",err)
+	}
+
 }
 
 // Insert : Create a new user
 func Insert(user *GoogleUser) (interface{}, error) {
+	
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	opts := options.FindOne()
@@ -41,39 +58,16 @@ func Insert(user *GoogleUser) (interface{}, error) {
 			}
 			//fmt.Println("Inserted a single user: ", result.InsertedID)
 			id := result.InsertedID
-			stringId := id.(primitive.ObjectID).Hex()
-			return stringId, nil
+			return id, nil
 		}
 		return nil, err
 	}
 
 	id := findResult["_id"]
-	stringId := id.(primitive.ObjectID).Hex()
-	return stringId, nil
+	return id, nil
 }
 
-func Find(email string) (bool,error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	opts := options.FindOne()
-	var findResult bson.M
-	err := usersCollection.FindOne(
-		ctx,
-		bson.D{{Key: "email", Value: email}},
-		opts,
-	).Decode(&findResult)
-	if err != nil {
-		
-		if err == mongo.ErrNoDocuments {
-			return false, nil
-		}
-		return false, err
-	}
-	
-	return true, nil
-}
-
-func GetEvents(email string) ([]Event, error) {
+func Find(email string) (GoogleUser,error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -84,40 +78,53 @@ func GetEvents(email string) ([]Event, error) {
 		opts,
 	).Decode(&findResult)
 	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return GoogleUser{}, errors.New("User not found")
+		}
+		return GoogleUser{}, err
+	}
+	
+	return findResult, nil
+}
+
+func GetEvents(email string) ([]events.Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult GoogleUser
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		if(err == mongo.ErrNoDocuments){
+			return nil, errors.New("User not found")
+		}
 		return nil, err
 	}
 
 	return findResult.Events, nil
 }
 
-func AddEvent(email string, eventId string) (error) {
-	
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	opts := options.FindOne()
+func AddEvent(user GoogleUser, event events.Event) (error) {
 
-	var find_result bson.M
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	
-	err := usersCollection.FindOne(
-		ctx,
-		bson.D{{Key: "email", Value: email}},
-		opts,
-	).Decode(&find_result)
-	if err != nil {
-		return err
-	}
 
 	option := options.FindOneAndUpdate()
 	option.SetReturnDocument(options.After)
 
-	filter := bson.D{{Key: "email", Value: email}}
+	filter := bson.D{{Key: "email", Value: user.Email}}
 	update := bson.D{
-		{Key: "$push", Value: bson.D{
-			{Key: "events", Value: eventId},
+		{Key: "$addToSet", Value: bson.D{
+			{Key: "events", Value: event},
 		}},
 	}
 
 	var updatedDocument bson.M
-	err = usersCollection.FindOneAndUpdate(
+	err := usersCollection.FindOneAndUpdate(
 		ctx,
 		filter,
 		update,

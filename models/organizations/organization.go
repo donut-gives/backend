@@ -1,7 +1,7 @@
 package organization
 
 import (
-	."donutBackend/models/events"
+	"donutBackend/models/events"
 )
 
 type Organization struct {
@@ -17,7 +17,7 @@ type Organization struct {
 	Address  	string `bson:"address,omitempty" json:"address,omitempty"`
 	Website  	string `bson:"website,omitempty" json:"website,omitempty"`
 	Contact    	string `bson:"contact,omitempty" json:"contact,omitempty"`
-	Events 		[]Event `bson:"events,omitempty" json:"events,omitempty"`
+	Events 		[]events.Event `bson:"events,omitempty" json:"events,omitempty"`
 	
 }
 

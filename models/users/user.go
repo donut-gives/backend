@@ -2,7 +2,7 @@ package users
 
 //import "go.mongodb.org/mongo-driver/bson/primitive"
 import (
-	. "donutBackend/models/events"
+	"donutBackend/models/events"
 )
 
 type Transaction struct {
@@ -24,5 +24,5 @@ type GoogleUser struct {
 	LastName     string        `bson:"lastName,omitempty" json:"lastName,omitempty"`
 	Wallet       float64       `bson:"wallet,omitempty" json:"wallet,omitempty"`
 	Transactions []Transaction `bson:"transactions,omitempty" json:"transactions,omitempty"`
-	Events       []Event       `bson:"events,omitempty" json:"events,omitempty"`
+	Events       []events.Event       `bson:"events,omitempty" json:"events,omitempty"`
 }

@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"donutBackend/db"
+	. "donutBackend/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,6 +14,19 @@ var adminCollection = new(mongo.Collection)
 
 func init() {
 	adminCollection = db.Get().Collection("admin")
+
+	// Create a unique index on the email field
+	indexView := adminCollection.Indexes()
+	mod := mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "email", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err := indexView.CreateOne(context.Background(), mod)
+	if err != nil {
+		Logger.Errorf("Error creating email index in admin collection: %v", err)
+	}
 }
 
 func Find(email string) (bool,error) {

@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	. "donutBackend/utils/token"
 	"donutBackend/models/admin"
-	
+	. "donutBackend/utils/token"
+
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +14,6 @@ import (
 func VerifyAdminToken() gin.HandlerFunc {
 	
 	return func(c *gin.Context) {
-		
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())

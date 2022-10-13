@@ -14,11 +14,11 @@ func addOrganizationRoutes(g *gin.RouterGroup) {
 
 	verified:=org.Group("/verified")
 	//middlewares
-	verified.GET("/signin", controllers.OrgSignIn)
-	verified.GET("/forgotPassword", controllers.OrgForgotPassword)
+	verified.POST("/signin", controllers.OrgSignIn)
+	verified.POST("/forgotPassword", controllers.OrgForgotPassword)
 
 	verified.Use(middleware.VerifyPwdResetToken())
-	verified.GET("/resetPassword", controllers.OrgResetPassword)
+	verified.POST("/resetPassword", controllers.OrgResetPassword)
 
 	verified.Use(middleware.VerifyOrgToken())
 	verified.GET("/event", controllers.GetOrgEvents)
@@ -27,9 +27,9 @@ func addOrganizationRoutes(g *gin.RouterGroup) {
 
 	verifyList:=org.Group("/verifyList" )
 	//middlewares
-	verifyList.GET("/signUp", controllers.OrgSignUp)
+	verifyList.POST("/signUp", controllers.OrgSignUp)
 	verifyList.Use(middleware.VerifyAdminToken())
-	verifyList.GET("/verifyOrg", controllers.OrgVerify)
-	verifyList.GET("/rejectOrg", controllers.OrgReject)
+	verifyList.POST("/verifyOrg", controllers.OrgVerify)
+	verifyList.POST("/rejectOrg", controllers.OrgReject)
 
 }

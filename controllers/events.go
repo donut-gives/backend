@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetEvents(c *gin.Context) {
+func GetFeedEvents(c *gin.Context) {
 	
 	events, err := events.GetEvents()
 	if err != nil {

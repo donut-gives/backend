@@ -1,10 +1,13 @@
 package middleware
 
 import (
-	. "donutBackend/utils/token"
 	"donutBackend/models/users"
+	. "donutBackend/utils/token"
+	"encoding/json"
 	
+
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,15 +23,21 @@ func VerifyUserToken() gin.HandlerFunc {
 			return
 		}
 		
-		found,err :=users.Find(token["email"].(string))
+		user,err :=users.Find(token["email"].(string))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
-		if !found{
-			RespondWithError(c, http.StatusUnauthorized, "Not a user")
+		
+		//marshall
+		userString,err:=json.Marshal(&user)
+		if err != nil {
+			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
+		
+		c.Set("user", string(userString))
+
 		c.Next()
 
 	}

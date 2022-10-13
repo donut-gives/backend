@@ -15,11 +15,11 @@ func addAuthRoutes(g *gin.RouterGroup) {
 	
 	user:= auth.Group("/user")
 	googleUser := user.Group("/google")
-	googleUser.GET("/login", controllers.OAuthGoogleLogin)
-	googleUser.GET("/callback", controllers.OAuthGoogleCallback)
+	googleUser.GET("/login", controllers.OAuthGoogleUserLogin)
+	googleUser.GET("/callback", controllers.OAuthGoogleUserCallback)
 
 	admin:= auth.Group("/admin")
 	googleAdmin := admin.Group("/google")
-	googleAdmin.GET("/login", controllers.OAuthGoogleLogin)
-	googleAdmin.GET("/callback", controllers.OAuthGoogleCallback)
+	googleAdmin.GET("/login", controllers.OAuthGoogleAdminLogin)
+	googleAdmin.GET("/callback", controllers.OAuthGoogleAdminCallback)
 }

@@ -14,6 +14,6 @@ func addEventRoutes(g *gin.RouterGroup) {
 	event := g.Group("/event")
 
 	event.Use(middleware.VerifyUserToken())
-	event.GET("/get", controllers.GetEvents)
+	event.GET("/get", controllers.GetFeedEvents)
 
 }

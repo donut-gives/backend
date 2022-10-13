@@ -3,16 +3,18 @@ package controllers
 import (
 	"donutBackend/config"
 	. "donutBackend/logger"
+	. "donutBackend/models/events"
 	"donutBackend/models/orgVerificationList"
 	"donutBackend/models/organizations"
-	."donutBackend/models/events"
 	. "donutBackend/utils/mail"
+	. "donutBackend/utils/token"
 
 	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type OrgClaims struct {
@@ -23,7 +25,7 @@ type OrgClaims struct {
 	jwt.StandardClaims
 }
 
-//Organizations Applying For Verification SignUp
+// OrgSignUp Organizations Applying For Verification SignUp
 func OrgSignUp(c *gin.Context) {
 	var org orgVerification.Organization
 
@@ -45,13 +47,11 @@ func OrgSignUp(c *gin.Context) {
 	}
 
 	payload := map[string]string{
-		"id":		 id.(string),
+		"id":		 id.(primitive.ObjectID).Hex(),
 		"name": 	 org.Name,
 		"email":     org.Email,
 		"photo":     org.Photo,
 	}
-
-
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization created successfully",
@@ -71,7 +71,7 @@ func OrgResetPassword(c *gin.Context) {
 	}
 
 	_, err = organization.SetPassword(&org)
-
+	//fmt.Println(err)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -93,7 +93,7 @@ func OrgSignIn(c *gin.Context) {
 
 	err := c.BindJSON(&details)
 	
-	org, err := organization.Get(details.Email,details.Password)
+	org, err := organization.CheckPwd(details.Email,details.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -233,11 +233,17 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	org,err := orgVerification.Verify(details.Email)
-
+	found,err:=organization.Find(details.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
+		})
+		return
+	}
+
+	if(!found){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Organization not found",
 		})
 		return
 	}
@@ -266,17 +272,12 @@ func OrgForgotPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password Reset Mail Sent Successfully",
-		"data":   org,
 	})
 }
 
 func GetOrgEvents(c *gin.Context) {
 	
-	details:= struct {
-		email string `json:"email"`
-	}{}
-
-	err := c.BindJSON(&details)
+	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -284,7 +285,9 @@ func GetOrgEvents(c *gin.Context) {
 		return
 	}
 
-	events,err := organization.GetEvents(details.email)
+	email:=jwtClaims["email"].(string)
+
+	events,err := organization.GetEvents(email)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -302,8 +305,7 @@ func GetOrgEvents(c *gin.Context) {
 func AddOrgEvent(c *gin.Context) {
 	
 	details:= struct {
-		email string `json:"email"`
-		event Event `json:"event"`
+		Event Event `json:"event"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -314,7 +316,18 @@ func AddOrgEvent(c *gin.Context) {
 		return
 	}
 
-	event,err := organization.AddEvent(details.email,details.event)
+	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	email:=jwtClaims["email"].(string)
+
+
+	event,err := organization.AddEvent(email,details.Event)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -332,7 +345,6 @@ func AddOrgEvent(c *gin.Context) {
 func DeleteOrgEvent(c *gin.Context) {
 	
 	details:= struct {
-		Email string `json:"email"`
 		EventId string `json:"eventId"`
 	}{}
 
@@ -344,7 +356,17 @@ func DeleteOrgEvent(c *gin.Context) {
 		return
 	}
 
-	event,err := organization.DeleteEvent(details.Email,details.EventId)
+	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	email:=jwtClaims["email"].(string)
+
+	event,err := organization.DeleteEvent(email,details.EventId)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
