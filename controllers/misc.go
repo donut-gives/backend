@@ -57,5 +57,5 @@ func ContactUs(c *gin.Context) {
 }
 
 func DiscordInvite(c *gin.Context) {
-	c.Redirect(http.StatusTemporaryRedirect, "https://discord.gg/622UCzQP")
+	c.Redirect(http.StatusTemporaryRedirect, "https://discord.gg/gXPA9xeFw8")
 }
