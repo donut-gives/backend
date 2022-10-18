@@ -1,23 +1,23 @@
 package controllers
 
-//func BaseHandler(root http.FileSystem) http.Handler {
-//	return &baseHandler{root}
-//}
-//
-//type baseHandler struct {
-//	root http.FileSystem
-//}
-//
-//func (h *baseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	upath := r.URL.Path
-//	if strings.EqualFold(upath, "/") {
-//		_, err := fmt.Fprint(w, "Hello Donut!")
-//		if err != nil {
-//			print(err)
-//			return
-//		}
-//		return
-//	}
-//	handler := http.FileServer(h.root)
-//	handler.ServeHTTP(w, r)
-//}
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"strings"
+)
+
+func HandleBase(c *gin.Context) {
+	firstDot := strings.IndexRune(c.Request.Host, '.')
+	if firstDot > 0 {
+		subdomain := c.Request.Host[0:firstDot]
+		if subdomain == "discord" {
+			c.Redirect(http.StatusTemporaryRedirect, "https://discord.gg/gXPA9xeFw8")
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Goodness is the only investment that never fails",
+			})
+		}
+	} else {
+		c.Redirect(http.StatusTemporaryRedirect, "https://discord.gg/gXPA9xeFw8")
+	}
+}

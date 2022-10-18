@@ -13,6 +13,7 @@ type Config struct {
 	DB      DBStruct
 	Auth    AuthStruct
 	Payment PaymentStruct
+	Captcha CaptchaStruct
 	Env     string
 }
 
@@ -50,6 +51,10 @@ type Paytm struct {
 	MerchantKey string
 }
 
+type CaptchaStruct struct {
+	Secret string
+}
+
 var configs *Config
 
 var App *AppStruct
@@ -57,11 +62,12 @@ var Server *ServerStruct
 var DB *DBStruct
 var Auth *AuthStruct
 var Payment *PaymentStruct
+var Captcha *CaptchaStruct
 var Env *string
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
-		log.Fatalf("Error loading env file, %s", err)
+		log.Errorf("Error loading env file, %s", err)
 	}
 
 	viper.AddConfigPath(".")
@@ -69,7 +75,7 @@ func init() {
 	viper.AutomaticEnv()
 
 	if err := viper.BindEnv("Server.Port", "PORT"); err != nil {
-		log.Fatalf("Error binding PORT env var, %s", err)
+		log.Errorf("Error binding PORT env var, %s", err)
 	}
 
 	viper.SetConfigType("yml")
@@ -79,14 +85,14 @@ func init() {
 		viper.SetConfigName("config")
 	}
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config, %s", err)
+		log.Errorf("Error reading config, %s", err)
 	}
 
 	log.Infof("%s", viper.AllKeys())
 
 	err := viper.Unmarshal(&configs)
 	if err != nil {
-		log.Fatalf("Error decoding config, %v", err)
+		log.Errorf("Error decoding config, %v", err)
 	}
 
 	App = &configs.App
@@ -94,6 +100,7 @@ func init() {
 	DB = &configs.DB
 	Payment = &configs.Payment
 	Auth = &configs.Auth
+	Captcha = &configs.Captcha
 	Env = &configs.Env
 
 }
