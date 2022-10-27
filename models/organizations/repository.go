@@ -5,7 +5,7 @@ import (
 	"donutBackend/db"
 	"donutBackend/models/orgVerificationList"
 	"donutBackend/models/events"
-	"donutBackend/models/users"
+	///"donutBackend/models/users"
 	"errors"
 	"time"
 
@@ -227,7 +227,8 @@ func AddEvent(email string, event events.Event) (interface{},error) {
 	return id,nil
 }
 
-func AddUserToEvent(user users.GoogleUser,event events.Event) (error) {
+func AddUserToEvent(user events.UserInfo,event events.Event) (error) {
+
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	option := options.Update()

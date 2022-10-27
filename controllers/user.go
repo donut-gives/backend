@@ -1,14 +1,28 @@
 package controllers
 
 import (
+	"donutBackend/config"
 	"donutBackend/models/events"
 	organization "donutBackend/models/organizations"
 	"donutBackend/models/users"
-	"encoding/json"
+	"io"
 
+	//"time"
+
+	//"encoding/base64"
+	"encoding/json"
 	"net/http"
 
+	//"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
+	//"golang.org/x/crypto/curve25519/internal/field"
+	//"golang.org/x/net/context"
+
+	"net/url"
+
+	"cloud.google.com/go/storage"
+	"google.golang.org/api/option"
+	"google.golang.org/appengine"
 )
 
 func GetUserEvents(c *gin.Context) {
@@ -51,11 +65,8 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	details:=struct{
-		EventId string `json:"eventId"`
-	}{}
-
-	err = c.BindJSON(&details)
+	userInfo:=events.UserInfo{}
+	err=json.Unmarshal([]byte(c.GetString("user")),&userInfo)
 	if(err!=nil){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -63,8 +74,9 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
+	eventId:=c.Request.FormValue("eventId")
 	
-	event,err:=events.GetEventById(details.EventId)
+	event,err:=events.GetEventById(eventId)
 	if(err!=nil){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -80,7 +92,70 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	err=organization.AddUserToEvent(user,event)
+	bucket := "user_assets_donut"  //your bucket name
+
+
+	ctx := appengine.NewContext(c.Request)
+
+
+	var storageClient *storage.Client 
+
+	if(*config.Env=="prod"){
+		storageClient, err = storage.NewClient(ctx)
+	}else{
+		storageClient, err = storage.NewClient(ctx, option.WithCredentialsFile("keys.json"))
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"error":   true,
+		})
+		return
+	}
+
+	f, _, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"error":   true,
+		})
+		return
+	}
+
+	defer f.Close()
+
+	fileName:=user.Email+"_"+eventId+".pdf"
+
+	sw := storageClient.Bucket(bucket).Object(fileName).NewWriter(ctx)
+
+	if _, err := io.Copy(sw, f); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"error":   true,
+		})
+		return
+	}
+
+	if err := sw.Close(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"error":   true,
+		})
+		return
+	}
+
+	u, err := url.Parse("/" + bucket + "/" + sw.Attrs().Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"Error":   true,
+		})
+		return
+	}
+
+	userInfo.Resume=u.String()
+
+	err=organization.AddUserToEvent(userInfo,event)
 	if(err!=nil){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -91,6 +166,7 @@ func AddUserEvent(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Event Added Successfully",
 	})
+
 }
 
 func DeleteUserEvent(c *gin.Context) {
@@ -120,3 +196,50 @@ func DeleteUserEvent(c *gin.Context) {
 		"message": "Event Deleted Successfully",
 	})
 }
+
+func UserAddBookmark(c *gin.Context) {
+	
+	c.GetString("user")
+	user:=users.GoogleUser{}
+	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+
+	details:=struct{
+		EventId string `json:"eventId"`
+	}{}
+
+	err = c.BindJSON(&details)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	
+	event,err:=events.GetEventById(details.EventId)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = users.AddBookmark(user,event)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Bookmark Added Successfully",
+	})
+}
+

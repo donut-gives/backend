@@ -158,7 +158,7 @@ func Reject(email string) (interface{}, error) {
 	return &updatedDocument, nil
 }
 
-func Find(email string) (Organization, error) {
+func Find(email string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -167,18 +167,17 @@ func Find(email string) (Organization, error) {
 		ctx,
 		bson.D{
 			{Key: "email", Value: email},
-			{Key: "status", Value: "VERIFIED"},
 		},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
 		
 		if err == mongo.ErrNoDocuments {
-			return Organization{}, errors.New("No such organization found")
+			return false, nil
 		}
-		return Organization{}, err
+		return false, err
 	}
 	
-	return findResult, nil
+	return true, nil
 }
 

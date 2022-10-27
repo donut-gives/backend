@@ -177,6 +177,35 @@ func DeleteEvent(email string, eventId string) (error) {
 	return nil
 }
 
+func AddBookmark(user GoogleUser, bookmark events.Event) (error) {
+
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	
+
+	option := options.FindOneAndUpdate()
+	option.SetReturnDocument(options.After)
+
+	filter := bson.D{{Key: "email", Value: user.Email}}
+	update := bson.D{
+		{Key: "$addToSet", Value: bson.D{
+			{Key: "bookmarks", Value: bookmark},
+		}},
+	}
+
+	var updatedDocument bson.M
+	err := usersCollection.FindOneAndUpdate(
+		ctx,
+		filter,
+		update,
+		option,
+	).Decode(&updatedDocument)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //Update : Insert a new transaction
 func InsertTransaction(userId string, transaction *Transaction) (interface{}, error) {
 	userIdObj, err := primitive.ObjectIDFromHex(userId)

@@ -8,6 +8,7 @@ import (
 	"donutBackend/models/organizations"
 	. "donutBackend/utils/mail"
 	. "donutBackend/utils/token"
+	"encoding/json"
 
 	"net/http"
 	"time"
@@ -304,19 +305,8 @@ func GetOrgEvents(c *gin.Context) {
 
 func AddOrgEvent(c *gin.Context) {
 	
-	details:= struct {
-		Event Event `json:"event"`
-	}{}
-
-	err := c.BindJSON(&details)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
+	org:=organization.Organization{}
+	err:=json.Unmarshal([]byte(c.GetString("org")),&org)
 	if(err!=nil){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -324,10 +314,31 @@ func AddOrgEvent(c *gin.Context) {
 		return
 	}
 
-	email:=jwtClaims["email"].(string)
+	details:= struct {
+		Event Event `json:"event"`
+	}{}
+
+	err = c.BindJSON(&details)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	details.Event.OrgEmail=org.Email
+	// jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
+	// if(err!=nil){
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// email:=jwtClaims["email"].(string)
 
 
-	event,err := organization.AddEvent(email,details.Event)
+	event,err := organization.AddEvent(org.Email,details.Event)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
