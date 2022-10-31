@@ -153,10 +153,10 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 		
 		id, err := users.Insert(googleUser)
 
-		fmt.Println("id",id)
-		if err != nil {
-			return nil, err
-		}
+		// fmt.Println("id",id)
+		// if err != nil {
+		// 	return nil, err
+		// }
 		expirationTime := time.Now().Add(20 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
 

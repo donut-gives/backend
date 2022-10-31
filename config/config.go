@@ -15,6 +15,12 @@ type Config struct {
 	Payment PaymentStruct
 	Env     string
 	Emailer EmailerStruct
+	Cloud  	CloudStruct
+}
+
+type CloudStruct struct {
+	KeyFile string
+	UserBucket string
 }
 
 type EmailerStruct struct {
@@ -65,6 +71,7 @@ var Auth *AuthStruct
 var Payment *PaymentStruct
 var Env *string
 var Emailer *EmailerStruct
+var Cloud *CloudStruct
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -103,4 +110,5 @@ func init() {
 	Auth = &configs.Auth
 	Env = &configs.Env
 	Emailer = &configs.Emailer
+	Cloud = &configs.Cloud
 }

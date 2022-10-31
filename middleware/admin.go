@@ -14,6 +14,7 @@ import (
 func VerifyAdminToken() gin.HandlerFunc {
 	
 	return func(c *gin.Context) {
+
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())

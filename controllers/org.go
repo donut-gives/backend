@@ -142,6 +142,7 @@ func OrgVerify(c *gin.Context) {
 	
 	details := struct {
 		Email string `json:"email"`
+		VerificationStatus string `json:"verificationStatus"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -152,7 +153,13 @@ func OrgVerify(c *gin.Context) {
 		return
 	}
 
-	org,err := orgVerification.Verify(details.Email)
+	var org interface{}
+
+	if(details.VerificationStatus == "accepted"){
+		org,err = orgVerification.Verify(details.Email)
+	}else{
+		org,err = orgVerification.Reject(details.Email)
+	}
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -161,27 +168,38 @@ func OrgVerify(c *gin.Context) {
 		return
 	}
 
-	//expirationTime := time.Now().Add(5 * time.Minute)
-	claims := &struct{
-		Email string `json:"email"`
-		jwt.StandardClaims
-	}{
-		Email:     details.Email,
-		StandardClaims: jwt.StandardClaims{
-			//ExpiresAt: expirationTime.Unix(),
-		},
+	if(details.VerificationStatus == "accepted"){
+		//jwt creation
+		claims := &struct{
+			Email string `json:"email"`
+			jwt.StandardClaims
+		}{
+			Email:     details.Email,
+			StandardClaims: jwt.StandardClaims{
+				//ExpiresAt: expirationTime.Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString([]byte(config.Auth.JWTSecret))
+		if err != nil {
+			Logger.Errorf("Error while signing jwt, %s", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		err = SendMail(details.Email,"Successfully Verified","Your Organization has been successfully verified "+tokenString)
+	}else{
+		err = SendMail(details.Email,"Rejected From Donut","Your Organization has unfortunately been rejected")
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.Auth.JWTSecret))
+
 	if err != nil {
-		Logger.Errorf("Error while signing jwt, %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-
-	err = SendMail(details.Email,"Successfully Verified","Your Organization has been successfully verified "+tokenString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization verified successfully",

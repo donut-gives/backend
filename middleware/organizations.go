@@ -5,6 +5,7 @@ import (
 	"donutBackend/models/organizations"
 	. "donutBackend/utils/token"
 	"encoding/json"
+
 	//"errors"
 	"net/http"
 
@@ -42,9 +43,7 @@ func VerifyPwdResetToken() gin.HandlerFunc {
 }
 
 func VerifyOrgToken() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		
+	return func(c *gin.Context) {	
 
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
 		if err != nil {

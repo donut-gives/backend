@@ -1,10 +1,16 @@
 package controllers
 
 import (
+	"crypto/sha256"
 	"donutBackend/config"
 	"donutBackend/models/events"
 	organization "donutBackend/models/organizations"
 	"donutBackend/models/users"
+	"fmt"
+
+	//"fmt"
+
+	//"fmt"
 	"io"
 
 	//"time"
@@ -84,7 +90,7 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	err = users.AddEvent(user,event)
+	found,err:=users.CheckEventExists(user,event)
 	if(err!=nil){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -92,8 +98,17 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	bucket := "user_assets_donut"  //your bucket name
+	if(found){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Event Already Exists",
+		})
+		return
+	}
 
+	
+
+	bucket := config.Cloud.UserBucket  //your bucket name
+	key:=config.Cloud.KeyFile
 
 	ctx := appengine.NewContext(c.Request)
 
@@ -103,7 +118,7 @@ func AddUserEvent(c *gin.Context) {
 	if(*config.Env=="prod"){
 		storageClient, err = storage.NewClient(ctx)
 	}else{
-		storageClient, err = storage.NewClient(ctx, option.WithCredentialsFile("keys.json"))
+		storageClient, err = storage.NewClient(ctx, option.WithCredentialsFile(key))
 	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -113,7 +128,7 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	f, _, err := c.Request.FormFile("file")
+	f, _, err := c.Request.FormFile("resume")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -124,11 +139,16 @@ func AddUserEvent(c *gin.Context) {
 
 	defer f.Close()
 
+
 	fileName:=user.Email+"_"+eventId+".pdf"
+	hash:=sha256.Sum256([]byte(fileName))
+	hashedFileName:=fmt.Sprintf("%x",hash)
 
-	sw := storageClient.Bucket(bucket).Object(fileName).NewWriter(ctx)
 
-	if _, err := io.Copy(sw, f); err != nil {
+
+	storageWriter := storageClient.Bucket(bucket).Object(hashedFileName).NewWriter(ctx)
+
+	if _, err := io.Copy(storageWriter, f); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 			"error":   true,
@@ -136,7 +156,7 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	if err := sw.Close(); err != nil {
+	if err := storageWriter.Close(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 			"error":   true,
@@ -144,7 +164,7 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	u, err := url.Parse("/" + bucket + "/" + sw.Attrs().Name)
+	url, err := url.Parse("https://storage.googleapis.com/" + bucket + "/" + storageWriter.Attrs().Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -153,7 +173,15 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	userInfo.Resume=u.String()
+	userInfo.Resume=url.String()
+
+	err = users.AddEvent(user,event)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 
 	err=organization.AddUserToEvent(userInfo,event)
 	if(err!=nil){

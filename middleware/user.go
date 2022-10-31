@@ -4,7 +4,6 @@ import (
 	"donutBackend/models/users"
 	. "donutBackend/utils/token"
 	"encoding/json"
-	
 
 	"net/http"
 
@@ -16,7 +15,7 @@ import (
 func VerifyUserToken() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		
+
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
