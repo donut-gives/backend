@@ -18,6 +18,43 @@ jobs:
             GOOGLE_OAUTH_CLIENT_ID: '${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}'
             GOOGLE_OAUTH_CLIENT_SECRET: '${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}'
           EOF
+      - run: |
+          cat > config.yaml << EOF
+          app:
+            name: "Donut Backend"
+            version: "0.0.1-dev"
+            desc: "Shaping new gen change makers"
+          db:
+            url: "${{ secrets.DB_URL }}"
+          auth:
+            jwt_secret: "${{ secrets.JWT_SECRET }}"
+            google:
+              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
+              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
+          emailer:
+            email: "${{ secrets.GMAIL }}"
+            apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
+          EOF
+      - run: |
+          cat > prod-keys.json << EOF
+          {
+            "type": "service_account",
+            "project_id": "donut-366007",
+            "private_key_id": "${{ secrets.GCLOUD_BUCKET_PRIVATE_KEY_ID }}",
+            "private_key": "${{ secrets.GCLOUD_BUCKET_PRIVATE_KEY }}",
+            "client_email": "${{ secrets.GCLOUD_BUCKET_CLIENT_EMAIL }}",
+            "client_id": "${{ secrets.GCLOUD_BUCKET_CLIENT_ID }}",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "${{ secrets.GCLOUD_BUCKET_CLIENT_CERT_URL }}"
+          }
+          EOF
+      - run: |
+          cat > .env << EOF
+          PORT=37227
+          GIN_MODE="debug"
+          EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -25,4 +62,4 @@ jobs:
       - id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
-          project_id: donut-app-337308
+          project_id: donut-366007
