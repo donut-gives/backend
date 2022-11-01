@@ -14,3 +14,13 @@ ___
 6. Run `go run main.go`
 
 
+## Guidelines
+* Branch Naming - braches should be named in snake_case with following tags separated by '/' at the start:
+  1. feat - indicating a new feature has been implemented in this branch
+  2. fix - indicating a bug fix implemented or a feature updated with fix
+  3. ref - indicating a refactor of directories, files, names etc.
+  4. hot - indicating hotfixes on branches branched from prod. These branches should be merged in prod and main.
+* File Naming - all files should be named in snake_case
+* Class Naming - all class should be named in UpperCamelCase.
+* Variable Naming - all variables should be names in lowerCamelCase.
+* Avoid using long names for branch names, file names, class names or public variables
