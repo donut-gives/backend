@@ -4,7 +4,6 @@ import (
 	"donutBackend/config"
 	"donutBackend/logger"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"io/ioutil"
@@ -26,7 +25,7 @@ func VerifyCaptcha() gin.HandlerFunc {
 
 		if err := c.ShouldBindBodyWith(&captcha, binding.JSON); err != nil {
 			logger.Logger.Error(err)
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Failed to complete the request",
 				"error":   err.Error(),
 			})
@@ -40,7 +39,7 @@ func VerifyCaptcha() gin.HandlerFunc {
 
 		if err != nil {
 			logger.Logger.Error(err)
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Failed to complete the request",
 				"error":   err.Error(),
 			})
@@ -50,7 +49,7 @@ func VerifyCaptcha() gin.HandlerFunc {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			logger.Logger.Error(err)
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Failed to complete the request",
 				"error":   err.Error(),
 			})
@@ -64,7 +63,7 @@ func VerifyCaptcha() gin.HandlerFunc {
 		err = json.Unmarshal(body, &captchaResponse)
 		if err != nil {
 			logger.Logger.Error(err)
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Failed to complete the request",
 				"error":   err.Error(),
 			})
@@ -76,7 +75,7 @@ func VerifyCaptcha() gin.HandlerFunc {
 		if captchaResponse.Success {
 			if captchaResponse.Score <= 0.4 {
 				logger.Logger.Error("Likely a bot")
-				c.JSON(http.StatusBadRequest, gin.H{
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 					"message": "Failed to complete the request",
 					"error":   "Likely a bot",
 				})
@@ -84,15 +83,14 @@ func VerifyCaptcha() gin.HandlerFunc {
 			}
 		} else {
 			logger.Logger.Error("Captcha Test Failed")
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Failed to complete the request",
 				"error":   "Captcha Test Failed",
 			})
 			return
 		}
 
-		c.Header("score", fmt.Sprintf("%f", captchaResponse.Score))
-
+		c.Set("score", captchaResponse.Score)
 		c.Next()
 	}
 }
