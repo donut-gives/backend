@@ -16,6 +16,7 @@ type Transaction struct {
 }
 
 type GoogleUser struct {
+	Id          string `json:"_id"`
 	Email        string        `bson:"email,omitempty" json:"email,omitempty"`
 	Verified     bool          `bson:"emailVerified,omitempty" json:"emailVerified,omitempty"`
 	Name         string        `bson:"name,omitempty" json:"name,omitempty"`
@@ -25,4 +26,11 @@ type GoogleUser struct {
 	Wallet       float64       `bson:"wallet,omitempty" json:"wallet,omitempty"`
 	Transactions []Transaction `bson:"transactions,omitempty" json:"transactions,omitempty"`
 	Events       []events.Event       `bson:"events,omitempty" json:"events,omitempty"`
+}
+
+type GoogleUserProfile struct {
+	Name         string        `bson:"name,omitempty" json:"name,omitempty"`
+	Photo        string        `bson:"picture,omitempty" json:"picture,omitempty"`
+	FirstName    string        `bson:"fitstName,omitempty" json:"firstName,omitempty"`
+	LastName     string        `bson:"lastName,omitempty" json:"lastName,omitempty"`
 }

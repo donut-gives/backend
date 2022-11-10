@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"donutBackend/models/admin"
+	"donutBackend/models/admins"
 	. "donutBackend/utils/token"
 
 	"net/http"

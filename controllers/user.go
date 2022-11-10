@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"donutBackend/config"
 	"donutBackend/models/events"
-	organization "donutBackend/models/organizations"
+	organization "donutBackend/models/orgs"
 	"donutBackend/models/users"
 	"fmt"
 
@@ -61,7 +61,6 @@ func GetUserEvents(c *gin.Context) {
 
 func AddUserEvent(c *gin.Context) {
 
-	c.GetString("user")
 	user:=users.GoogleUser{}
 	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
 	if(err!=nil){

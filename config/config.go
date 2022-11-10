@@ -15,10 +15,10 @@ type Config struct {
 	Payment PaymentStruct
 	Env     string
 	Emailer EmailerStruct
-	Cloud  	CloudStruct
+	Cloud  	CloudStorageStruct
 }
 
-type CloudStruct struct {
+type CloudStorageStruct struct {
 	KeyFile string
 	UserBucket string
 }
@@ -71,7 +71,7 @@ var Auth *AuthStruct
 var Payment *PaymentStruct
 var Env *string
 var Emailer *EmailerStruct
-var Cloud *CloudStruct
+var Cloud *CloudStorageStruct
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {

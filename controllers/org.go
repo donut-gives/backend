@@ -4,8 +4,8 @@ import (
 	"donutBackend/config"
 	. "donutBackend/logger"
 	. "donutBackend/models/events"
-	"donutBackend/models/orgVerificationList"
-	"donutBackend/models/organizations"
+	"donutBackend/models/new_orgs"
+	"donutBackend/models/orgs"
 	. "donutBackend/utils/mail"
 	. "donutBackend/utils/token"
 	"encoding/json"
@@ -23,6 +23,7 @@ type OrgClaims struct {
 	Name	  string `json:"name"`
 	Email     string `json:"email"`
 	Photo     string `json:"photo"`
+	Entity	string `json:"entity"`
 	jwt.StandardClaims
 }
 
@@ -103,11 +104,13 @@ func OrgSignIn(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &OrgClaims{
+		Id:        org.Id,
 		Email:     org.Email,
 		Photo:     org.Photo,
+		Entity:    "org",
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -157,8 +160,13 @@ func OrgVerify(c *gin.Context) {
 
 	if(details.VerificationStatus == "accepted"){
 		org,err = orgVerification.Verify(details.Email)
-	}else{
+	}else if (details.VerificationStatus == "rejected"){
 		org,err = orgVerification.Reject(details.Email)
+	}else{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid Verification Status",
+		})
+		return
 	}
 
 	if err != nil {
@@ -203,37 +211,6 @@ func OrgVerify(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization verified successfully",
-		"data":   org,
-	})
-}
-
-func OrgReject(c *gin.Context) {
-	
-	details := struct {
-		Email string `json:"email"`
-	}{}
-
-	err := c.BindJSON(&details)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	org,err := orgVerification.Reject(details.Email)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	err = SendMail(details.Email,"Rejected From Donut","Your Organization has unfortunately been rejected")
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Organization rejected successfully",
 		"data":   org,
 	})
 }

@@ -2,6 +2,9 @@ package token
 
 import (
 	"donutBackend/config"
+	"donutBackend/models/users"
+	"donutBackend/models/orgs"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -28,8 +31,8 @@ func ExtractBearerToken(header string) (string, error) {
 
 func ExtractClaims(tokenStr string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		 // check token signing method etc
-		 return []byte(config.Auth.JWTSecret), nil
+		// check token signing method etc
+		return []byte(config.Auth.JWTSecret), nil
 	})
 
 	if err != nil {
@@ -39,7 +42,7 @@ func ExtractClaims(tokenStr string) (jwt.MapClaims, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	} else {
-		
+
 		return nil, err
 	}
 }
@@ -56,4 +59,46 @@ func ExtractTokenInfo(header string) (jwt.MapClaims, error) {
 	}
 
 	return token, nil
+}
+
+func UserFromToken(tokenString string) (string, error) {
+
+	token, err := ExtractTokenInfo(tokenString)
+	if err != nil {
+		return "", err
+	}
+
+	user, err := users.Find(token["email"].(string))
+	if err != nil {
+		return "", err
+	}
+
+	//marshall
+	userString, err := json.Marshal(&user)
+	if err != nil {
+		return "", err
+	}
+
+	return string(userString), nil
+}
+
+func OrgFromToken(tokenString string) (string, error) {
+	token,err:=ExtractTokenInfo(tokenString)
+	if err != nil {
+		return "", err
+	}
+
+	
+	org,err :=organization.Get(token["email"].(string))
+	if err != nil {
+		return "", err
+	}
+	
+	//marshall
+	orgString,err:=json.Marshal(&org)
+	if err != nil {
+		return "", err
+	}
+	
+	return string(orgString), nil
 }

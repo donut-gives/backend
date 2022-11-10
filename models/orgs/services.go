@@ -3,7 +3,7 @@ package organization
 import (
 	"context"
 	"donutBackend/db"
-	"donutBackend/models/orgVerificationList"
+	"donutBackend/models/new_orgs"
 	"donutBackend/models/events"
 	///"donutBackend/models/users"
 	"errors"
@@ -174,7 +174,33 @@ func Get(email string) (Organization,error) {
 		}
 		return Organization{}, err
 	}
+
+	findResult.Password = ""
 	
+	return findResult, nil
+}
+
+func GetOrgProfile(email string) (OrganizationProfile,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult OrganizationProfile
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return OrganizationProfile{}, errors.New("No such organization found")
+		}
+		return OrganizationProfile{}, err
+	}
+	
+	for i:=0;i<len(findResult.Events);i++ {
+		findResult.Events[i].Volunteers = nil
+	}
 	return findResult, nil
 }
 

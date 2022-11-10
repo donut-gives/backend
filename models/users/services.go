@@ -88,6 +88,26 @@ func Find(email string) (GoogleUser,error) {
 	return findResult, nil
 }
 
+func GetUserProfile(email string) (GoogleUserProfile,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult GoogleUserProfile
+	err := usersCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		if(err == mongo.ErrNoDocuments){
+			return GoogleUserProfile{}, errors.New("User not found")
+		}
+		return GoogleUserProfile{}, err
+	}
+
+	return findResult, nil
+}
+
 func GetEvents(email string) ([]events.Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

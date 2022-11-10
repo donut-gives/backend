@@ -4,7 +4,7 @@ import (
 	"donutBackend/config"
 	. "donutBackend/logger"
 	"donutBackend/models/users"
-	"donutBackend/models/admin"
+	"donutBackend/models/admins"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -127,6 +127,7 @@ type UserClaims struct {
 	IsAdmin   bool   `json:"isAdmin"`
 	Email     string `json:"email"`
 	Photo     string `json:"photo"`
+	Entity 	  string `json:"entity"`
 	jwt.StandardClaims
 }
 
@@ -157,7 +158,7 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 		// if err != nil {
 		// 	return nil, err
 		// }
-		expirationTime := time.Now().Add(20 * time.Minute)
+		expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
 
 		claims := &UserClaims{
@@ -166,6 +167,7 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 			IsAdmin:   false,
 			Email:     googleUser.Email,
 			Photo:     googleUser.Photo,
+			Entity:    "user",
 			StandardClaims: jwt.StandardClaims{
 				// In JWT, the expiry time is expressed as unix milliseconds
 				ExpiresAt: expirationTime.Unix(),
@@ -207,7 +209,7 @@ func signInAdminWithIdToken(idToken string) (map[string]string, error) {
 			return nil, err
 		}
 		
-		expirationTime := time.Now().Add(5 * time.Minute)
+		expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
 
 		claims := &AdminClaims{

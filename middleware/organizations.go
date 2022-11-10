@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"donutBackend/models/orgVerificationList"
-	"donutBackend/models/organizations"
+	"donutBackend/models/new_orgs"
+	"donutBackend/models/orgs"
 	. "donutBackend/utils/token"
-	"encoding/json"
+	//"encoding/json"
 
 	//"errors"
 	"net/http"
@@ -45,27 +45,16 @@ func VerifyPwdResetToken() gin.HandlerFunc {
 func VerifyOrgToken() gin.HandlerFunc {
 	return func(c *gin.Context) {	
 
-		token,err:=ExtractTokenInfo(c.GetHeader("token"))
-		if err != nil {
-			RespondWithError(c, http.StatusUnauthorized, err.Error())
-			return
-		}
-
-		
-		org,err :=organization.Get(token["email"].(string))
-		if err != nil {
-			RespondWithError(c, http.StatusUnauthorized, err.Error())
-			return
-		}
-		
-		//marshall
-		orgString,err:=json.Marshal(&org)
+		orgString,err:=OrgFromToken(c.GetHeader("token"))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
 		
 		c.Set("org", string(orgString))
+		c.Set("request","org")
+
 		c.Next()
 	}
 }
+
