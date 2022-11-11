@@ -49,15 +49,15 @@ func OrgSignUp(c *gin.Context) {
 	}
 
 	payload := map[string]string{
-		"id":		 id.(primitive.ObjectID).Hex(),
-		"name": 	 org.Name,
-		"email":     org.Email,
-		"photo":     org.Photo,
+		"id":    id.(primitive.ObjectID).Hex(),
+		"name":  org.Name,
+		"email": org.Email,
+		"photo": org.Photo,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization created successfully",
-		"data":   payload,
+		"data":    payload,
 	})
 }
 
@@ -87,15 +87,15 @@ func OrgResetPassword(c *gin.Context) {
 }
 
 func OrgSignIn(c *gin.Context) {
-	
-	details:= struct {
-		Email string `json:"email"`
+
+	details := struct {
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
 
 	err := c.BindJSON(&details)
-	
-	org, err := organization.CheckPwd(details.Email,details.Password)
+
+	org, err := organization.CheckPwd(details.Email, details.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -123,28 +123,28 @@ func OrgSignIn(c *gin.Context) {
 	if err != nil {
 		Logger.Errorf("Error while signing jwt, %s", err)
 		// If there is an error in creating the JWT return an internal server error
-		return 		
+		return
 	}
 	//respondWithJson(w, http.StatusCreated, place)
 	//fmt.Fprintf(w, "%s", tokenString)
 	payload := map[string]string{
-		"token":     tokenString,
-		"id":		 org.Id,
-		"name": 	 org.Name,
-		"email":     org.Email,
-		"photo":     org.Photo,
+		"token": tokenString,
+		"id":    org.Id,
+		"name":  org.Name,
+		"email": org.Email,
+		"photo": org.Photo,
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization signed in successfully",
-		"data":   payload,
+		"data":    payload,
 	})
 }
 
 func OrgVerify(c *gin.Context) {
-	
+
 	details := struct {
-		Email string `json:"email"`
+		Email              string `json:"email"`
 		VerificationStatus string `json:"verificationStatus"`
 	}{}
 
@@ -176,13 +176,13 @@ func OrgVerify(c *gin.Context) {
 		return
 	}
 
-	if(details.VerificationStatus == "accepted"){
+	if details.VerificationStatus == "accepted" {
 		//jwt creation
-		claims := &struct{
+		claims := &struct {
 			Email string `json:"email"`
 			jwt.StandardClaims
 		}{
-			Email:     details.Email,
+			Email:          details.Email,
 			StandardClaims: jwt.StandardClaims{
 				//ExpiresAt: expirationTime.Unix(),
 			},
@@ -197,9 +197,9 @@ func OrgVerify(c *gin.Context) {
 			return
 		}
 
-		err = SendMail(details.Email,"Successfully Verified","Your Organization has been successfully verified "+tokenString)
-	}else{
-		err = SendMail(details.Email,"Rejected From Donut","Your Organization has unfortunately been rejected")
+		err = SendMail(details.Email, "Successfully Verified", "Your Organization has been successfully verified "+tokenString)
+	} else {
+		err = SendMail(details.Email, "Rejected From Donut", "Your Organization has unfortunately been rejected")
 	}
 
 	if err != nil {
@@ -211,12 +211,13 @@ func OrgVerify(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Organization verified successfully",
-		"data":   org,
+		"data":    org,
 	})
 }
 
+
 func OrgForgotPassword(c *gin.Context) {
-	
+
 	details := struct {
 		Email string `json:"email"`
 	}{}
@@ -229,7 +230,7 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	found,err:=organization.Find(details.Email)
+	found, err := organization.Find(details.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -237,7 +238,7 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	if(!found){
+	if !found {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Organization not found",
 		})
@@ -245,11 +246,11 @@ func OrgForgotPassword(c *gin.Context) {
 	}
 
 	expirationTime := time.Now().Add(5 * time.Minute)
-	claims := &struct{
+	claims := &struct {
 		Email string `json:"email"`
 		jwt.StandardClaims
 	}{
-		Email:     details.Email,
+		Email: details.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -264,7 +265,7 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	err = SendMail(details.Email,"Password Reset","Click the following link to reset password "+tokenString)
+	err = SendMail(details.Email, "Password Reset", "Click the following link to reset password "+tokenString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password Reset Mail Sent Successfully",
@@ -272,8 +273,8 @@ func OrgForgotPassword(c *gin.Context) {
 }
 
 func GetOrgEvents(c *gin.Context) {
-	
-	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
+
+	jwtClaims, err := ExtractTokenInfo(c.GetHeader("token"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -281,9 +282,9 @@ func GetOrgEvents(c *gin.Context) {
 		return
 	}
 
-	email:=jwtClaims["email"].(string)
+	email := jwtClaims["email"].(string)
 
-	events,err := organization.GetEvents(email)
+	events, err := organization.GetEvents(email)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -294,22 +295,22 @@ func GetOrgEvents(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Events fetched successfully",
-		"data":   events,
+		"data":    events,
 	})
 }
 
 func AddOrgEvent(c *gin.Context) {
-	
-	org:=organization.Organization{}
-	err:=json.Unmarshal([]byte(c.GetString("org")),&org)
-	if(err!=nil){
+
+	org := organization.Organization{}
+	err := json.Unmarshal([]byte(c.GetString("org")), &org)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	details:= struct {
+	details := struct {
 		Event Event `json:"event"`
 	}{}
 
@@ -321,7 +322,7 @@ func AddOrgEvent(c *gin.Context) {
 		return
 	}
 
-	details.Event.OrgEmail=org.Email
+	details.Event.OrgEmail = org.Email
 	// jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
 	// if(err!=nil){
 	// 	c.JSON(http.StatusBadRequest, gin.H{
@@ -332,8 +333,7 @@ func AddOrgEvent(c *gin.Context) {
 
 	// email:=jwtClaims["email"].(string)
 
-
-	event,err := organization.AddEvent(org.Email,details.Event)
+	event, err := organization.AddEvent(org.Email, details.Event)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -344,13 +344,13 @@ func AddOrgEvent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Event added successfully",
-		"data":   event,
+		"data":    event,
 	})
 }
 
 func DeleteOrgEvent(c *gin.Context) {
-	
-	details:= struct {
+
+	details := struct {
 		EventId string `json:"eventId"`
 	}{}
 
@@ -362,17 +362,17 @@ func DeleteOrgEvent(c *gin.Context) {
 		return
 	}
 
-	jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
-	if(err!=nil){
+	jwtClaims, err := ExtractTokenInfo(c.GetHeader("token"))
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	email:=jwtClaims["email"].(string)
+	email := jwtClaims["email"].(string)
 
-	event,err := organization.DeleteEvent(email,details.EventId)
+	event, err := organization.DeleteEvent(email, details.EventId)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -383,7 +383,6 @@ func DeleteOrgEvent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Event deleted successfully",
-		"data":   event,
+		"data":    event,
 	})
 }
-

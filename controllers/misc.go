@@ -5,7 +5,11 @@ import (
 	organization "donutBackend/models/orgs"
 	"donutBackend/models/users"
 	"donutBackend/models/waitlist"
+
 	"encoding/json"
+
+	"donutBackend/utils/mail"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +33,11 @@ func JoinWaitlist(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Added to Waitlist",
 	})
+
+	err = mail.SendMail(email, "Welcome to Donut", "Thank you for joining our wailist.")
+	if err != nil {
+		return
+	}
 }
 
 func ContactUs(c *gin.Context) {
@@ -51,6 +60,11 @@ func ContactUs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Saved Message",
 	})
+
+	err = mail.SendMail(email, "Hello from Donut", "Thank you for reaching out. We will contact you back soon.")
+	if err != nil {
+		return
+	}
 }
 
 func DiscordInvite(c *gin.Context) {
