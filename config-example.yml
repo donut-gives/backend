@@ -1,0 +1,13 @@
+app:
+  name: "Donut Backend"
+  version: "0.0.1-dev"
+  desc: "Shaping new gen change makers"
+db:
+  url: "mongo url"
+auth:
+  jwt_secret: "secret"
+  google:
+    client_id: "google client id"
+    client_secret: "google client secret"
+captcha:
+  secret: "captcha secret"
