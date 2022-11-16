@@ -25,7 +25,7 @@ jobs:
             version: "0.0.1-dev"
             desc: "Shaping new gen change makers"
           db:
-            url: "${{ secrets.DB_URL }}"
+            url: "${{ secrets.DB_STAGING_URL }}"
           auth:
             jwt_secret: "${{ secrets.JWT_SECRET }}"
             google:
