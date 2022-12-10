@@ -36,8 +36,9 @@ jobs:
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           EOF
       - run: |
+          cat > app.yaml << EOF
           runtime: go116
-          service: staging-api
+          service: api
           handlers:
             - url: /.*
               script: auto
@@ -45,6 +46,7 @@ jobs:
               redirect_http_response_code: 301
           includes: 
             - env.yaml
+          EOF
       - run: |
           cat > .env << EOF
           PORT=37227
