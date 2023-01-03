@@ -3,17 +3,26 @@ package routes
 import (
 	"donutBackend/controllers"
 	"donutBackend/middleware"
+
+	//"donutBackend/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func addOrganizationRoutes(g *gin.RouterGroup) {
+
+
+	g.GET("/:org/story", controllers.GetStory)
+	g.GET("/:org/stats/refrences", controllers.GetRefrences)
+	g.GET("/:org/stats/employees", controllers.GetEmployees)
+	g.GET("/:org/messages", controllers.GetOrgMessages)
+	g.GET("/:org", controllers.GetOrgProfile)
+	g.GET("/:org/stats", controllers.GetStats)
+
 	org := g.Group("/org")
-	verificationList := org.Group("/verificationList")
-	verified := org.Group("/verified")
-	verified.POST("/signup", controllers.SignUpOrg)
-	verified.GET("/signin", controllers.SignInOrg)
-	verificationList.POST("/signup", controllers.AddVerificationOrg)
-	verificationList.Use(middleware.AdminCheck())
-	verificationList.GET("/get", controllers.GetVerificationOrg)
-	verificationList.POST("/verify", controllers.VerifyOrg)
+
+	// org.POST("/resetPassword",middleware.VerifyPwdResetToken(), controllers.OrgResetPassword)
+	// org.POST("/sign-up", controllers.OrgSignUp)
+	org.POST("/forgotPassword", controllers.OrgForgotPassword)
+	org.POST("/verify", middleware.VerifyAdminToken(), controllers.OrgVerify)
+
 }
