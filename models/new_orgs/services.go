@@ -14,6 +14,71 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type State int
+
+func (s State) String() (string,error) {
+	states := [...]string{
+		"ANDAMAN AND NICOBAR ISLANDS",
+		"ANDHRA PRADESH",
+		"ARUNACHAL PRADESH",
+		"ASSAM",
+		"BIHAR",
+		"CHANDIGARH",
+		"CHHATTISGARH",
+		"DADRA AND NAGAR HAVELI",
+		"DAMAN AND DIU",
+		"DELHI",
+		"GOA",
+		"GUJARAT",
+		"HARYANA",
+		"HIMACHAL PRADESH",
+		"JAMMU AND KASHMIR",
+		"JHARKHAND",
+		"KARNATAKA",
+		"KERALA",
+		"LAKSHADWEEP",
+		"MADHYA PRADESH",
+		"MAHARASHTRA",
+		"MANIPUR",
+		"MEGHALAYA",
+		"MIZORAM",
+		"NAGALAND",
+		"ODISHA",
+		"PUDUCHERRY",
+		"PUNJAB",
+		"RAJASTHAN",
+		"SIKKIM",
+		"TAMIL NADU",
+		"TELANGANA",
+		"TRIPURA",
+		"UTTAR PRADESH",
+		"UTTARAKHAND",
+		"WEST BENGAL",
+	}
+	if len(states) < int(s) {
+		return "", errors.New("Invalid State")
+	}
+ 
+	return states[s],nil
+}
+
+type Tags int
+
+func (s Tags) String() (string,error) {
+	tags := [...]string{
+		"children education",
+		"animal welfare",
+		"healthcare",
+		"poverty",
+		"sustainable development",
+	}
+	if len(tags) < int(s) {
+		return "", errors.New("Invalid State")
+	}
+ 
+	return tags[s],nil
+}
+
 var organizationCollection = new(mongo.Collection)
 
 func init() {
@@ -33,10 +98,31 @@ func init() {
 	}
 }
 
-func Insert(org *Organization) (interface{}, error) {
+func Insert(org *Organization, StateNum int,TagsNum []int) (interface{}, error) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
+
+	var st State = State(StateNum)
+
+	stateString , err := st.String()
+	if err != nil {
+		return nil, err
+	}
+
+	var tagsString []string
+
+	for _,tag := range TagsNum{
+		var tg Tags = Tags(tag)
+		tagString , err := tg.String()
+		if err != nil {
+			return nil, err
+		}
+		tagsString = append(tagsString,tagString)
+	}
+
+	(*org).Location=stateString
+	(*org).Tags=tagsString
 	(*org).Status = "PENDING"
 
 	insertResult, err := organizationCollection.InsertOne(ctx, org)

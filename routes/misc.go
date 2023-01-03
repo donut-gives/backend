@@ -19,4 +19,5 @@ func addMiscRoutes(g *gin.RouterGroup) {
 	g.GET("/discord-invite", controllers.DiscordInvite)
 
 	g.GET("/profile", middleware.ProfileAuthorize() , controllers.GetProfile)
+	//g.GET("/events", controllers.GetOrgEvents)
 }

@@ -10,6 +10,14 @@ import (
 
 func addOrganizationRoutes(g *gin.RouterGroup) {
 
+
+	g.GET("/:org/story", controllers.GetStory)
+	g.GET("/:org/stats/refrences", controllers.GetRefrences)
+	g.GET("/:org/stats/employees", controllers.GetEmployees)
+	g.GET("/:org/messages", controllers.GetOrgMessages)
+	g.GET("/:org", controllers.GetOrgProfile)
+	g.GET("/:org/stats", controllers.GetStats)
+
 	org := g.Group("/org")
 
 	// org.POST("/resetPassword",middleware.VerifyPwdResetToken(), controllers.OrgResetPassword)

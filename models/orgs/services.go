@@ -26,6 +26,7 @@ func init() {
 	index := mongo.IndexModel{
 		Keys: bson.M{
 			"email": 1,
+			"donutName": 1,
 		},
 		Options: options.Index().SetUnique(true),
 	}
@@ -70,8 +71,6 @@ func SetPassword(org *Organization) (interface{}, error) {
 
 			org.Name = existingOrg.Name
 			org.Password = password
-			org.Address = existingOrg.Address
-			org.Contact = existingOrg.Contact
 			org.Email = existingOrg.Email
 			org.Photo = existingOrg.Photo
 
@@ -180,14 +179,14 @@ func Get(email string) (Organization,error) {
 	return findResult, nil
 }
 
-func GetOrgProfile(email string) (OrganizationProfile,error) {
+func GetOrgProfile(org string) (OrganizationProfile,error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
 	var findResult OrganizationProfile
 	err := organizationCollection.FindOne(
 		ctx,
-		bson.D{{Key: "email", Value: email}},
+		bson.D{{Key: "donutName", Value: org}},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
@@ -198,32 +197,146 @@ func GetOrgProfile(email string) (OrganizationProfile,error) {
 		return OrganizationProfile{}, err
 	}
 	
-	for i:=0;i<len(findResult.Events);i++ {
-		findResult.Events[i].Volunteers = nil
-	}
+	// for i:=0;i<len(findResult.Events);i++ {
+	// 	findResult.Events[i].Volunteers = nil
+	// }
+
 	return findResult, nil
 }
 
-func GetEvents(email string) ([]events.Event, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-
+func GetEvents(email string) ([]events.Event,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	opts := options.FindOne()
 	var findResult Organization
-
 	err := organizationCollection.FindOne(
 		ctx,
 		bson.D{{Key: "email", Value: email}},
 		opts,
 	).Decode(&findResult)
-
 	if err != nil {
-		if(err == mongo.ErrNoDocuments) {
+		
+		if err == mongo.ErrNoDocuments {
+			//return empty array
+			return []events.Event{}, errors.New("No such organization found")
+		}
+		return []events.Event{}, err
+	}
+	
+	for i:=0;i<len(findResult.Events);i++ {
+		findResult.Events[i].Volunteers = nil
+	}
+
+	return findResult.Events, nil
+}
+
+func GetStats(donutName string) (interface{},error) {
+
+	//get stats
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "donutName", Value: donutName}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+
+		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("No such organization found")
 		}
 		return nil, err
 	}
 
-	return findResult.Events, nil
+	return findResult.Stats, nil
+
+}
+
+func GetMessages(org string) ([]Message,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "donutName", Value: org}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return []Message{}, errors.New("No such organization found")
+		}
+		return []Message{}, err
+	}
+
+	return findResult.Stats.Messages, nil
+}
+
+func GetEmployees(org string) (int,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "donutName", Value: org}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return 0, errors.New("No such organization found")
+		}
+		return 0, err
+	}
+
+	return findResult.Stats.EmployeeCount, nil
+}
+
+func GetRefrences(org string) ([]string,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "donutName", Value: org}},
+		opts,
+	).Decode(&findResult)
+
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return []string{}, errors.New("No such organization found")
+		}
+		return []string{}, err
+	}
+
+	return findResult.Stats.References, nil
+}
+
+func GetStory(org string) (string,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{{Key: "donutName", Value: org}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		
+		if err == mongo.ErrNoDocuments {
+			return "", errors.New("No such organization found")
+		}
+		return "", err
+	}
+
+	return findResult.Stats.Story, nil
 }
 
 func AddEvent(email string, event events.Event) (interface{},error) {

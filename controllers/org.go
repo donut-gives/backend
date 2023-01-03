@@ -30,8 +30,13 @@ type OrgClaims struct {
 // OrgSignUp Organizations Applying For Verification SignUp
 func OrgSignUp(c *gin.Context) {
 	var org orgVerification.Organization
+	details:=struct{
+		Tags []int `json:"tags"`
+		State int `json:"state"`
+		Org orgVerification.Organization `json:"org"`
+	}{}
 
-	err := c.BindJSON(&org)
+	err := c.BindJSON(&details)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -39,7 +44,9 @@ func OrgSignUp(c *gin.Context) {
 		return
 	}
 
-	id, err := orgVerification.Insert(&org)
+	org=details.Org
+
+	id, err := orgVerification.Insert(&org, details.State, details.Tags)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -274,15 +281,7 @@ func OrgForgotPassword(c *gin.Context) {
 
 func GetOrgEvents(c *gin.Context) {
 
-	jwtClaims, err := ExtractTokenInfo(c.GetHeader("token"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	email := jwtClaims["email"].(string)
+	email := c.Param("email")
 
 	events, err := organization.GetEvents(email)
 
@@ -296,6 +295,56 @@ func GetOrgEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Events fetched successfully",
 		"data":    events,
+	})
+}
+
+func GetSpecificOrgEvent(c *gin.Context) {
+
+	email := c.Param("email")
+	eventId := c.Param("eventId")
+	include_more := c.Query("include_more")
+
+	events, err := organization.GetEvents(email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// //check if event exists
+	var event Event
+	var eventArray []Event
+	for _, e := range events {
+		if e.Id == eventId {
+			event = e
+			
+		} else {
+			eventArray = append(eventArray, e)
+		}
+	}
+
+	if include_more == "true" {
+
+	} else if (include_more == "false") || (include_more == "") {
+		eventArray = nil
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "include_more parameter value not recognized",
+		})
+	}
+	
+	returnJSON := struct {
+		Event Event `json:"event"`
+		Events []Event `json:"events"`
+	}{
+		Event: event,
+		Events: eventArray,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Events fetched successfully",
+		"data":   returnJSON,
 	})
 }
 
@@ -384,5 +433,120 @@ func DeleteOrgEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Event deleted successfully",
 		"data":    event,
+	})
+}
+
+func GetStats(c *gin.Context){
+
+	org := c.Param("org")
+
+	stats, err := organization.GetStats(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Stats fetched successfully",
+		"data":    stats,
+	})
+
+}
+
+func GetOrgProfile(c *gin.Context) {
+
+	org := c.Param("org")
+
+	orgProfile, err := organization.GetOrgProfile(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Organization fetched successfully",
+		"data":    orgProfile,
+	})
+}
+
+func GetOrgMessages(c *gin.Context) {
+
+	org := c.Param("org")
+
+	messages, err := organization.GetMessages(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Messages fetched successfully",
+		"data":    messages,
+	})
+}
+
+func GetEmployees(c *gin.Context) {
+
+	org := c.Param("org")
+
+	employees, err := organization.GetEmployees(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Employees fetched successfully",
+		"data":    employees,
+	})
+}
+
+func GetRefrences(c *gin.Context) {
+
+	org := c.Param("org")
+
+	refrences, err := organization.GetRefrences(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Refrences fetched successfully",
+		"data":    refrences,
+	})
+}
+
+func GetStory(c *gin.Context) {
+
+	org := c.Param("org")
+
+	story, err := organization.GetStory(org)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Story fetched successfully",
+		"data":    story,
 	})
 }

@@ -100,9 +100,18 @@ func GetProfile(c *gin.Context) {
 				})
 				return
 			}
+
+			returnJSON := struct{
+				Profile users.GoogleUserProfile
+				Verified string
+			}{
+				Profile: userProfile,
+				Verified: "true",
+			}
+
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got User Profile",
-				"profile": userProfile,
+				"data": returnJSON,
 			})
 
 		} else if entity == "org" {
@@ -124,9 +133,18 @@ func GetProfile(c *gin.Context) {
 				})
 				return
 			}
+
+			returnJSON := struct{
+				Profile organization.OrganizationProfile
+				Verified string
+			}{
+				Profile: orgProfile,
+				Verified: "true",
+			}
+
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got Org Profile",
-				"profile": orgProfile,
+				"data": returnJSON,
 			})
 
 		}
@@ -143,9 +161,18 @@ func GetProfile(c *gin.Context) {
 				})
 				return
 			}
+
+			returnJSON := struct{
+				Profile users.GoogleUserProfile
+				Verified string
+			}{
+				Profile: userProfile,
+				Verified: "false",
+			}
+
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got User Profile",
-				"profile": userProfile,
+				"data": returnJSON,
 			})
 
 		} else if target == "org" {
@@ -158,9 +185,18 @@ func GetProfile(c *gin.Context) {
 				})
 				return
 			}
+
+			returnJSON := struct{
+				Profile organization.OrganizationProfile
+				Verified string
+			}{
+				Profile: orgProfile,
+				Verified: "false",
+			}
+
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got Org Profile",
-				"profile": orgProfile,
+				"data": returnJSON,
 			})
 		}
 	}
