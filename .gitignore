@@ -15,3 +15,5 @@ config-prod.yml
 # scripts
 init.bat
 init.sh
+
+keys.json

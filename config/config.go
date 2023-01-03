@@ -15,6 +15,18 @@ type Config struct {
 	Payment PaymentStruct
 	Captcha CaptchaStruct
 	Env     string
+	Emailer EmailerStruct
+	Cloud  	CloudStorageStruct
+}
+
+type CloudStorageStruct struct {
+	KeyFile string
+	UserBucket string
+}
+
+type EmailerStruct struct {
+	Email string
+	AppPassword  string
 }
 
 type AppStruct struct {
@@ -47,8 +59,8 @@ type PaymentStruct struct {
 }
 
 type Paytm struct {
-	MerchantId  string
-	MerchantKey string
+	MerchantId  string 
+	MerchantKey string 
 }
 
 type CaptchaStruct struct {
@@ -64,6 +76,8 @@ var Auth *AuthStruct
 var Payment *PaymentStruct
 var Captcha *CaptchaStruct
 var Env *string
+var Emailer *EmailerStruct
+var Cloud *CloudStorageStruct
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -102,5 +116,6 @@ func init() {
 	Auth = &configs.Auth
 	Captcha = &configs.Captcha
 	Env = &configs.Env
-
+	Emailer = &configs.Emailer
+	Cloud = &configs.Cloud
 }
