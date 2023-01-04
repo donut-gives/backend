@@ -13,10 +13,11 @@ import (
 //}
 
 func addMiscRoutes(g *gin.RouterGroup) {
-	g.POST("/join-waitlist", middleware.VerifyCaptcha(), controllers.JoinWaitlist)
-	g.POST("/contact-us", middleware.VerifyCaptcha(), controllers.ContactUs)
 	g.GET("/discord-invite", controllers.DiscordInvite)
 
 	g.GET("/profile", middleware.ProfileAuthorize() , controllers.GetProfile)
-	//g.GET("/events", controllers.GetOrgEvents)
+  
+	g.Use(middleware.VerifyCaptcha())
+	g.POST("/join-waitlist", controllers.JoinWaitlist)
+	g.POST("/contact-us", controllers.ContactUs)
 }
