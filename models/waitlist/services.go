@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
+	"errors"
 )
 
 var waitlistCollection = new(mongo.Collection)
@@ -30,7 +31,9 @@ func Insert(user WaitlistedUser) (interface{}, error) {
 	result, err := waitlistCollection.InsertOne(ctx, user)
 
 	if err != nil {
-		// log.Fatal(err)
+		if(mongo.IsDuplicateKeyError(err)){
+			return nil, errors.New("Already In Waitlist")
+		}
 		return nil, err
 	}
 	// fmt.Println("Inserted a single user: ", result.InsertedID)
