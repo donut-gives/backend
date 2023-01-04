@@ -550,3 +550,50 @@ func GetStory(c *gin.Context) {
 		"data":    story,
 	})
 }
+
+func UpdateOrgProfile(c *gin.Context) {
+
+	org := organization.Organization{}
+	err := json.Unmarshal([]byte(c.GetString("org")), &org)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	orgName := c.Param("org")
+
+	if orgName != org.DonutName {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "You are not authorized to update this profile",
+		})
+		return
+	}
+
+	details := struct {
+		Profile organization.OrganizationProfile `json:"profile"`
+	}{}
+
+	err = c.BindJSON(&details)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	profile, err := organization.UpdateOrgProfile(orgName, details.Profile)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Profile updated successfully",
+		"data":    profile,
+	})
+}

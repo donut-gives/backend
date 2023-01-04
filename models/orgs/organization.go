@@ -2,19 +2,10 @@ package organization
 
 import (
 	"donutBackend/models/events"
+	. "donutBackend/utils/location"
 )
 
-type Point struct {
-    Type        string    `json:"type" bson:"type"`
-    Coordinates []float64 `json:"coordinates" bson:"coordinates"`
-}
-// NewPoint returns a GeoJSON Point with longitude and latitude.
-func NewPoint(long, lat float64) Point {
-    return Point{
-        "Point",
-        []float64{long, lat},
-    }
-}
+
 
 type Message struct {
 	Body string `bson:"body,omitempty" json:"body,omitempty"`
@@ -51,13 +42,11 @@ type Organization struct {
 type OrganizationProfile struct {
 	Description string `bson:"description,omitempty" json:"description,omitempty"`
 	Name     	string `bson:"name,omitempty" json:"name,omitempty"`
+	DonutName   string `bson:"donutName,omitempty" json:"donutName,omitempty"`
 	Photo    	string `bson:"photo,omitempty" json:"photo,omitempty"`
 	Location 	string `bson:"location,omitempty" json:"location,omitempty"`
 	Tags 		[]string `bson:"tags,omitempty" json:"tags,omitempty"`
     Coordinates Point `json:"coordinates" bson:"coordinates"`
 	Stats 		Statistics `bson:"stats,omitempty" json:"stats,omitempty"`
-	//Website  	string `bson:"website,omitempty" json:"website,omitempty"`
-	//Contact    	string `bson:"contact,omitempty" json:"contact,omitempty"`
-	//Events 		[]events.Event `bson:"events,omitempty" json:"events,omitempty"`
 }
 
