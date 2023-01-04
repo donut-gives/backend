@@ -15,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
+	
 )
 
 var organizationCollection = new(mongo.Collection)
@@ -73,6 +74,10 @@ func SetPassword(org *Organization) (interface{}, error) {
 			org.Password = password
 			org.Email = existingOrg.Email
 			org.Photo = existingOrg.Photo
+			org.Tags = existingOrg.Tags
+			org.Location = existingOrg.Location
+			org.Description = existingOrg.Description
+			org.Coordinates = existingOrg.Coordinates
 
 			result, err := organizationCollection.InsertOne(ctx, org)
 			if err != nil {
@@ -251,7 +256,6 @@ func GetStats(donutName string) (interface{},error) {
 	}
 
 	return findResult.Stats, nil
-
 }
 
 func GetMessages(org string) ([]Message,error){
@@ -393,7 +397,6 @@ func AddUserToEvent(user events.UserInfo,event events.Event) (error) {
 	}
 
 	return nil
-
 }
 
 func DeleteEvent(email string, eventId string) (interface{},error) {
@@ -420,6 +423,31 @@ func DeleteEvent(email string, eventId string) (interface{},error) {
 	err = events.DeleteEvent(eventId)
 	if err!=nil {
 		return nil,err
+	}
+
+	return result.UpsertedID,nil
+}
+
+func UpdateOrgProfile(org string, profile OrganizationProfile) (interface{},error) {
+
+	profile.DonutName = org
+
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+
+	filter := bson.D{{Key: "donutName", Value: org}}
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "profile", Value: profile},
+		}},
+	}
+
+	result, err := organizationCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return nil,err
+	}
+
+	if result.MatchedCount == 0 {
+		return nil,errors.New("No such organization found")
 	}
 
 	return result.UpsertedID,nil

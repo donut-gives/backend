@@ -16,6 +16,7 @@ func addOrganizationRoutes(g *gin.RouterGroup) {
 	g.GET("/:org/stats/employees", controllers.GetEmployees)
 	g.GET("/:org/messages", controllers.GetOrgMessages)
 	g.GET("/:org", controllers.GetOrgProfile)
+	g.POST("/:org", middleware.VerifyOrgToken(), controllers.UpdateOrgProfile)
 	g.GET("/:org/stats", controllers.GetStats)
 
 	org := g.Group("/org")
