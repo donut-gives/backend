@@ -28,6 +28,8 @@ jobs:
           emailer:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
+          cloud:
+            userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
           EOF
       - run: |
           cat > app.yaml << EOF
