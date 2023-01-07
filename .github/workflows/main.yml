@@ -43,7 +43,7 @@ jobs:
       - run: |
           cat > .env << EOF
           PORT=37227
-          GIN_MODE="debug"
+          GIN_MODE="prod"
           EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
