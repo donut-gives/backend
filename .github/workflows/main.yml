@@ -4,7 +4,6 @@ on:
   push:
     branches: [ staging ]
   
-  
 
 jobs:
   build:
@@ -12,12 +11,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: |
-          cat > env.yaml << EOF
-          env_variables:
-            GOOGLE_OAUTH_CLIENT_ID: '${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}'
-            GOOGLE_OAUTH_CLIENT_SECRET: '${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}'
-          EOF
       - run: |
           cat > config.yaml << EOF
           app:
