@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [ staging ]
+    branches: [ main ]
   
 
 jobs:
@@ -27,6 +27,8 @@ jobs:
           emailer:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
+          cloud:
+            userbucket : "${{ secrets.GCLOUD_BUCKET }}"
           EOF
       - run: |
           cat > app.yaml << EOF
@@ -37,13 +39,12 @@ jobs:
               script: auto
               secure: always
               redirect_http_response_code: 301
-          includes: 
-            - env.yaml
           EOF
       - run: |
           cat > .env << EOF
           PORT=37227
           GIN_MODE="prod"
+          ENV=prod
           EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
