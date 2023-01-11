@@ -8,21 +8,10 @@ import (
 	"donutBackend/models/users"
 	"fmt"
 
-	//"fmt"
-
-	//"fmt"
 	"io"
-
-	//"time"
-
-	//"encoding/base64"
 	"encoding/json"
 	"net/http"
-
-	//"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
-	//"golang.org/x/crypto/curve25519/internal/field"
-	//"golang.org/x/net/context"
 
 	"net/url"
 
