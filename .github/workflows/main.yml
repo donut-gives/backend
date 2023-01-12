@@ -33,21 +33,6 @@ jobs:
             userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
           EOF
       - run: |
-          cat > staging-keys.json << EOF
-          {
-            "type": "service_account",
-            "project_id": "donut-366007",
-            "private_key_id": "${{ secrets.GCLOUD_BUCKET_PRIVATE_KEY_ID }}",
-            "private_key": "${{ secrets.GCLOUD_BUCKET_PRIVATE_KEY }}",
-            "client_email": "${{ secrets.GCLOUD_BUCKET_CLIENT_EMAIL }}",
-            "client_id": "${{ secrets.GCLOUD_BUCKET_CLIENT_ID }}",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": "${{ secrets.GCLOUD_BUCKET_CLIENT_CERT_URL }}"
-          }
-          EOF
-      - run: |
           cat > app.yaml << EOF
           runtime: go116
           service: staging-api
