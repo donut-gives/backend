@@ -20,6 +20,7 @@ jobs:
             desc: "Shaping new gen change makers"
           db:
             url: "${{ secrets.DB_STAGING_URL }}"
+            name: "${{ secrets.DB_STAGING_NAME }}"
           auth:
             jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
             google:
