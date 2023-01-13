@@ -32,6 +32,18 @@ jobs:
             userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
           EOF
       - run: |
+          cat > app.yaml << EOF
+          runtime: go116
+          service: staging-api
+          handlers:
+            - url: /.*
+              script: auto
+              secure: always
+              redirect_http_response_code: 301
+          includes: 
+            - env.yaml
+          EOF
+      - run: |
           cat > .env << EOF
           PORT=37227
           GIN_MODE="debug"
