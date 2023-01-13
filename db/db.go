@@ -24,7 +24,7 @@ func Get() *mongo.Database {
 			if err != nil {
 				logger.Logger.Fatal(err)
 			}
-			db = client.Database("donut-dev")
+			db = client.Database(config.DB.Name)
 		}
 
 	}

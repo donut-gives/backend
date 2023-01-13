@@ -41,6 +41,7 @@ type ServerStruct struct {
 
 type DBStruct struct {
 	Url string
+	Name string
 }
 
 type AuthStruct struct {
