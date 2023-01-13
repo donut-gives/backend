@@ -4,7 +4,6 @@ import (
 	"context"
 	"donutBackend/db"
 	"errors"
-	"fmt"
 	"time"
 
 	. "donutBackend/logger"
@@ -86,7 +85,6 @@ func IncrementLinkCount(id string) (error) {
 
 //get all links
 func GetLinks() ([]Link, error) {
-	fmt.Println("here")
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.Find()
 
