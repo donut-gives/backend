@@ -25,9 +25,9 @@ func init() {
 
 	// Create a unique index on the email field
 	index := mongo.IndexModel{
-		Keys: bson.M{
-			"email": 1,
-			"donutName": 1,
+		Keys: bson.D{
+			{Key: "email", Value: 1},
+			{Key: "donutName", Value: 1},
 		},
 		Options: options.Index().SetUnique(true),
 	}

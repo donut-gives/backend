@@ -4,7 +4,6 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
 )
 
 type Config struct {
@@ -93,11 +92,8 @@ func init() {
 	}
 
 	viper.SetConfigType("yml")
-	if os.Getenv("ENV") == "prod" {
-		viper.SetConfigName("config-prod")
-	} else {
-		viper.SetConfigName("config")
-	}
+	viper.SetConfigName("config")
+
 	if err := viper.ReadInConfig(); err != nil {
 		log.Errorf("Error reading config, %s", err)
 	}
