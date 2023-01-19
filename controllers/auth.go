@@ -6,6 +6,7 @@ import (
 	"donutBackend/models/users"
 	"donutBackend/models/admins"
 	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strings"
@@ -20,7 +21,16 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
+func DecodeBase64String(encodedString string) (string,error) {
+	decoded, err := base64.StdEncoding.DecodeString(encodedString)
+	if err != nil {
+		return "",err
+	}
+	return string(decoded),nil
+}
+
 var googleOauthConfig *oauth2.Config = nil
+var stateSecret = "donut"
 
 func OAuthGoogleUserLogin(c *gin.Context) {
 	redirectProto := "http://"
@@ -69,6 +79,26 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 }
 
 func OAuthGoogleAdminLogin(c *gin.Context) {
+
+	params := c.Request.URL.Query()
+    redirect := params.Get("redirect")
+
+    stateJSON := map[string]string{
+        "redirect": redirect,
+        "state":    "donut",
+    }
+
+    state , err := json.Marshal(stateJSON)
+    if err != nil {
+        Logger.Errorf("Error while marshalling state")
+        c.JSON(http.StatusBadRequest, gin.H{
+            "message": "Error while marshalling state",
+        })
+        return
+    }
+
+    stateString := string(state)
+
 	redirectProto := "http://"
 	if *config.Env == "prod" {
 		redirectProto = "https://"
@@ -80,12 +110,24 @@ func OAuthGoogleAdminLogin(c *gin.Context) {
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleOauthConfig.AuthCodeURL("donut")
+	u := googleOauthConfig.AuthCodeURL(stateString)
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
 func OAuthGoogleAdminCallback(c *gin.Context) {
-	if c.Query("state") != "donut" {
+
+	state := c.Query("state")
+    stateJSON := map[string]string{}
+    err := json.Unmarshal([]byte(state), &stateJSON)
+    if err != nil {
+        Logger.Errorf("Error while unmarshalling state")
+        c.JSON(http.StatusBadRequest, gin.H{
+            "message": "Error while unmarshalling state",
+        })
+        return
+    }
+
+	if stateJSON["state"] != stateSecret {
 		Logger.Errorf("Invalid Oauth state")
 		c.Redirect(http.StatusTemporaryRedirect, "/v1/auth/admin/google/login")
 		return
@@ -114,11 +156,37 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		})
 	}
 
+	redirectB64 := stateJSON["redirect"]
+
+	redirect,err := DecodeBase64String(redirectB64)
+	if err != nil {
+		Logger.Errorf("Error while decoding redirect")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error while decoding redirect",
+		})
+		return
+	}
+
+	redirect = redirect + "?token=" + payload["token"]
+
+	if redirect == "" {
+        c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "Logged In As Admin",
+			"data":    payload,
+		})
+    } else {
+		c.Redirect(http.StatusTemporaryRedirect, redirect)
+    }
+}
+
+func AdminVerify(c *gin.Context) {
+
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Logged In As Admin",
-		"data":    payload,
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Admin Verified",
 	})
+	
 }
 
 type UserClaims struct {
