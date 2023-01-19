@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [ main ]
+    branches: [ staging ]
   
   
 
@@ -13,32 +13,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - run: |
-          cat > env.yaml << EOF
-          env_variables:
-            GOOGLE_OAUTH_CLIENT_ID: '${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}'
-            GOOGLE_OAUTH_CLIENT_SECRET: '${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}'
-          EOF
-      - run: |
           cat > config.yaml << EOF
           app:
             name: "Donut Backend"
             version: "0.0.1-dev"
             desc: "Shaping new gen change makers"
           db:
-            url: "${{ secrets.DB_URL }}"
+            url: "${{ secrets.DB_STAGING_URL }}"
+            name: "${{ secrets.DB_STAGING_NAME }}"
           auth:
-            jwt_secret: "${{ secrets.JWT_SECRET }}"
+            jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
             google:
-              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
-              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
+              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID_STAGING }}"
+              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET_STAGING }}"
           emailer:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
+          cloud:
+            userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
+          EOF
+      - run: |
+          cat > app.yaml << EOF
+          runtime: go116
+          service: staging-api
+          handlers:
+            - url: /.*
+              script: auto
+              secure: always
+              redirect_http_response_code: 301
           EOF
       - run: |
           cat > .env << EOF
           PORT=37227
           GIN_MODE="debug"
+          ENV=staging
           EOF
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
