@@ -24,6 +24,7 @@ func addAuthRoutes(g *gin.RouterGroup) {
 	googleAdmin := admin.Group("/google")
 	googleAdmin.GET("/login", controllers.OAuthGoogleAdminLogin)
 	googleAdmin.GET("/callback", controllers.OAuthGoogleAdminCallback)
+	googleAdmin.GET("/verify", middleware.VerifyAdminToken(), controllers.AdminVerify)
 
 	org := auth.Group("/org")
 	org.POST("/sign-in", controllers.OrgSignIn)

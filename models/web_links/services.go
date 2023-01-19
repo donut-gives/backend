@@ -4,7 +4,7 @@ import (
 	"context"
 	"donutBackend/db"
 	"errors"
-	"fmt"
+	"strings"
 	"time"
 
 	. "donutBackend/logger"
@@ -86,7 +86,6 @@ func IncrementLinkCount(id string) (error) {
 
 //get all links
 func GetLinks() ([]Link, error) {
-	fmt.Println("here")
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.Find()
 
@@ -158,6 +157,64 @@ func AddOrUpdateLink(link Link) (Link,bool, error) {
 		return Link{},false, err
 	}
 	return findResult,false, nil
+}
+
+func AddLink(name string) (Link, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	opts := options.FindOneAndUpdate()
+	opts.SetReturnDocument(options.After)
+
+	//linkId := primitive.NewObjectID()
+	//cretae link
+	link := Link{
+		Name: name,
+		Count: 1,
+	}
+	result, err := weblinksCollection.InsertOne(ctx, link)
+	if err != nil {
+		//check if link already exists
+		if strings.Contains(err.Error(), "duplicate key error") {
+			return Link{}, errors.New("Link already exists")
+		}
+		return Link{}, err
+	}
+	oid,ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return Link{}, errors.New("Error converting to object id")
+	}
+	link.Id = oid.Hex()
+	return link, nil
+}
+
+func UpdateLink(id string,name string) (Link, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	opts := options.FindOneAndUpdate()
+	opts.SetReturnDocument(options.After)
+
+	linkId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return Link{}, err
+	}
+
+	//update naem
+	link := Link{
+		Name: name,
+	}
+
+	var findResult Link
+	err = weblinksCollection.FindOneAndUpdate(
+		ctx,
+		bson.D{{Key: "_id", Value: linkId}},
+		bson.D{{Key: "$set", Value: link}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return Link{}, errors.New("No link found")
+		}
+		return Link{}, err
+	}
+	return findResult, nil
 }
 
 //delete link
