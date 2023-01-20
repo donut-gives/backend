@@ -15,5 +15,4 @@ func addLinkRoutes(g *gin.RouterGroup) {
 	links.POST("/",middleware.VerifyAdminToken(), controllers.AddLink)
 	links.DELETE("/",middleware.VerifyAdminToken(), controllers.DeleteLink)
 	links.PATCH("/",middleware.VerifyAdminToken(), controllers.UpdateLink)
-	links.POST("/inc", controllers.IncLinkCounter)
 }
