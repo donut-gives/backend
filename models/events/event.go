@@ -15,4 +15,5 @@ type Event struct {
 	Location   string     `bson:"location,omitempty" json:"location,omitempty"`
 	Contact    string     `bson:"contact,omitempty" json:"contact,omitempty"`
 	Volunteers []UserInfo `bson:"users,omitempty" json:"users,omitempty"`
+	OrgLink	string     `bson:"orgLink,omitempty" json:"orgLink,omitempty"`
 }

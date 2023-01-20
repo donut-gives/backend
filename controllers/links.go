@@ -4,39 +4,39 @@ import (
 	weblinks "donutBackend/models/web_links"
 
 	"net/http"
-	"sync"
+	//"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
 
 
-type Container struct {
-	LinkId string `json:"linkId"`
-	mu    sync.Mutex
-}
+// type Container struct {
+// 	LinkId string `json:"linkId"`
+// 	mu    sync.Mutex
+// }
 
-var linkmap = make(map[string]int)
-var containers []Container
-var count int=0
-var links []weblinks.Link
-var mutex sync.Mutex
+// var linkmap = make(map[string]int)
+// var containers []Container
+// var count int=0
+// var links []weblinks.Link
+// var mutex sync.Mutex
 
 func init() {
 	
-	links,err:=weblinks.GetLinks()
-	if err!=nil{
-		panic(err)
-	}
+	// links,err:=weblinks.GetLinks()
+	// if err!=nil{
+	// 	panic(err)
+	// }
 
-	for _,link:=range links{
-		containers=append(containers,Container{
-			LinkId:link.Id,
-		})
+	// for _,link:=range links{
+	// 	containers=append(containers,Container{
+	// 		LinkId:link.Id,
+	// 	})
 		
-		linkmap[link.Id]=count
-		count = count +1
-	}
+	// 	linkmap[link.Id]=count
+	// 	count = count +1
+	// }
 }
 
 func GetLinks(c *gin.Context) {
@@ -53,47 +53,6 @@ func GetLinks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Got Links",
 		"links":   links,
-	})
-	return
-}
-
-func AddOrUpdateLink(c *gin.Context) {
-	
-	details:=struct{
-		Link weblinks.Link `json:"link"`
-	}{}
-
-	err := c.BindJSON(&details)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	link,inserted, err := weblinks.AddOrUpdateLink(details.Link)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{
-			"message": "Failed to Add or Update Link",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	if inserted{
-
-		mutex.Lock()
-		containers=append(containers,Container{
-			LinkId:link.Id,
-		})
-		linkmap[link.Id]=count
-		count = count +1
-		mutex.Unlock()
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Successfully Added or Updated Link",
-		"link":    link,
 	})
 	return
 }
@@ -122,13 +81,13 @@ func AddLink(c *gin.Context) {
 		return
 	}
 
-	mutex.Lock()
-	containers=append(containers,Container{
-		LinkId:link.Id,
-	})
-	linkmap[link.Id]=count
-	count = count +1
-	mutex.Unlock()
+	// mutex.Lock()
+	// containers=append(containers,Container{
+	// 	LinkId:link.Id,
+	// })
+	// linkmap[link.Id]=count
+	// count = count +1
+	// mutex.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Added Link",
@@ -192,20 +151,13 @@ func DeleteLink(c *gin.Context) {
 	}
 
 	//mutex.Lock()
-	delete(linkmap,details.LinkId)
+	//delete(linkmap,details.LinkId)
 	//mutex.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Deleted Link",
 	})
 	return
-}
-
-func (c *Container) IncCounter() (error) {
-	c.mu.Lock()
-	err := weblinks.IncrementLinkCount(c.LinkId)
-	c.mu.Unlock()
-	return err
 }
 
 func IncLinkCounter(c *gin.Context) {
@@ -222,17 +174,7 @@ func IncLinkCounter(c *gin.Context) {
 		return
 	}
 
-	//check entry exists inmap
-	_,ok:=linkmap[details.LinkId]
-	if !ok{
-		c.JSON(http.StatusBadGateway, gin.H{
-			"message": "Link Id not found",
-		})
-		return
-	}
-
-
-	err = (containers[linkmap[details.LinkId]]).IncCounter()
+	err = weblinks.IncrementLinkCount(details.LinkId)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed to Increment Link Counter",

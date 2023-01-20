@@ -59,27 +59,55 @@ func GetLink(id string) (Link, error) {
 	return findResult, nil
 }
 //increment link count
+// func IncrementLinkCount(id string) (error) {
+// 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+// 	opts := options.FindOneAndUpdate()
+// 	opts.SetReturnDocument(options.After)
+
+// 	linkId, err := primitive.ObjectIDFromHex(id)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	var findResult Link
+// 	err = weblinksCollection.FindOneAndUpdate(
+// 		ctx,
+// 		bson.D{{Key: "_id", Value: linkId}},
+// 		bson.D{{Key: "$inc", Value: bson.D{{Key: "count", Value: 1}}}},
+// 		opts,
+// 	).Decode(&findResult)
+// 	if err != nil {
+// 		if err == mongo.ErrNoDocuments {
+// 			return errors.New("No link found")
+// 		}
+// 		return err
+// 	}
+// 	return nil
+// }
+
 func IncrementLinkCount(id string) (error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	opts := options.FindOneAndUpdate()
-	opts.SetReturnDocument(options.After)
+	opts := options.Update()
 
 	linkId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
-	var findResult Link
-	err = weblinksCollection.FindOneAndUpdate(
+
+	//use updateOne
+	result, err := weblinksCollection.UpdateOne(
 		ctx,
 		bson.D{{Key: "_id", Value: linkId}},
 		bson.D{{Key: "$inc", Value: bson.D{{Key: "count", Value: 1}}}},
 		opts,
-	).Decode(&findResult)
+	)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return errors.New("No link found")
 		}
 		return err
+	}
+	if result.MatchedCount == 0 {
+		return errors.New("No link found")
 	}
 	return nil
 }
