@@ -37,6 +37,7 @@ type Organization struct {
     Coordinates Point `json:"coordinates" bson:"coordinates"`
 	Events 		[]events.Event `bson:"events,omitempty" json:"events,omitempty"`
 	Stats 		Statistics `bson:"stats,omitempty" json:"stats,omitempty"`
+	DonateLink  string `bson:"donateLink,omitempty" json:"donateLink,omitempty"`
 }
 
 type OrganizationProfile struct {
@@ -48,5 +49,6 @@ type OrganizationProfile struct {
 	Tags 		[]string `bson:"tags,omitempty" json:"tags,omitempty"`
     Coordinates Point `json:"coordinates" bson:"coordinates"`
 	Stats 		Statistics `bson:"stats,omitempty" json:"stats,omitempty"`
+	DonateLink  string `bson:"donateLink,omitempty" json:"donateLink,omitempty"`
 }
 
