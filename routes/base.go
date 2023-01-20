@@ -32,6 +32,7 @@ func Get() *gin.Engine {
 		addUserRoutes(v1)
 		addEventRoutes(v1)
 		addLinkRoutes(v1)
+		addAnalyticsRoutes(v1)
 		addMiscRoutes(v1)
 	}
 
