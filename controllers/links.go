@@ -163,7 +163,7 @@ func DeleteLink(c *gin.Context) {
 func IncLinkCounter(c *gin.Context) {
 	
 	details:=struct{
-		LinkId  string `json:"link_id"`
+		LinkId  string `json:"tag"`
 	}{}
 
 	err := c.BindJSON(&details)
