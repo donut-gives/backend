@@ -44,7 +44,7 @@ jobs:
       - run: |
           cat > .env << EOF
           PORT=37227
-          GIN_MODE="prod"
+          GIN_MODE="release"
           ENV=prod
           EOF
       - id: 'auth'
