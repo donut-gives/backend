@@ -30,6 +30,8 @@ jobs:
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           cloud:
             userbucket : "${{ secrets.GCLOUD_BUCKET }}"
+          captcha:
+            secret: "${{ secrets.RECAPTCHA_SITE_SECRET }}"
           EOF
       - run: |
           cat > app.yaml << EOF
