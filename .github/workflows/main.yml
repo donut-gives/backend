@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [ main ]
+    branches: [ staging ]
   
 
 jobs:
@@ -21,10 +21,10 @@ jobs:
             url: "${{ secrets.DB_URL }}"
             name: "${{ secrets.DB_NAME }}"
           auth:
-            jwt_secret: "${{ secrets.JWT_SECRET }}"
+            jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
             google:
-              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
-              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
+              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID_STAGING }}"
+              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET_STAGING }}"
           emailer:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
@@ -50,7 +50,7 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
-          credentials_json: '${{ secrets.GCP_SERVICE_KEY }}'
+          credentials_json: '${{ secrets.GCP_SERVICE_KEY_STAGING }}'
       - id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
