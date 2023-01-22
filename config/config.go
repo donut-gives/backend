@@ -15,17 +15,17 @@ type Config struct {
 	Captcha CaptchaStruct
 	Env     string
 	Emailer EmailerStruct
-	Cloud  	CloudStorageStruct
+	Cloud   CloudStorageStruct
 }
 
 type CloudStorageStruct struct {
-	KeyFile string
+	KeyFile    string
 	UserBucket string
 }
 
 type EmailerStruct struct {
-	Email string
-	AppPassword  string
+	Email       string
+	AppPassword string
 }
 
 type AppStruct struct {
@@ -40,7 +40,8 @@ type ServerStruct struct {
 }
 
 type DBStruct struct {
-	Url string
+	Name string
+	Url  string
 }
 
 type AuthStruct struct {
