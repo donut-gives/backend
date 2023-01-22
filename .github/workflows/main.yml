@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Deploy Backend Staging
 
 on:
   push:
@@ -54,4 +54,4 @@ jobs:
       - id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
-          project_id: donut-gives
+          project_id: donut-366007

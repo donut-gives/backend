@@ -41,7 +41,6 @@ type ServerStruct struct {
 
 type DBStruct struct {
 	Url string
-	Name string
 }
 
 type AuthStruct struct {
@@ -59,8 +58,8 @@ type PaymentStruct struct {
 }
 
 type Paytm struct {
-	MerchantId  string 
-	MerchantKey string 
+	MerchantId  string
+	MerchantKey string
 }
 
 type CaptchaStruct struct {
