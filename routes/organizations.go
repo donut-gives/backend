@@ -3,6 +3,7 @@ package routes
 import (
 	"donutBackend/controllers"
 	"donutBackend/middleware"
+	. "donutBackend/utils/enum"
 
 	//"donutBackend/middleware"
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,6 @@ func addOrganizationRoutes(g *gin.RouterGroup) {
 	// org.POST("/resetPassword",middleware.VerifyPwdResetToken(), controllers.OrgResetPassword)
 	// org.POST("/sign-up", controllers.OrgSignUp)
 	org.POST("/forgotPassword", controllers.OrgForgotPassword)
-	org.POST("/verify", middleware.VerifyAdminToken(), controllers.OrgVerify)
+	org.POST("/verify", middleware.VerifyAdminToken([]Admin{Superuser,Verifier}), controllers.OrgVerify)
 
 }

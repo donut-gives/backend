@@ -203,10 +203,9 @@ func OrgVerify(c *gin.Context) {
 			})
 			return
 		}
-
-		err = SendMail(details.Email, "Successfully Verified", "Your Organization has been successfully verified "+tokenString)
+		err = SendMail(details.Email, "Successfully Verified","text/plain", "Your Organization has been successfully verified "+tokenString)
 	} else {
-		err = SendMail(details.Email, "Rejected From Donut", "Your Organization has unfortunately been rejected")
+		err = SendMail(details.Email, "Rejected From Donut","text/plain", "Your Organization has unfortunately been rejected")
 	}
 
 	if err != nil {
@@ -272,7 +271,7 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	err = SendMail(details.Email, "Password Reset", "Click the following link to reset password "+tokenString)
+	err = SendMail(details.Email, "Password Reset","text/plain", "Click the following link to reset password "+tokenString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password Reset Mail Sent Successfully",
