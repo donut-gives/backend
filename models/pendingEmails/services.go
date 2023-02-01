@@ -1,4 +1,4 @@
-package waitlist
+package pendingemails
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"errors"
 )
 
-var waitlistCollection = new(mongo.Collection)
+var pendingEmailCollection = new(mongo.Collection)
 
 func init() {
-	waitlistCollection = db.Get().Collection("waitlist")
-	_, err := waitlistCollection.Indexes().CreateOne(context.Background(),
+	pendingEmailCollection = db.Get().Collection("pending_email")
+	_, err := pendingEmailCollection.Indexes().CreateOne(context.Background(),
 		mongo.IndexModel{
 			Keys:    bson.D{{Key: "email", Value: 1}},
 			Options: options.Index().SetUnique(true),
@@ -25,10 +25,10 @@ func init() {
 	}
 }
 
-func Insert(user WaitlistedUser) (interface{}, error) {
+func Insert(pending PendingEmail) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	result, err := waitlistCollection.InsertOne(ctx, user)
+	result, err := pendingEmailCollection.InsertOne(ctx, pending)
 
 	if err != nil {
 		if(mongo.IsDuplicateKeyError(err)){
@@ -42,11 +42,3 @@ func Insert(user WaitlistedUser) (interface{}, error) {
 	return stringId, nil
 }
 
-func GetCount() (int64, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	count, err := waitlistCollection.CountDocuments(ctx, bson.D{})
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
-}

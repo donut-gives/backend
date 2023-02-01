@@ -3,14 +3,10 @@ package routes
 import (
 	"donutBackend/controllers"
 	"donutBackend/middleware"
+	."donutBackend/utils/enum"
 
 	"github.com/gin-gonic/gin"
 )
-
-//func addAuthRoutes(mux *http.ServeMux) {
-//	mux.HandleFunc("/auth/google/login", controllers.OAuthGoogleLogin)
-//	mux.HandleFunc("/auth/google/callback", controllers.OAuthGoogleCallback)
-//}
 
 func addAuthRoutes(g *gin.RouterGroup) {
 	auth := g.Group("/auth")
@@ -19,12 +15,14 @@ func addAuthRoutes(g *gin.RouterGroup) {
 	googleUser := user.Group("/google")
 	googleUser.GET("/login", controllers.OAuthGoogleUserLogin)
 	googleUser.GET("/callback", controllers.OAuthGoogleUserCallback)
+	googleUser.POST("/app",controllers.OAuthGoogleUserAndroid)
+
 
 	admin := auth.Group("/admin")
 	googleAdmin := admin.Group("/google")
 	googleAdmin.GET("/login", controllers.OAuthGoogleAdminLogin)
 	googleAdmin.GET("/callback", controllers.OAuthGoogleAdminCallback)
-	googleAdmin.GET("/verify", middleware.VerifyAdminToken(), controllers.AdminVerify)
+	googleAdmin.GET("/verify", middleware.VerifyAdminToken([]Admin{Superuser,Verifier,Analytics}), controllers.AdminVerify)
 
 	org := auth.Group("/org")
 	org.POST("/sign-in", controllers.OrgSignIn)
