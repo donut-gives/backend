@@ -1,5 +1,5 @@
 package controllers
-
+               
 import (
 	"donutBackend/config"
 	. "donutBackend/logger"
@@ -63,7 +63,40 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
+	fmt.Println(idToken)
+
 	payload, err := signInUserWithIdToken(idToken)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User Signed In Successfully",
+		"data":    payload,
+	})
+}
+
+func OAuthGoogleUserAndroid(c *gin.Context) {
+	
+	details := struct {
+		IdToken string `json:"id_token"`
+	}{}
+
+	err := c.BindJSON(&details)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//idToken := fmt.Sprint(id)
+
+	payload, err := signInUserWithIdToken(details.IdToken)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -149,7 +182,7 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		return
 	}
 
-	found , err := admin.Find(payload["email"])
+	found ,_, err := admin.Find(payload["email"])
 	if(!found){
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Not an Admin",

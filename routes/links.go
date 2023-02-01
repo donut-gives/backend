@@ -3,6 +3,7 @@ package routes
 import (
 	"donutBackend/controllers"
 	"donutBackend/middleware"
+	. "donutBackend/utils/enum"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,8 +12,8 @@ import (
 func addLinkRoutes(g *gin.RouterGroup) {
 	
 	links := g.Group("/links")
-	links.GET("/",middleware.VerifyAdminToken(), controllers.GetLinks)
-	links.POST("/",middleware.VerifyAdminToken(), controllers.AddLink)
-	links.DELETE("/",middleware.VerifyAdminToken(), controllers.DeleteLink)
-	links.PATCH("/",middleware.VerifyAdminToken(), controllers.UpdateLink)
+	links.GET("/",middleware.VerifyAdminToken([]Admin{Superuser,Analytics}), controllers.GetLinks)
+	links.POST("/",middleware.VerifyAdminToken([]Admin{Superuser,Analytics}), controllers.AddLink)
+	links.DELETE("/",middleware.VerifyAdminToken([]Admin{Superuser,Analytics}), controllers.DeleteLink)
+	links.PATCH("/",middleware.VerifyAdminToken([]Admin{Superuser,Analytics}), controllers.UpdateLink)
 }

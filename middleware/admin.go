@@ -2,14 +2,17 @@ package middleware
 
 import (
 	"donutBackend/models/admins"
+	. "donutBackend/utils/enum"
 	. "donutBackend/utils/token"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func VerifyAdminToken() gin.HandlerFunc {
+func VerifyAdminToken(accessPriviledge []Admin) gin.HandlerFunc {
 	
+
+
 	return func(c *gin.Context) {
 
 		token,err:=ExtractTokenInfo(c.GetHeader("token"))
@@ -18,7 +21,7 @@ func VerifyAdminToken() gin.HandlerFunc {
 			return
 		}
 		
-		found,err :=admin.Find(token["email"].(string))
+		found,priviledge,err :=admin.Find(token["email"].(string))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
@@ -27,7 +30,23 @@ func VerifyAdminToken() gin.HandlerFunc {
 			RespondWithError(c, http.StatusUnauthorized, "Not an admin")
 			return
 		}
-		c.Next()
 
+		accessAccepted:=false
+		for _,priviledge := range priviledge{
+			for _,accessPriviledge := range accessPriviledge{
+				if Admin(priviledge) == accessPriviledge{
+					accessAccepted=true
+					break
+				}
+			}
+			if accessAccepted{
+				break
+			}
+		}
+		if !accessAccepted{
+			RespondWithError(c, http.StatusUnauthorized, "Access Denied Priviledge Not Satisfied")
+			return
+		}
+		c.Next()
 	}
 }
