@@ -187,7 +187,7 @@ func AddOrUpdateLink(link Link) (Link,bool, error) {
 	return findResult,false, nil
 }
 
-func AddLink(name string) (Link, error) {
+func AddLink(name string,internal string) (Link, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndUpdate()
 	opts.SetReturnDocument(options.After)
@@ -197,6 +197,7 @@ func AddLink(name string) (Link, error) {
 	link := Link{
 		Name: name,
 		Count: 1,
+		Internal: internal,
 	}
 	result, err := weblinksCollection.InsertOne(ctx, link)
 	if err != nil {

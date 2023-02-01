@@ -17,7 +17,7 @@ func addMiscRoutes(g *gin.RouterGroup) {
 
 	g.GET("/profile", middleware.ProfileAuthorize() , controllers.GetProfile)
   
-	g.Use(middleware.VerifyCaptcha())
+	//g.Use(middleware.VerifyCaptcha())
 	g.POST("/join-waitlist", controllers.JoinWaitlist)
 	g.POST("/contact-us", controllers.ContactUs)
 }

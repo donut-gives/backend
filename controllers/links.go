@@ -72,7 +72,7 @@ func AddLink(c *gin.Context) {
 	}
 
 	
-	link, err := weblinks.AddLink(details.Name)
+	link, err := weblinks.AddLink(details.Name,"TRUE")
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed to Add Link",
@@ -80,14 +80,6 @@ func AddLink(c *gin.Context) {
 		})
 		return
 	}
-
-	// mutex.Lock()
-	// containers=append(containers,Container{
-	// 	LinkId:link.Id,
-	// })
-	// linkmap[link.Id]=count
-	// count = count +1
-	// mutex.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Added Link",
@@ -163,7 +155,7 @@ func DeleteLink(c *gin.Context) {
 func IncLinkCounter(c *gin.Context) {
 	
 	details:=struct{
-		LinkId  string `json:"link_id"`
+		LinkId  string `json:"tag"`
 	}{}
 
 	err := c.BindJSON(&details)
