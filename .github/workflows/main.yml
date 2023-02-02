@@ -36,7 +36,7 @@ jobs:
       - run: |
           cat > app.yaml << EOF
           runtime: go116
-          service: api
+          service: staging-api
           handlers:
             - url: /.*
               script: auto
