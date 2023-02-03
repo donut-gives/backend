@@ -18,8 +18,8 @@ jobs:
             version: "0.0.1-dev"
             desc: "Shaping new gen change makers"
           db:
-            url: "${{ secrets.DB_URL }}"
-            name: "${{ secrets.DB_NAME }}"
+            url: "${{ secrets.DB_STAGING_URL }}"
+            name: "${{ secrets.DB_STAGING_NAME }}"
           auth:
             jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
             google:
@@ -29,7 +29,7 @@ jobs:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           cloud:
-            userbucket : "${{ secrets.GCLOUD_BUCKET }}"
+            userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
           captcha:
             secret: "${{ secrets.RECAPTCHA_SITE_SECRET_STAGING }}"
           EOF
