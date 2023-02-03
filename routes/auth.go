@@ -11,6 +11,10 @@ import (
 func addAuthRoutes(g *gin.RouterGroup) {
 	auth := g.Group("/auth")
 
+	gmail:= auth.Group("/gmail")
+	gmail.GET("/login", controllers.OAuthGmailUserLogin)
+	gmail.GET("/callback", controllers.OAuthGmailUserCallback)
+
 	user := auth.Group("/user")
 	googleUser := user.Group("/google")
 	googleUser.GET("/login", controllers.OAuthGoogleUserLogin)

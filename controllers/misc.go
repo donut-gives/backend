@@ -34,6 +34,14 @@ func JoinWaitlist(c *gin.Context) {
 		return
 	}
 
+	firstName := strings.Split(waitlistedUser.Name, " ")[0]
+	//count no of chars in firstName
+	if len(firstName)>5{
+		firstName = strings.ToUpper(firstName[:5])
+	}else{
+		firstName = strings.ToUpper(firstName)
+	}
+
 	if _, err := waitlist.Insert(waitlistedUser); err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed To Add to Waitlist",
@@ -52,7 +60,6 @@ func JoinWaitlist(c *gin.Context) {
 	}
 
 	linkId := link.Id[:5]
-	firstName := strings.Split(waitlistedUser.Name, " ")[0]
 	referral:=firstName+"-"+linkId
 
 	count,err:=waitlist.GetCount()
@@ -115,7 +122,7 @@ func JoinWaitlist(c *gin.Context) {
 	  <div class="poppins-semibold display-text text-center waitlist-number with-little-space" style="margin-bottom: 24px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 36px;color: #FE7088;">#`+countString+`</div>
 	  <div class="poppins-semibold body-text text-center no-space" style="margin-bottom: 4px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 14px;">Want exclusive early access?</div>
 	  <div class="poppins-regular sub-text text-center with-little-space" style="margin-bottom: 24px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 400;font-size: 13px;">Share the awesomeness with your friends & network and cut the line short.</div>
-	  <a href="https://donut.gives/?tag=`+link.Id+`&referral=`+referral+`" target="_blank" style="text-decoration: none">
+	  <a href="https://donut.gives/refer?tag=`+link.Id+`&refer=`+referral+`" target="_blank" style="text-decoration: none">
 		<div class="primary-button" style="background-color: #FF6A85;border-radius: 20px;height: 40px;color: white;align-items: center;align-content: center;text-align: center;line-height: 38px;font-family: 'Clash Grotesk', 'Space Grotesk', 'Arial', 'sans-serif';letter-spacing: 1px;font-size: 14px;">
 		  <table class="center no-border" border="0" cellpadding="0" cellspacing="0" style="margin-left: auto;margin-right: auto;border-spacing: 0;border-collapse: collapse;">
 			<tr>
@@ -143,7 +150,7 @@ func JoinWaitlist(c *gin.Context) {
 		//send email atmost 3 times and unitl sent
 		sent:=false
 		for i := 0; i < 3; i++ {
-			err := email.SendMail(waitlistedUser.Email,"Welcome to the Waitlist!🎉 Invite your friends too","text/html",waitlistEmail)
+			err := email.SendMail(waitlistedUser.Email,"Welcome to the waitlist!🎉 Invite your friends too","text/html",waitlistEmail)
 			if err == nil {
 				sent=true
 				break
