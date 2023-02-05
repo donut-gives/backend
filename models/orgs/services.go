@@ -2,6 +2,7 @@ package organization
 
 import (
 	"context"
+	"strings"
 	"donutBackend/db"
 	"donutBackend/models/new_orgs"
 	"donutBackend/models/events"
@@ -70,6 +71,7 @@ func SetPassword(org *Organization) (interface{}, error) {
 				return nil, errors.New("Organization not verified")
 			}
 
+			org.DonutName = strings.Split(existingOrg.Name, " ")[0]
 			org.Name = existingOrg.Name
 			org.Password = password
 			org.Email = existingOrg.Email

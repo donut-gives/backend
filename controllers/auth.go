@@ -1,12 +1,14 @@
 package controllers
-               
+
 import (
 	"donutBackend/config"
 	. "donutBackend/logger"
-	"donutBackend/models/users"
 	"donutBackend/models/admins"
-	"encoding/json"
+	emailsender "donutBackend/models/emailSender"
+	"donutBackend/models/users"
+	"donutBackend/utils/mail"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -41,9 +43,9 @@ func OAuthGmailUserLogin(c *gin.Context){
 	}
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/gmail/callback",
-		ClientID:     config.Auth.Google.ClientId,     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
-		ClientSecret: config.Auth.Google.ClientSecret, //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
-		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send"},
+		ClientID:     config.Auth.Google.ClientId,     
+		ClientSecret: config.Auth.Google.ClientSecret, 
+		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
 	u := googleOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
@@ -62,13 +64,27 @@ func OAuthGmailUserCallback(c *gin.Context) {
 		Logger.Errorf("code exchange wrong: %s", err.Error())
 	}
 
-	accessToken=token.AccessToken
-	refreshToken=token.RefreshToken
+	id := token.Extra("id_token")
+	idToken := fmt.Sprint(id)
 
-	// payload:=map[string]string{
-	// 	"accessToken":accessToken,
-	// 	"refreshToken":refreshToken,
-	// }
+	info,err:=DecodeIdToken(idToken)
+	if err!=nil{
+		Logger.Errorf("Error decoding id token: %s", err.Error())
+	}
+
+	mail.Email = info["email"]
+
+	sender:= emailsender.EmailSender{
+		Name: info["name"],
+		Email:info["email"],
+		Active: "TRUE",
+	}
+
+	fmt.Println(sender)
+
+	emailsender.InsertOrUpdateOne(sender)
+
+	mail.SetClient(googleOauthConfig.Client(context.Background(), token))
 
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusCreated, gin.H{
@@ -107,7 +123,6 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
-	fmt.Println(idToken)
 
 	payload, err := signInUserWithIdToken(idToken)
 	if err != nil {
@@ -140,7 +155,7 @@ func OAuthGoogleUserAndroid(c *gin.Context) {
 
 	//idToken := fmt.Sprint(id)
 
-	payload, err := signInUserWithIdToken1(details.IdToken)
+	payload, err := signInUserWithIdToken(details.IdToken)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -339,8 +354,8 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 	}
 }
 
-func signInUserWithIdToken1(idToken string) (map[string]string, error) {
-	_, err := idtoken.Validate(context.Background(), idToken, "111026391757-vb6kon0g1cm0f1gihidjo6t4jgmdaqbv.apps.googleusercontent.com")
+func DecodeIdToken(idToken string) (map[string]string,error) {
+	_, err := idtoken.Validate(context.Background(), idToken, config.Auth.Google.ClientId)
 	if err != nil {
 		Logger.Errorf("Invalid Token")
 		return nil, err
@@ -354,43 +369,9 @@ func signInUserWithIdToken1(idToken string) (map[string]string, error) {
 			return nil, err
 		}
 		
-		id, err := users.Insert(googleUser)
-
-		// fmt.Println("id",id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		//expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
-		// Create the JWT claims, which includes the username and expiry time
-
-		claims := &UserClaims{
-			Id:        id.(primitive.ObjectID).Hex(),
-			Name:      googleUser.Name,
-			IsAdmin:   false,
-			Email:     googleUser.Email,
-			Photo:     googleUser.Photo,
-			Entity:    "user",
-			StandardClaims: jwt.StandardClaims{
-				// In JWT, the expiry time is expressed as unix milliseconds
-				
-			},
-		}
-		// Declare the token with the algorithm used for signing, and the claims
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		// Create the JWT string
-		tokenString, err := token.SignedString([]byte(config.Auth.JWTSecret))
-		if err != nil {
-			Logger.Errorf("Error while signing jwt, %s", err)
-			// If there is an error in creating the JWT return an internal server error
-			return nil, err
-		}
-		//respondWithJson(w, http.StatusCreated, place)
-		//fmt.Fprintf(w, "%s", tokenString)
 		payload := map[string]string{
-			"token":     tokenString,
 			"name":      googleUser.Name,
 			"email":     googleUser.Email,
-			"photo":     googleUser.Photo,
 		}
 		return payload, err
 	}
