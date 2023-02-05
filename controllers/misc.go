@@ -2,16 +2,19 @@ package controllers
 
 import (
 	. "donutBackend/logger"
+	emailsender "donutBackend/models/emailSender"
 	"donutBackend/models/messages"
 	organization "donutBackend/models/orgs"
 	pendingEmail "donutBackend/models/pendingEmails"
 	"donutBackend/models/users"
 	"donutBackend/models/waitlist"
 	weblinks "donutBackend/models/web_links"
+	"donutBackend/utils/mail"
 	email "donutBackend/utils/mail"
 	"fmt"
 	"strings"
 
+	//"encoding/base64"
 	"encoding/json"
 	"net/http"
 
@@ -54,7 +57,7 @@ func JoinWaitlist(c *gin.Context) {
 	if err!=nil{
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed To Add to Waitlist",
-			"error":   "Already added to the Waitlist",
+			"error":   "Already added to the Waitlist AddLink",
 		})
 		return
 	}
@@ -66,7 +69,7 @@ func JoinWaitlist(c *gin.Context) {
 	if err!=nil{
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed To Add to Waitlist",
-			"error":   "Already added to the Waitlist",
+			"error":   "Already added to the Waitlist Count",
 		})
 		return
 	}
@@ -149,12 +152,22 @@ func JoinWaitlist(c *gin.Context) {
 	go func() {
 		//send email atmost 3 times and unitl sent
 		sent:=false
-		for i := 0; i < 3; i++ {
-			err := email.SendMail(waitlistedUser.Email,"Welcome to the waitlist!🎉 Invite your friends too","text/html",waitlistEmail)
+		for i := 0; i < 1; i++ {
+
+			subject := "Welcome to the waitlist! Invite your friends too"
+
+			err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
 			if err == nil {
 				sent=true
 				break
 			}
+
+			emailsender.SetDeactivated(mail.Email) 
+			err =mail.SendMailBySMTP("dev.donut.gives@gmail.com","Current Email Sender Deactivated","text/plain","Please login for gmail credentials again.")
+			if err != nil {
+				Logger.Errorf("Failed to send email for deactivated email sender %s: %v",mail.Email,err)
+			}
+			
 		}
 		if !sent{
 

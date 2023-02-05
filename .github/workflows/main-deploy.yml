@@ -1,8 +1,8 @@
-name: Deploy Backend Staging
+name: Deploy Backend Main
 
 on:
   push:
-    branches: [ staging ]
+    branches: [ main ]
   
   
 jobs:
@@ -15,28 +15,28 @@ jobs:
           cat > config.yaml << EOF
           app:
             name: "Donut Backend"
-            version: "0.0.1-dev"
+            version: "0.0.1"
             desc: "Shaping new gen change makers"
           db:
-            url: "${{ secrets.DB_STAGING_URL }}"
-            name: "${{ secrets.DB_STAGING_NAME }}"
+            url: "${{ secrets.DB_URL }}"
+            name: "${{ secrets.DB_NAME }}"
           auth:
-            jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
+            jwt_secret: "${{ secrets.JWT_SECRET }}"
             google:
-              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID_STAGING }}"
-              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET_STAGING }}"
+              client_id: "${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
+              client_secret: "${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}"
           emailer:
             email: "${{ secrets.GMAIL }}"
             apppassword: "${{ secrets.GMAIL_APP_PASSWORD }}"
           cloud:
-            userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
+            userbucket : "${{ secrets.GCLOUD_BUCKET }}"
           captcha:
-            secret: "${{ secrets.RECAPTCHA_SITE_SECRET_STAGING }}"
+            secret: "${{ secrets.RECAPTCHA_SITE_SECRET }}"
           EOF
       - run: |
           cat > app.yaml << EOF
           runtime: go116
-          service: staging-api
+          service: api
           handlers:
             - url: /.*
               script: auto
@@ -52,8 +52,8 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
-          credentials_json: '${{ secrets.GCP_SERVICE_KEY_STAGING }}'
+          credentials_json: '${{ secrets.GCP_SERVICE_KEY }}'
       - id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v0'
         with:
-          project_id: donut-366007
+          project_id: donut-gives
