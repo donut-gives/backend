@@ -34,6 +34,8 @@ func SendMail(to, subject,bodyType, body string) error {
 
     srv, err := gmail.New(gmailClient)
 
+    subject="=?utf-8?B?"+base64.StdEncoding.EncodeToString([]byte(subject))+"?="
+
 	message.Raw = base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\nContent-Type: %s; charset=UTF-8\r\n\r\n%s", to, subject,bodyType, body)))
 	_, err = srv.Users.Messages.Send("me", &message).Do()
 	if err != nil {
