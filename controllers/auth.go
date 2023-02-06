@@ -248,16 +248,7 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		})
 	}
 
-	redirectB64 := stateJSON["redirect"]
-
-	redirect,err := DecodeBase64String(redirectB64)
-	if err != nil {
-		Logger.Errorf("Error while decoding redirect")
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error while decoding redirect",
-		})
-		return
-	}
+	redirect := stateJSON["redirect"]
 
 	redirect = redirect + "?token=" + payload["token"]
 

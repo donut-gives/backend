@@ -154,7 +154,10 @@ func JoinWaitlist(c *gin.Context) {
 		sent:=false
 		for i := 0; i < 1; i++ {
 
-			subject := "Welcome to the waitlist! Invite your friends too"
+			
+			subject := "Welcome to the Waitlist! 🎉 Invite Your Friends & Get Early Access"
+
+			//subject := "Welcome to the waitlist! "
 
 			err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
 			if err == nil {
