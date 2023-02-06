@@ -1,12 +1,14 @@
 package controllers
-               
+
 import (
 	"donutBackend/config"
 	. "donutBackend/logger"
-	"donutBackend/models/users"
 	"donutBackend/models/admins"
-	"encoding/json"
+	emailsender "donutBackend/models/emailSender"
+	"donutBackend/models/users"
+	"donutBackend/utils/mail"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -31,6 +33,64 @@ func DecodeBase64String(encodedString string) (string,error) {
 
 var googleOauthConfig *oauth2.Config = nil
 var stateSecret = "donut"
+var accessToken string
+var refreshToken string
+
+func OAuthGmailUserLogin(c *gin.Context){
+	redirectProto := "http://"
+	if *config.Env == "prod" {
+		redirectProto = "https://"
+	}
+	googleOauthConfig = &oauth2.Config{
+		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/gmail/callback",
+		ClientID:     config.Auth.Google.ClientId,     
+		ClientSecret: config.Auth.Google.ClientSecret, 
+		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
+		Endpoint:     google.Endpoint,
+	}
+	u := googleOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusTemporaryRedirect, u)
+}
+
+func OAuthGmailUserCallback(c *gin.Context) {
+	if c.Query("state") != "donut" {
+		Logger.Errorf("Invalid Oauth state")
+		c.Redirect(http.StatusTemporaryRedirect, "/v1/auth/gmail/login")
+		return
+	}
+	code := c.Query("code")
+	token, err := googleOauthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		Logger.Errorf("code exchange wrong: %s", err.Error())
+	}
+
+	id := token.Extra("id_token")
+	idToken := fmt.Sprint(id)
+
+	info,err:=DecodeIdToken(idToken)
+	if err!=nil{
+		Logger.Errorf("Error decoding id token: %s", err.Error())
+	}
+
+	mail.Email = info["email"]
+
+	sender:= emailsender.EmailSender{
+		Name: info["name"],
+		Email:info["email"],
+		Active: "TRUE",
+	}
+
+	fmt.Println(sender)
+
+	emailsender.InsertOrUpdateOne(sender)
+
+	mail.SetClient(googleOauthConfig.Client(context.Background(), token))
+
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User Signed In Successfully",
+	})
+}
 
 func OAuthGoogleUserLogin(c *gin.Context) {
 	redirectProto := "http://"
@@ -63,7 +123,6 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
-	fmt.Println(idToken)
 
 	payload, err := signInUserWithIdToken(idToken)
 	if err != nil {
@@ -189,16 +248,7 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		})
 	}
 
-	redirectB64 := stateJSON["redirect"]
-
-	redirect,err := DecodeBase64String(redirectB64)
-	if err != nil {
-		Logger.Errorf("Error while decoding redirect")
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error while decoding redirect",
-		})
-		return
-	}
+	redirect := stateJSON["redirect"]
 
 	redirect = redirect + "?token=" + payload["token"]
 
@@ -290,6 +340,29 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 			"name":      googleUser.Name,
 			"email":     googleUser.Email,
 			"photo":     googleUser.Photo,
+		}
+		return payload, err
+	}
+}
+
+func DecodeIdToken(idToken string) (map[string]string,error) {
+	_, err := idtoken.Validate(context.Background(), idToken, config.Auth.Google.ClientId)
+	if err != nil {
+		Logger.Errorf("Invalid Token")
+		return nil, err
+	}
+	segments := strings.Split(idToken, ".")
+	if token, err := jwt.DecodeSegment(segments[1]); err != nil {
+		return nil, err
+	} else {
+		googleUser := &users.GoogleUser{}
+		if err := json.Unmarshal(token, googleUser); err != nil {
+			return nil, err
+		}
+		
+		payload := map[string]string{
+			"name":      googleUser.Name,
+			"email":     googleUser.Email,
 		}
 		return payload, err
 	}
