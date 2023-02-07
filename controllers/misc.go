@@ -164,7 +164,7 @@ func JoinWaitlist(c *gin.Context) {
 				sent=true
 				break
 			}
-
+			Logger.Errorf("Failed to send email to %s: %v",waitlistedUser.Email,err)
 			emailsender.SetDeactivated(mail.Email) 
 			err =mail.SendMailBySMTP("dev.donut.gives@gmail.com","Current Email Sender Deactivated","text/plain","Please login for gmail credentials again.")
 			if err != nil {
