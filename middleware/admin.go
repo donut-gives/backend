@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"donutBackend/models/emailSender"
 	"donutBackend/models/admins"
 	. "donutBackend/utils/enum"
 	. "donutBackend/utils/token"
@@ -45,6 +46,27 @@ func VerifyAdminToken(accessPriviledge []Admin) gin.HandlerFunc {
 		}
 		if !accessAccepted{
 			RespondWithError(c, http.StatusUnauthorized, "Access Denied Priviledge Not Satisfied")
+			return
+		}
+		c.Next()
+	}
+}
+
+func VerifyEmailSenderToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token,err:=ExtractTokenInfo(c.GetHeader("token"))
+		if err != nil {
+			RespondWithError(c, http.StatusUnauthorized, err.Error())
+			return
+		}
+		
+		found,err :=emailsender.Find(token["email"].(string))
+		if err != nil {
+			RespondWithError(c, http.StatusUnauthorized, err.Error())
+			return
+		}
+		if !found{
+			RespondWithError(c, http.StatusUnauthorized, "Not an admin")
 			return
 		}
 		c.Next()

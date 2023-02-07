@@ -72,6 +72,20 @@ func OAuthGmailUserCallback(c *gin.Context) {
 		Logger.Errorf("Error decoding id token: %s", err.Error())
 	}
 
+	found,err :=emailsender.Find(info["email"])
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error finding email sender",
+		})
+		return
+	}
+	if !found{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Not authorized to send emails",
+		})
+		return
+	}
+
 	mail.Email = info["email"]
 
 	sender:= emailsender.EmailSender{
@@ -88,7 +102,7 @@ func OAuthGmailUserCallback(c *gin.Context) {
 
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "User Signed In Successfully",
+		"message": "Email Sender Signed In Successfully",
 	})
 }
 
