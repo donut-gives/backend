@@ -50,3 +50,24 @@ func SetDeactivated(email string) error {
 	}
 	return nil
 }
+
+func Find(email string) (bool,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult EmailSender
+	err := emailSenderCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in
+		// the collection.
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
