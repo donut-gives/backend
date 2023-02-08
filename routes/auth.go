@@ -9,6 +9,7 @@ import (
 )
 
 func addAuthRoutes(g *gin.RouterGroup) {
+	g.GET("/refresh", controllers.Refresh)
 	auth := g.Group("/auth")
 
 	gmail:= auth.Group("/gmail")

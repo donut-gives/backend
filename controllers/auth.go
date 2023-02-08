@@ -36,7 +36,19 @@ func DecodeBase64String(encodedString string) (string,error) {
 	return string(decoded),nil
 }
 
-
+func Refresh(c *gin.Context){
+	err:=mail.RefreshAccessToken()
+	if err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"message":"Error while refreshing token",
+			"error":err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK,gin.H{
+		"message":"Refreshed",
+	})
+}
 
 func OAuthGmailUserLogin(c *gin.Context){
 	redirectProto := "http://"
@@ -89,11 +101,32 @@ func OAuthGmailUserCallback(c *gin.Context) {
 	}
 
 	mail.Email = info["email"]
+	mail.GoogleOauthConfig = googleGmailOauthConfig
+
+	//encode access and refresh Token with JWT
+
+	//access token
+	tokenClaims := jwt.MapClaims{}
+	tokenClaims["authorized"] = true
+	tokenClaims["access_token"] = token.AccessToken
+	tokenClaims["refresh_token"] = token.RefreshToken
+	tokenClaims["expiry"] = token.Expiry
+	tokenClaims["token_type"] = token.TokenType
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
+	jwtTokenString, err := jwtToken.SignedString([]byte(config.Auth.JWTSecret))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error while signing access token",
+		})
+		return
+	}
+
 
 	sender:= emailsender.EmailSender{
 		Name: info["name"],
 		Email:info["email"],
 		Active: "TRUE",
+		Token: jwtTokenString,
 	}
 
 	fmt.Println(sender)
