@@ -23,6 +23,11 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
+var googleUserOauthConfig *oauth2.Config = nil
+var googleAdminOauthConfig *oauth2.Config = nil
+var googleGmailOauthConfig *oauth2.Config = nil
+var stateSecret = "donut"
+
 func DecodeBase64String(encodedString string) (string,error) {
 	decoded, err := base64.StdEncoding.DecodeString(encodedString)
 	if err != nil {
@@ -31,24 +36,21 @@ func DecodeBase64String(encodedString string) (string,error) {
 	return string(decoded),nil
 }
 
-var googleOauthConfig *oauth2.Config = nil
-var stateSecret = "donut"
-var accessToken string
-var refreshToken string
+
 
 func OAuthGmailUserLogin(c *gin.Context){
 	redirectProto := "http://"
 	if *config.Env == "prod" {
 		redirectProto = "https://"
 	}
-	googleOauthConfig = &oauth2.Config{
+	googleGmailOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/gmail/callback",
 		ClientID:     config.Auth.Google.ClientId,     
 		ClientSecret: config.Auth.Google.ClientSecret, 
 		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
+	u := googleGmailOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
@@ -59,7 +61,7 @@ func OAuthGmailUserCallback(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
-	token, err := googleOauthConfig.Exchange(context.Background(), code)
+	token, err := googleGmailOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		Logger.Errorf("code exchange wrong: %s", err.Error())
 	}
@@ -98,7 +100,7 @@ func OAuthGmailUserCallback(c *gin.Context) {
 
 	emailsender.InsertOrUpdateOne(sender)
 
-	mail.SetClient(googleOauthConfig.Client(context.Background(), token))
+	mail.SetTokenAndConfig(token,googleGmailOauthConfig)
 
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusCreated, gin.H{
@@ -111,14 +113,14 @@ func OAuthGoogleUserLogin(c *gin.Context) {
 	if *config.Env == "prod" {
 		redirectProto = "https://"
 	}
-	googleOauthConfig = &oauth2.Config{
+	googleUserOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/user/google/callback",
 		ClientID:     config.Auth.Google.ClientId,     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.Auth.Google.ClientSecret, //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleOauthConfig.AuthCodeURL("donut")
+	u := googleUserOauthConfig.AuthCodeURL("donut")
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
@@ -129,7 +131,7 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
-	token, err := googleOauthConfig.Exchange(context.Background(), code)
+	token, err := googleUserOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		Logger.Errorf("code exchange wrong: %s", err.Error())
 	}
@@ -209,14 +211,14 @@ func OAuthGoogleAdminLogin(c *gin.Context) {
 	if *config.Env == "prod" {
 		redirectProto = "https://"
 	}
-	googleOauthConfig = &oauth2.Config{
+	googleAdminOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/admin/google/callback",
 		ClientID:     config.Auth.Google.ClientId,     //os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.Auth.Google.ClientSecret, //os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleOauthConfig.AuthCodeURL(stateString)
+	u := googleAdminOauthConfig.AuthCodeURL(stateString)
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
@@ -239,7 +241,7 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
-	token, err := googleOauthConfig.Exchange(context.Background(), code)
+	token, err := googleAdminOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		Logger.Errorf("code exchange wrong: %s", err.Error())
 	}
