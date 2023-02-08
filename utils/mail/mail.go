@@ -6,6 +6,8 @@ import (
 	"fmt"
 	//"time"
 
+	//"time"
+
 	//"net/http"
 
 	"donutBackend/config"
@@ -15,15 +17,19 @@ import (
 	"golang.org/x/oauth2"
 	gomail "gopkg.in/gomail.v2"
 
-	//"golang.org/x/oauth2"
-	//"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	//"google.golang.org/api/option"
 )
 
 var Email string=""
 var gmailToken *oauth2.Token = nil
-var GoogleOauthConfig *oauth2.Config = nil
+var GoogleOauthConfig *oauth2.Config = &oauth2.Config{
+    ClientID:     config.Auth.Google.ClientId,     
+    ClientSecret: config.Auth.Google.ClientSecret, 
+    Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
+    Endpoint:     google.Endpoint,
+}
 
 func RefreshAccessToken() error {
 
@@ -52,10 +58,16 @@ func RefreshAccessToken() error {
         TokenType: decodedToken.Claims.(jwt.MapClaims)["token_type"].(string),
     }
 
-    token, err := GoogleOauthConfig.TokenSource(oauth2.NoContext, googleOauthToken).Token()
+    //fmt.Println("GoogleOauthToken-",googleOauthToken)
+    token, err := GoogleOauthConfig.TokenSource(context.TODO(), googleOauthToken).Token()
     if err != nil {
         return err
     }
+    // fmt.Println("error           -",err)
+    // fmt.Println("Token           -",token)
+    // if(token.AccessToken==googleOauthToken.AccessToken){
+    //     fmt.Println("Tokens not refreshed")
+    // }      
 
     gmailToken = token
 

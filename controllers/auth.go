@@ -59,10 +59,10 @@ func OAuthGmailUserLogin(c *gin.Context){
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/gmail/callback",
 		ClientID:     config.Auth.Google.ClientId,     
 		ClientSecret: config.Auth.Google.ClientSecret, 
-		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
+		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","openid","profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleGmailOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
+	u := googleGmailOauthConfig.AuthCodeURL("donut",oauth2.ApprovalForce,oauth2.AccessTypeOffline)
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
@@ -105,6 +105,11 @@ func OAuthGmailUserCallback(c *gin.Context) {
 
 	//encode access and refresh Token with JWT
 
+	fmt.Println("AccessToken: ", token.AccessToken)
+	fmt.Println("RefreshToken: ", token.RefreshToken)
+	fmt.Println("Expiry: ", token.Expiry)
+	fmt.Println("TokenType: ", token.TokenType)
+
 	//access token
 	tokenClaims := jwt.MapClaims{}
 	tokenClaims["authorized"] = true
@@ -128,8 +133,6 @@ func OAuthGmailUserCallback(c *gin.Context) {
 		Active: "TRUE",
 		Token: jwtTokenString,
 	}
-
-	fmt.Println(sender)
 
 	emailsender.InsertOrUpdateOne(sender)
 
