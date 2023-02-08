@@ -165,6 +165,18 @@ func JoinWaitlist(c *gin.Context) {
 				break
 			}
 
+			err = email.RefreshAccessToken()
+			if err == nil {
+				err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
+				if err == nil {
+					sent=true
+					break
+				}
+			}
+
+
+			Logger.Errorf("Failed to send email to %s: %v",waitlistedUser.Email,err)
+			Logger.Errorf("Failed to refresh access token for email %s: %v",mail.Email,err)
 			emailsender.SetDeactivated(mail.Email) 
 			err =mail.SendMailBySMTP("dev.donut.gives@gmail.com","Current Email Sender Deactivated","text/plain","Please login for gmail credentials again.")
 			if err != nil {
