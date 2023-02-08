@@ -1,39 +1,56 @@
 package mail
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
-    "context"
+	//"time"
+
 	//"net/http"
 
 	"donutBackend/config"
+	"donutBackend/models/emailSender"
 
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
 	gomail "gopkg.in/gomail.v2"
 
-	//"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	//"google.golang.org/api/option"
 )
 
 var Email string=""
 var gmailToken *oauth2.Token = nil
-var googleOauthConfig *oauth2.Config = nil
+var GoogleOauthConfig *oauth2.Config = nil
 
 func RefreshAccessToken() error {
-    if(gmailToken==nil){
-        return fmt.Errorf("Gmail Token is not set")
+
+    email,err:=emailsender.GetEmail()
+    if err != nil {
+        return err
+    }
+    
+    jwttoken,err:=emailsender.GetToken(email)
+    if err != nil {
+        return err
     }
 
-    config := &oauth2.Config{
-		ClientID:     config.Auth.Google.ClientId,     
-		ClientSecret: config.Auth.Google.ClientSecret, 
-		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
-		Endpoint:     google.Endpoint,
-	}
+    //decoed jwt token
+    decodedToken, err := jwt.Parse(jwttoken, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+        }
+        return []byte(config.Auth.Google.ClientSecret), nil
+    })
 
-    token, err := config.TokenSource(oauth2.NoContext, gmailToken).Token()
+    //create google oauth token
+    googleOauthToken := &oauth2.Token{
+        AccessToken: decodedToken.Claims.(jwt.MapClaims)["access_token"].(string),
+        RefreshToken: decodedToken.Claims.(jwt.MapClaims)["refresh_token"].(string),
+        TokenType: decodedToken.Claims.(jwt.MapClaims)["token_type"].(string),
+    }
+
+    token, err := GoogleOauthConfig.TokenSource(oauth2.NoContext, googleOauthToken).Token()
     if err != nil {
         return err
     }
@@ -46,7 +63,7 @@ func RefreshAccessToken() error {
 
 func SetTokenAndConfig(token *oauth2.Token, config *oauth2.Config) {
     gmailToken = token
-    googleOauthConfig = config
+    GoogleOauthConfig = config
 }
 
 
@@ -57,7 +74,7 @@ func SendMail(to, subject,bodyType, body string) error {
         return fmt.Errorf("Gmail Token is not set")
     }
 
-    gmailClient:=googleOauthConfig.Client(context.Background(), gmailToken)
+    gmailClient:=GoogleOauthConfig.Client(context.Background(), gmailToken)
 
     srv, err := gmail.New(gmailClient)
 

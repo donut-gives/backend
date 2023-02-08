@@ -71,3 +71,53 @@ func Find(email string) (bool,error) {
 	}
 	return true, nil
 }
+
+func GetToken(email string) (string,error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult EmailSender
+	err := emailSenderCollection.FindOne(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		opts,
+	).Decode(&findResult)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in
+		// the collection.
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", err
+	}
+	return findResult.Token, nil
+}
+
+func GetEmail() (string,error) {
+	//get all documents
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.Find()
+	var findResult []EmailSender
+	cur, err := emailSenderCollection.Find(
+		ctx,
+		bson.D{},
+		opts,
+	)
+	if err != nil {
+		return "", err
+	}
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
+		var elem EmailSender
+		err := cur.Decode(&elem)
+		if err != nil {
+			return "", err
+		}
+		findResult = append(findResult, elem)
+	}
+	if err := cur.Err(); err != nil {
+		return "", err
+	}
+	return findResult[0].Email, nil
+}
