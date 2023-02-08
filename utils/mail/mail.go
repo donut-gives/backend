@@ -1,36 +1,63 @@
 package mail
 
 import (
-    "encoding/base64"
-    "fmt"
+	"encoding/base64"
+	"fmt"
+    "context"
+	//"net/http"
 
-    "net/http"
-    
-    
 	"donutBackend/config"
-	gomail "gopkg.in/gomail.v2"
-    //"golang.org/x/oauth2"
-    //"golang.org/x/oauth2/google"
-    "google.golang.org/api/gmail/v1"
-    //"google.golang.org/api/option"
 
+	"golang.org/x/oauth2"
+	gomail "gopkg.in/gomail.v2"
+
+	//"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/gmail/v1"
+	//"google.golang.org/api/option"
 )
 
 var Email string=""
-var gmailClient *http.Client
+var gmailToken *oauth2.Token = nil
+var googleOauthConfig *oauth2.Config = nil
 
-func SetClient(client *http.Client) {
-    
-    gmailClient = client
+func RefreshAccessToken() error {
+    if(gmailToken==nil){
+        return fmt.Errorf("Gmail Token is not set")
+    }
+
+    config := &oauth2.Config{
+		ClientID:     config.Auth.Google.ClientId,     
+		ClientSecret: config.Auth.Google.ClientSecret, 
+		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
+		Endpoint:     google.Endpoint,
+	}
+
+    token, err := config.TokenSource(oauth2.NoContext, gmailToken).Token()
+    if err != nil {
+        return err
+    }
+
+    gmailToken = token
+
+    return nil
+
+}
+
+func SetTokenAndConfig(token *oauth2.Token, config *oauth2.Config) {
+    gmailToken = token
+    googleOauthConfig = config
 }
 
 
 func SendMail(to, subject,bodyType, body string) error {
 	var message gmail.Message
 
-    if(gmailClient==nil){
-        return fmt.Errorf("Gmail Client is not set")
+    if(gmailToken==nil){
+        return fmt.Errorf("Gmail Token is not set")
     }
+
+    gmailClient:=googleOauthConfig.Client(context.Background(), gmailToken)
 
     srv, err := gmail.New(gmailClient)
 
