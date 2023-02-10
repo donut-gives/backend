@@ -42,7 +42,7 @@ func RefreshAccessToken() error {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(config.Auth.Google.ClientSecret), nil
+		return []byte(config.Auth.JWTSecret), nil
 	})
 
 	//create google oauth token
@@ -83,8 +83,8 @@ func SetTokenAndConfig(token *oauth2.Token) {
 
 func SendMail(to, subject, bodyType, body string) error {
 	var message gmail.Message
-        
-        RefreshAccessToken()
+
+	RefreshAccessToken()
 
 	if gmailToken == nil {
 		return fmt.Errorf("gmail Token is not set")
