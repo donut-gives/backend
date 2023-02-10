@@ -52,8 +52,9 @@ func RefreshAccessToken() error {
 		TokenType:    decodedToken.Claims.(jwt.MapClaims)["token_type"].(string),
 	}
 
-	//fmt.Println("GoogleOauthToken-",googleOauthToken)
-	token, err := GoogleOauthConfig.TokenSource(context.Background(), googleOauthToken).Token()
+	fmt.Printf("Access Token: %s", googleOauthToken.AccessToken)
+	fmt.Printf("Refresh Token: %s", googleOauthToken.RefreshToken)
+	token, err := GoogleOauthConfig.TokenSource(context.TODO(), googleOauthToken).Token()
 	if err != nil {
 		return err
 	}

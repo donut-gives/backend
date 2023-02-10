@@ -170,6 +170,8 @@ func JoinWaitlist(c *gin.Context) {
 					break
 				}
 				Logger.Errorf("2Failed to send email to %s: %v", waitlistedUser.Email, err)
+			} else {
+				Logger.Errorf("Error refreshing token: %v", err)
 			}
 			if doBreak {
 				break
