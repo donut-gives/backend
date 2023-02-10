@@ -24,8 +24,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-
-
 func JoinWaitlist(c *gin.Context) {
 	var waitlistedUser waitlist.WaitlistedUser
 	if err := c.ShouldBindBodyWith(&waitlistedUser, binding.JSON); err != nil {
@@ -39,9 +37,9 @@ func JoinWaitlist(c *gin.Context) {
 
 	firstName := strings.Split(waitlistedUser.Name, " ")[0]
 	//count no of chars in firstName
-	if len(firstName)>5{
+	if len(firstName) > 5 {
 		firstName = strings.ToUpper(firstName[:5])
-	}else{
+	} else {
 		firstName = strings.ToUpper(firstName)
 	}
 
@@ -53,8 +51,8 @@ func JoinWaitlist(c *gin.Context) {
 		return
 	}
 
-	link,err := weblinks.AddLink(waitlistedUser.Email,"FALSE")
-	if err!=nil{
+	link, err := weblinks.AddLink(waitlistedUser.Email, "FALSE")
+	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed To Add to Waitlist",
 			"error":   "Already added to the Waitlist AddLink",
@@ -64,10 +62,10 @@ func JoinWaitlist(c *gin.Context) {
 
 	linkId := link.Id[:5]
 	//linkId:="ABCD"
-	referral:=firstName+"-"+linkId
+	referral := firstName + "-" + linkId
 
-	count,err:=waitlist.GetCount()
-	if err!=nil{
+	count, err := waitlist.GetCount()
+	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed To Add to Waitlist",
 			"error":   "Already added to the Waitlist Count",
@@ -75,17 +73,13 @@ func JoinWaitlist(c *gin.Context) {
 		return
 	}
 
-	count=count+1020
+	count = count + 1020
 	//count:=1030
 	//convert count to string
-	countString:=fmt.Sprintf("%d",count)
+	countString := fmt.Sprintf("%d", count)
 
-	waitlistEmail:=`<div class="background center" style="background-color: #FFF8FC;padding: 36px 32px 64px;border-radius: 20px;max-width: 400px;margin-bottom: 20px;margin-left: auto;margin-right: auto;">
-	<svg class="donut_logo with-space" width="40" height="40" viewbox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 36px;">
-	  <circle cx="17.73" cy="17.73" r="14" stroke="#FF6295" stroke-width="7.46" stroke-opacity="0.55"></circle>
-	  <circle cx="20.61" cy="21.31" r="14" stroke="#ED3B5E" stroke-width="7.46" stroke-opacity="0.6"></circle>
-	  <circle cx="22.18" cy="18.36" r="14" stroke="#FE696F" stroke-width="7.46" stroke-opacity="0.5"></circle>
-	</svg>
+	waitlistEmail := `<div class="background center" style="background-color: #FFF8FC;padding: 36px 32px 64px;border-radius: 20px;max-width: 400px;margin-bottom: 20px;margin-left: auto;margin-right: auto;">
+	<img class="with-space" width="40" height="40" src="https://imagedelivery.net/_ytNarHSFtZWvy0qTLubhg/3f5bf187-93df-4a98-8c7d-567240719f00/public" alt="Donut Logo" style="margin-bottom: 36px;"/>
   
 	<div class="poppins-semibold heading-text no-space" style="margin-bottom: 4px;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 16px;">Welcome to awesomeness!</div>
 	<div class="poppins-regular body-text with-space" style="margin-bottom: 36px;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 400;font-size: 14px;">Thanks for joining the Donut waitlist. You’re in for so much fun! 🥳</div>
@@ -124,10 +118,10 @@ func JoinWaitlist(c *gin.Context) {
   
 	<div class="container waitlist with-space" style="margin-bottom: 36px;background-color: #FFFFFF;border-radius: 28px;padding: 24px 32px 55px;">
 	  <div class="poppins-regular body-text text-center text-grey with-little-space" style="margin-bottom: 24px;text-align: center;color: #8E8E8E;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 400;font-size: 14px;">Your current position on the waitlist is</div>
-	  <div class="poppins-semibold display-text text-center waitlist-number with-little-space" style="margin-bottom: 24px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 36px;color: #FE7088;">#`+countString+`</div>
+	  <div class="poppins-semibold display-text text-center waitlist-number with-little-space" style="margin-bottom: 24px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 36px;color: #FE7088;">#` + countString + `</div>
 	  <div class="poppins-semibold body-text text-center no-space" style="margin-bottom: 4px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 14px;">Want exclusive early access?</div>
 	  <div class="poppins-regular sub-text text-center with-little-space" style="margin-bottom: 24px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 400;font-size: 13px;">Share the awesomeness with your friends & network and cut the line short.</div>
-	  <a href="https://donut.gives/refer?tag=`+link.Id+`&refer=`+referral+`" target="_blank" style="text-decoration: none">
+	  <a href="https://donut.gives/refer?tag=` + link.Id + `&refer=` + referral + `" target="_blank" style="text-decoration: none">
 		<div class="primary-button" style="background-color: #FF6A85;border-radius: 20px;height: 40px;color: white;align-items: center;align-content: center;text-align: center;line-height: 38px;font-family: 'Clash Grotesk', 'Space Grotesk', 'Arial', 'sans-serif';letter-spacing: 1px;font-size: 14px;">
 		  <table class="center no-border" border="0" cellpadding="0" cellspacing="0" style="margin-left: auto;margin-right: auto;border-spacing: 0;border-collapse: collapse;">
 			<tr>
@@ -150,59 +144,57 @@ func JoinWaitlist(c *gin.Context) {
   </div>
   `
 
-	
 	go func() {
 		//send email atmost 3 times and unitl sent
-		sent:=false
+		sent := false
 		for i := 0; i < 1; i++ {
 
-			
 			subject := "Welcome to the Waitlist! 🎉 Invite Your Friends & Get Early Access"
 
 			//subject := "Welcome to the waitlist! "
 
-			err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
+			err := email.SendMail(waitlistedUser.Email, subject, "text/html", waitlistEmail)
 			if err == nil {
-				sent=true
+				sent = true
 				break
 			}
-			Logger.Errorf("1Failed to send email to %s: %v",waitlistedUser.Email,err)
+			Logger.Errorf("1Failed to send email to %s: %v", waitlistedUser.Email, err)
 
-			doBreak:=false
+			doBreak := false
 			err = email.RefreshAccessToken()
 			if err == nil {
-				err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
+				err := email.SendMail(waitlistedUser.Email, subject, "text/html", waitlistEmail)
 				if err == nil {
-					sent=true
-					doBreak=true
+					sent = true
+					doBreak = true
 					break
 				}
-				Logger.Errorf("2Failed to send email to %s: %v",waitlistedUser.Email,err)
+				Logger.Errorf("2Failed to send email to %s: %v", waitlistedUser.Email, err)
 			}
-			if doBreak{
+			if doBreak {
 				break
 			}
-			Logger.Errorf("Sent= %s doBreak= %s",sent,doBreak)
+			Logger.Errorf("Sent= %s doBreak= %s", sent, doBreak)
 
-			Logger.Errorf("Failed to send email to %s: %v",waitlistedUser.Email,err)
-			Logger.Errorf("Failed to refresh access token for email %s: %v",mail.Email,err)
-			emailsender.SetDeactivated(mail.Email) 
-			err =mail.SendMailBySMTP("dev.donut.gives@gmail.com","Current Email Sender Deactivated","text/plain","Please login for gmail credentials again.")
+			Logger.Errorf("Failed to send email to %s: %v", waitlistedUser.Email, err)
+			Logger.Errorf("Failed to refresh access token for email %s: %v", mail.Email, err)
+			emailsender.SetDeactivated(mail.Email)
+			err = mail.SendMailBySMTP("dev.donut.gives@gmail.com", "Current Email Sender Deactivated", "text/plain", "Please login for gmail credentials again.")
 			if err != nil {
-				Logger.Errorf("Failed to send email for deactivated email sender %s: %v",mail.Email,err)
+				Logger.Errorf("Failed to send email for deactivated email sender %s: %v", mail.Email, err)
 			}
-			
-		}
-		if !sent{
 
-			pending:=pendingEmail.PendingEmail{
-				Email:waitlistedUser.Email,
+		}
+		if !sent {
+
+			pending := pendingEmail.PendingEmail{
+				Email:  waitlistedUser.Email,
 				Reason: "Waitlist Email",
-				Body: waitlistEmail,
+				Body:   waitlistEmail,
 			}
-			_,err:=pendingEmail.Insert(pending)
-			if err!=nil{
-				Logger.Errorf("Failed to insert pending email %s while %s: %v",waitlistedUser.Email,"waitlisting",err)
+			_, err := pendingEmail.Insert(pending)
+			if err != nil {
+				Logger.Errorf("Failed to insert pending email %s while %s: %v", waitlistedUser.Email, "waitlisting", err)
 			}
 		}
 	}()
@@ -215,15 +207,12 @@ func JoinWaitlist(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
-	
-
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Added to Waitlist",
 	})
 	return
 
-	
 }
 
 func ContactUs(c *gin.Context) {
@@ -283,24 +272,24 @@ func GetProfile(c *gin.Context) {
 				return
 			}
 
-			returnJSON := struct{
-				Profile users.GoogleUserProfile
+			returnJSON := struct {
+				Profile  users.GoogleUserProfile
 				Verified string
 			}{
-				Profile: userProfile,
+				Profile:  userProfile,
 				Verified: "true",
 			}
 
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got User Profile",
-				"data": returnJSON,
+				"data":    returnJSON,
 			})
 
 		} else if entity == "org" {
-			
-			org:=organization.Organization{}
-			err:=json.Unmarshal([]byte(c.GetString("org")),&org)
-			if(err!=nil){
+
+			org := organization.Organization{}
+			err := json.Unmarshal([]byte(c.GetString("org")), &org)
+			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"message": err.Error(),
 				})
@@ -316,17 +305,17 @@ func GetProfile(c *gin.Context) {
 				return
 			}
 
-			returnJSON := struct{
-				Profile organization.OrganizationProfile
+			returnJSON := struct {
+				Profile  organization.OrganizationProfile
 				Verified string
 			}{
-				Profile: orgProfile,
+				Profile:  orgProfile,
 				Verified: "true",
 			}
 
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got Org Profile",
-				"data": returnJSON,
+				"data":    returnJSON,
 			})
 
 		}
@@ -344,17 +333,17 @@ func GetProfile(c *gin.Context) {
 				return
 			}
 
-			returnJSON := struct{
-				Profile users.GoogleUserProfile
+			returnJSON := struct {
+				Profile  users.GoogleUserProfile
 				Verified string
 			}{
-				Profile: userProfile,
+				Profile:  userProfile,
 				Verified: "false",
 			}
 
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got User Profile",
-				"data": returnJSON,
+				"data":    returnJSON,
 			})
 
 		} else if target == "org" {
@@ -368,17 +357,17 @@ func GetProfile(c *gin.Context) {
 				return
 			}
 
-			returnJSON := struct{
-				Profile organization.OrganizationProfile
+			returnJSON := struct {
+				Profile  organization.OrganizationProfile
 				Verified string
 			}{
-				Profile: orgProfile,
+				Profile:  orgProfile,
 				Verified: "false",
 			}
 
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Successfully Got Org Profile",
-				"data": returnJSON,
+				"data":    returnJSON,
 			})
 		}
 	}
