@@ -63,6 +63,7 @@ func JoinWaitlist(c *gin.Context) {
 	}
 
 	linkId := link.Id[:5]
+	//linkId:="ABCD"
 	referral:=firstName+"-"+linkId
 
 	count,err:=waitlist.GetCount()
@@ -75,6 +76,7 @@ func JoinWaitlist(c *gin.Context) {
 	}
 
 	count=count+1020
+	//count:=1030
 	//convert count to string
 	countString:=fmt.Sprintf("%d",count)
 
@@ -164,16 +166,23 @@ func JoinWaitlist(c *gin.Context) {
 				sent=true
 				break
 			}
+			Logger.Errorf("1Failed to send email to %s: %v",waitlistedUser.Email,err)
 
+			doBreak:=false
 			err = email.RefreshAccessToken()
 			if err == nil {
 				err := email.SendMail(waitlistedUser.Email,subject,"text/html",waitlistEmail)
 				if err == nil {
 					sent=true
+					doBreak=true
 					break
 				}
+				Logger.Errorf("2Failed to send email to %s: %v",waitlistedUser.Email,err)
 			}
-
+			if doBreak{
+				break
+			}
+			Logger.Errorf("Sent= %s doBreak= %s",sent,doBreak)
 
 			Logger.Errorf("Failed to send email to %s: %v",waitlistedUser.Email,err)
 			Logger.Errorf("Failed to refresh access token for email %s: %v",mail.Email,err)

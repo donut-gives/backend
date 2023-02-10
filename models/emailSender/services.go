@@ -51,7 +51,7 @@ func SetDeactivated(email string) error {
 	return nil
 }
 
-func Find(email string) (bool,error) {
+func Find(email string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -72,7 +72,7 @@ func Find(email string) (bool,error) {
 	return true, nil
 }
 
-func GetToken(email string) (string,error) {
+func GetToken(email string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -93,7 +93,25 @@ func GetToken(email string) (string,error) {
 	return findResult.Token, nil
 }
 
-func GetEmail() (string,error) {
+func UpdateToken(email string, token string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOneAndUpdate()
+	res := emailSenderCollection.FindOneAndUpdate(
+		ctx,
+		bson.D{{Key: "email", Value: email}},
+		bson.D{{Key: "token", Value: token}},
+		opts,
+	)
+	if res == nil {
+		// ErrNoDocuments means that the filter did not match any documents in
+		// the collection.
+		return false
+	}
+	return true
+}
+
+func GetEmail() (string, error) {
 	//get all documents
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

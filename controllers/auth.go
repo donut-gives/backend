@@ -7,7 +7,6 @@ import (
 	emailsender "donutBackend/models/emailSender"
 	"donutBackend/models/users"
 	"donutBackend/utils/mail"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -28,41 +27,33 @@ var googleAdminOauthConfig *oauth2.Config = nil
 var googleGmailOauthConfig *oauth2.Config = nil
 var stateSecret = "donut"
 
-func DecodeBase64String(encodedString string) (string,error) {
-	decoded, err := base64.StdEncoding.DecodeString(encodedString)
+func Refresh(c *gin.Context) {
+	err := mail.RefreshAccessToken()
 	if err != nil {
-		return "",err
-	}
-	return string(decoded),nil
-}
-
-func Refresh(c *gin.Context){
-	err:=mail.RefreshAccessToken()
-	if err!=nil{
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"message":"Error while refreshing token",
-			"error":err.Error(),
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error while refreshing token",
+			"error":   err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK,gin.H{
-		"message":"Refreshed",
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Refreshed",
 	})
 }
 
-func OAuthGmailUserLogin(c *gin.Context){
+func OAuthGmailUserLogin(c *gin.Context) {
 	redirectProto := "http://"
 	if *config.Env == "prod" {
 		redirectProto = "https://"
 	}
 	googleGmailOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectProto + c.Request.Host + "/v1/auth/gmail/callback",
-		ClientID:     config.Auth.Google.ClientId,     
-		ClientSecret: config.Auth.Google.ClientSecret, 
-		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.labels","openid","profile", "email"},
+		ClientID:     config.Auth.Google.ClientId,
+		ClientSecret: config.Auth.Google.ClientSecret,
+		Scopes:       []string{"https://www.googleapis.com/auth/gmail.send", "openid", "profile", "email"},
 		Endpoint:     google.Endpoint,
 	}
-	u := googleGmailOauthConfig.AuthCodeURL("donut",oauth2.AccessTypeOffline)
+	u := googleGmailOauthConfig.AuthCodeURL("donut", oauth2.ApprovalForce, oauth2.AccessTypeOffline)
 	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
@@ -81,19 +72,19 @@ func OAuthGmailUserCallback(c *gin.Context) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
-	info,err:=DecodeIdToken(idToken)
-	if err!=nil{
+	info, err := DecodeIdToken(idToken)
+	if err != nil {
 		Logger.Errorf("Error decoding id token: %s", err.Error())
 	}
 
-	found,err :=emailsender.Find(info["email"])
+	found, err := emailsender.Find(info["email"])
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error finding email sender",
 		})
 		return
 	}
-	if !found{
+	if !found {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Not authorized to send emails",
 		})
@@ -104,6 +95,11 @@ func OAuthGmailUserCallback(c *gin.Context) {
 	mail.GoogleOauthConfig = googleGmailOauthConfig
 
 	//encode access and refresh Token with JWT
+
+	fmt.Println("AccessToken: ", token.AccessToken)
+	fmt.Println("RefreshToken: ", token.RefreshToken)
+	fmt.Println("Expiry: ", token.Expiry)
+	fmt.Println("TokenType: ", token.TokenType)
 
 	//access token
 	tokenClaims := jwt.MapClaims{}
@@ -121,19 +117,22 @@ func OAuthGmailUserCallback(c *gin.Context) {
 		return
 	}
 
-
-	sender:= emailsender.EmailSender{
-		Name: info["name"],
-		Email:info["email"],
+	sender := emailsender.EmailSender{
+		Name:   info["name"],
+		Email:  info["email"],
 		Active: "TRUE",
-		Token: jwtTokenString,
+		Token:  jwtTokenString,
 	}
 
-	fmt.Println(sender)
+	_, err = emailsender.InsertOrUpdateOne(sender)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error while signing access token",
+		})
+		return
+	}
 
-	emailsender.InsertOrUpdateOne(sender)
-
-	mail.SetTokenAndConfig(token,googleGmailOauthConfig)
+	mail.SetTokenAndConfig(token)
 
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusCreated, gin.H{
@@ -172,7 +171,6 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 	id := token.Extra("id_token")
 	idToken := fmt.Sprint(id)
 
-
 	payload, err := signInUserWithIdToken(idToken)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -189,7 +187,7 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 }
 
 func OAuthGoogleUserAndroid(c *gin.Context) {
-	
+
 	details := struct {
 		IdToken string `json:"id_token"`
 	}{}
@@ -222,23 +220,23 @@ func OAuthGoogleUserAndroid(c *gin.Context) {
 func OAuthGoogleAdminLogin(c *gin.Context) {
 
 	params := c.Request.URL.Query()
-    redirect := params.Get("redirect")
+	redirect := params.Get("redirect")
 
-    stateJSON := map[string]string{
-        "redirect": redirect,
-        "state":    "donut",
-    }
+	stateJSON := map[string]string{
+		"redirect": redirect,
+		"state":    "donut",
+	}
 
-    state , err := json.Marshal(stateJSON)
-    if err != nil {
-        Logger.Errorf("Error while marshalling state")
-        c.JSON(http.StatusBadRequest, gin.H{
-            "message": "Error while marshalling state",
-        })
-        return
-    }
+	state, err := json.Marshal(stateJSON)
+	if err != nil {
+		Logger.Errorf("Error while marshalling state")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error while marshalling state",
+		})
+		return
+	}
 
-    stateString := string(state)
+	stateString := string(state)
 
 	redirectProto := "http://"
 	if *config.Env == "prod" {
@@ -258,15 +256,15 @@ func OAuthGoogleAdminLogin(c *gin.Context) {
 func OAuthGoogleAdminCallback(c *gin.Context) {
 
 	state := c.Query("state")
-    stateJSON := map[string]string{}
-    err := json.Unmarshal([]byte(state), &stateJSON)
-    if err != nil {
-        Logger.Errorf("Error while unmarshalling state")
-        c.JSON(http.StatusBadRequest, gin.H{
-            "message": "Error while unmarshalling state",
-        })
-        return
-    }
+	stateJSON := map[string]string{}
+	err := json.Unmarshal([]byte(state), &stateJSON)
+	if err != nil {
+		Logger.Errorf("Error while unmarshalling state")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error while unmarshalling state",
+		})
+		return
+	}
 
 	if stateJSON["state"] != stateSecret {
 		Logger.Errorf("Invalid Oauth state")
@@ -290,8 +288,8 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 		return
 	}
 
-	found ,_, err := admin.Find(payload["email"])
-	if(!found){
+	found, _, err := admin.Find(payload["email"])
+	if !found {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Not an Admin",
 		})
@@ -302,14 +300,14 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 	redirect = redirect + "?token=" + payload["token"]
 
 	if redirect == "" {
-        c.Header("Content-Type", "application/json")
+		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusCreated, gin.H{
 			"message": "Logged In As Admin",
 			"data":    payload,
 		})
-    } else {
+	} else {
 		c.Redirect(http.StatusTemporaryRedirect, redirect)
-    }
+	}
 }
 
 func AdminVerify(c *gin.Context) {
@@ -318,22 +316,22 @@ func AdminVerify(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Admin Verified",
 	})
-	
+
 }
 
 type UserClaims struct {
-	Id        string `json:"_id"`
-	Name 	  string `json:"name"`
-	IsAdmin   bool   `json:"isAdmin"`
-	Email     string `json:"email"`
-	Photo     string `json:"photo"`
-	Entity 	  string `json:"entity"`
+	Id      string `json:"_id"`
+	Name    string `json:"name"`
+	IsAdmin bool   `json:"isAdmin"`
+	Email   string `json:"email"`
+	Photo   string `json:"photo"`
+	Entity  string `json:"entity"`
 	jwt.StandardClaims
 }
 
 type AdminClaim struct {
-	IsAdmin   bool   `json:"isAdmin"`
-	Email     string `json:"email"`
+	IsAdmin bool   `json:"isAdmin"`
+	Email   string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -351,7 +349,7 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 		if err := json.Unmarshal(token, googleUser); err != nil {
 			return nil, err
 		}
-		
+
 		id, err := users.Insert(googleUser)
 
 		// fmt.Println("id",id)
@@ -362,12 +360,12 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 		// Create the JWT claims, which includes the username and expiry time
 
 		claims := &UserClaims{
-			Id:        id.(primitive.ObjectID).Hex(),
-			Name:      googleUser.Name,
-			IsAdmin:   false,
-			Email:     googleUser.Email,
-			Photo:     googleUser.Photo,
-			Entity:    "user",
+			Id:      id.(primitive.ObjectID).Hex(),
+			Name:    googleUser.Name,
+			IsAdmin: false,
+			Email:   googleUser.Email,
+			Photo:   googleUser.Photo,
+			Entity:  "user",
 			StandardClaims: jwt.StandardClaims{
 				// In JWT, the expiry time is expressed as unix milliseconds
 				ExpiresAt: expirationTime.Unix(),
@@ -385,16 +383,16 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 		//respondWithJson(w, http.StatusCreated, place)
 		//fmt.Fprintf(w, "%s", tokenString)
 		payload := map[string]string{
-			"token":     tokenString,
-			"name":      googleUser.Name,
-			"email":     googleUser.Email,
-			"photo":     googleUser.Photo,
+			"token": tokenString,
+			"name":  googleUser.Name,
+			"email": googleUser.Email,
+			"photo": googleUser.Photo,
 		}
 		return payload, err
 	}
 }
 
-func DecodeIdToken(idToken string) (map[string]string,error) {
+func DecodeIdToken(idToken string) (map[string]string, error) {
 	_, err := idtoken.Validate(context.Background(), idToken, config.Auth.Google.ClientId)
 	if err != nil {
 		Logger.Errorf("Invalid Token")
@@ -408,10 +406,10 @@ func DecodeIdToken(idToken string) (map[string]string,error) {
 		if err := json.Unmarshal(token, googleUser); err != nil {
 			return nil, err
 		}
-		
+
 		payload := map[string]string{
-			"name":      googleUser.Name,
-			"email":     googleUser.Email,
+			"name":  googleUser.Name,
+			"email": googleUser.Email,
 		}
 		return payload, err
 	}
@@ -431,13 +429,13 @@ func signInAdminWithIdToken(idToken string) (map[string]string, error) {
 		if err := json.Unmarshal(token, googleUser); err != nil {
 			return nil, err
 		}
-		
+
 		expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
 
 		claims := &AdminClaim{
-			Email:    googleUser.Email,
-			IsAdmin:   true,
+			Email:   googleUser.Email,
+			IsAdmin: true,
 			StandardClaims: jwt.StandardClaims{
 				// In JWT, the expiry time is expressed as unix milliseconds
 				ExpiresAt: expirationTime.Unix(),
@@ -455,8 +453,8 @@ func signInAdminWithIdToken(idToken string) (map[string]string, error) {
 		//respondWithJson(w, http.StatusCreated, place)
 		//fmt.Fprintf(w, "%s", tokenString)
 		payload := map[string]string{
-			"token":     tokenString,
-			"email":     googleUser.Email,
+			"token": tokenString,
+			"email": googleUser.Email,
 		}
 		return payload, err
 	}
