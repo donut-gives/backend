@@ -83,6 +83,8 @@ func SetTokenAndConfig(token *oauth2.Token) {
 
 func SendMail(to, subject, bodyType, body string) error {
 	var message gmail.Message
+        
+        RefreshAccessToken()
 
 	if gmailToken == nil {
 		return fmt.Errorf("gmail Token is not set")
