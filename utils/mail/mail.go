@@ -54,7 +54,7 @@ func RefreshAccessToken() error {
 
 	fmt.Printf("Access Token: %s", googleOauthToken.AccessToken)
 	fmt.Printf("Refresh Token: %s", googleOauthToken.RefreshToken)
-	token, err := GoogleOauthConfig.TokenSource(context.Background(), googleOauthToken).Token()
+	token, err := GoogleOauthConfig.TokenSource(context.TODO(), googleOauthToken).Token()
 	if err != nil {
 		return err
 	}
