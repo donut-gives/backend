@@ -2,6 +2,7 @@ package mail
 
 import (
 	"context"
+	"donutBackend/logger"
 	"encoding/base64"
 	"fmt"
 	"google.golang.org/api/option"
@@ -85,7 +86,10 @@ func SetTokenAndConfig(token *oauth2.Token) {
 func SendMail(to, subject, bodyType, body string) error {
 	var message gmail.Message
 
-	RefreshAccessToken()
+	err := RefreshAccessToken()
+	if err != nil {
+		logger.Logger.Errorf("error refreshing token: %v", err)
+	}
 
 	if gmailToken == nil {
 		return fmt.Errorf("gmail Token is not set")
