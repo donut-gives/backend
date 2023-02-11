@@ -12,7 +12,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
-	gomail "gopkg.in/gomail.v2"
+	"gopkg.in/gomail.v2"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"

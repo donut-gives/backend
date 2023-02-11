@@ -137,10 +137,15 @@ func JoinWaitlist(c *gin.Context) {
 	  We will contact you shortly for easy onboarding soon. If you have any queries, we are just a mail away. Feel free to reply to this mail to get an assured reply from the team.
 	</div>
   
-	<div class="container story" style="background-color: #FFFFFF;border-radius: 28px;padding: 28px 32px 36px;">
+	<div class="container story with-space" style="margin-bottom: 36px;background-color: #FFFFFF;border-radius: 28px;padding: 28px 32px 36px;">
 	  <div class="poppins-semibold body-text text-center with-very-little-space" style="margin-bottom: 12px;text-align: center;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 600;font-size: 14px;">Want to know our story?</div>
 	  <a href="https://donutgives.notion.site/Donut-fc5fcf1a735e41a38d0332cdbcf787bb" target="_blank" style="text-decoration: none"><div class="secondary-button" style="border-radius: 22px;height: 40px;border: 2px solid #FF6A85;color: #FF6A85;text-align: center;line-height: 38px;font-family: 'Clash Grotesk', 'Space Grotesk', 'Arial', 'sans-serif';letter-spacing: 1px;font-size: 14px;">Read here</div></a>
 	</div>
+	<div class="poppins-regular text-grey text-center smallest-text" style="text-align: center;color: #8E8E8E;font-family: 'Poppins', 'Arial', 'sans-serif';font-weight: 400;">
+	    <a class="text-grey" href="https://donut.gives/?tag=63e748e03cd729fed04ecaa7" target="_blank" style="text-decoration: none;color: #8E8E8E;">
+	    	unsubscribe • donut
+	    </a>
+    </div>
   </div>
   `
 
