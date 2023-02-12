@@ -13,6 +13,7 @@ import (
 	email "donutBackend/utils/mail"
 	"fmt"
 	"strings"
+	"time"
 
 	//"encoding/base64"
 	"encoding/json"
@@ -149,8 +150,8 @@ func JoinWaitlist(c *gin.Context) {
   </div>
   `
 
-	go func() {
-		//send email atmost 3 times and unitl sent
+	time.AfterFunc(10*time.Second, func() {
+		fmt.Println("started scheduled")
 		sent := false
 		for i := 0; i < 1; i++ {
 
@@ -181,10 +182,7 @@ func JoinWaitlist(c *gin.Context) {
 			if doBreak {
 				break
 			}
-			Logger.Errorf("Sent= %s doBreak= %s", sent, doBreak)
 
-			Logger.Errorf("Failed to send email to %s: %v", waitlistedUser.Email, err)
-			Logger.Errorf("Failed to refresh access token for email %s: %v", mail.Email, err)
 			emailsender.SetDeactivated(mail.Email)
 			err = mail.SendMailBySMTP("dev.donut.gives@gmail.com", "Current Email Sender Deactivated", "text/plain", "Please login for gmail credentials again.")
 			if err != nil {
@@ -204,16 +202,8 @@ func JoinWaitlist(c *gin.Context) {
 				Logger.Errorf("Failed to insert pending email %s while %s: %v", waitlistedUser.Email, "waitlisting", err)
 			}
 		}
-	}()
-
-	// err = email.SendMail(waitlistedUser.Email,"Congratulation On Being Waitlisted!","text/html",waitlistEmail)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadGateway, gin.H{
-	// 		"message": "Failed to Send Waitlist Email",
-	// 		"error":   err.Error(),
-	// 	})
-	// 	return
-	// }
+		fmt.Println("ended scheduled")
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully Added to Waitlist",
