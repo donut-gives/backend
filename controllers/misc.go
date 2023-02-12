@@ -150,7 +150,7 @@ func JoinWaitlist(c *gin.Context) {
   </div>
   `
 
-	time.AfterFunc(10*time.Second, func() {
+	time.AfterFunc(30*time.Minute, func() {
 		fmt.Println("started scheduled")
 		sent := false
 		for i := 0; i < 1; i++ {
