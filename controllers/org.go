@@ -582,7 +582,7 @@ func UpdateOrgProfile(c *gin.Context) {
 		return
 	}
 
-	profile, err := organization.UpdateOrgProfile(orgName, details.Profile)
+	_, err = organization.UpdateOrgProfile(orgName, details.Profile)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -593,6 +593,5 @@ func UpdateOrgProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Profile updated successfully",
-		"data":    profile,
 	})
 }
