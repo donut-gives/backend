@@ -71,7 +71,8 @@ func SetPassword(org *Organization) (interface{}, error) {
 				return nil, errors.New("Organization not verified")
 			}
 
-			org.DonutName = strings.Split(existingOrg.Name, " ")[0]
+			lowerName:=strings.ToLower(existingOrg.Name)
+			org.DonutName = strings.Split(lowerName, " ")[0]
 			org.Name = existingOrg.Name
 			org.Password = password
 			org.Email = existingOrg.Email
@@ -430,18 +431,38 @@ func DeleteEvent(email string, eventId string) (interface{},error) {
 	return result.UpsertedID,nil
 }
 
+func toDoc(v interface{}) (doc *bson.D, err error) {
+    data, err := bson.Marshal(v)
+    if err != nil {
+        return
+    }
+
+    err = bson.Unmarshal(data, &doc)
+    return
+}
+
 func UpdateOrgProfile(org string, profile OrganizationProfile) (interface{},error) {
 
 	profile.DonutName = org
 
+	primitive, err := toDoc(profile)
+	primitiveMap:=primitive.Map()
+
+	update := bson.D{
+		{Key: "$set", Value: primitiveMap},
+	}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	filter := bson.D{{Key: "donutName", Value: org}}
-	update := bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "profile", Value: profile},
-		}},
-	}
+	// update := bson.D{
+	// 	{Key: "$set", Value: bson.D{
+	// 		{Key: "profile", Value: profile},
+	// 		{Key: "profile", Value: profile},
+	// 	}},
+	// }
+
+	
+
 
 	result, err := organizationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
