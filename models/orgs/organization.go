@@ -13,13 +13,32 @@ type Message struct {
 	Designation string `bson:"designation,omitempty" json:"designation,omitempty"`
 }
 
+type Story struct {
+	Paragraphs []string `bson:"paragraphs,omitempty" json:"paragraphs,omitempty"`
+	MediaFile string `bson:"mediaFile,omitempty" json:"mediaFile,omitempty"`
+	MediaType string `bson:"mediaType,omitempty" json:"mediaType,omitempty"`
+}
+
+type References struct {
+	ArticleURL string `bson:"articleURL,omitempty" json:"articleURL,omitempty"`
+	Title string `bson:"articleTitle,omitempty" json:"articleTitle,omitempty"`
+	MediaName string `bson:"mediaName,omitempty" json:"mediaName,omitempty"`
+	ImageURL string `bson:"imageURL,omitempty" json:"imageURL,omitempty"`
+}
+
+type Impact struct {
+	Quantity int `bson:"quantity,omitempty" json:"quantity,omitempty"`
+	Unit string `bson:"unit,omitempty" json:"unit,omitempty"`
+}
+
 type Statistics struct {
-	Story string `bson:"story,omitempty" json:"story,omitempty"`
+	Story Story `bson:"story,omitempty" json:"story,omitempty"`
 	Financials string `bson:"financials,omitempty" json:"financials,omitempty"`
 	EmployeeCount int `bson:"employeeCount,omitempty" json:"employeeCount,omitempty"`
 	References []string `bson:"refrences,omitempty" json:"refrences,omitempty"`
 	Cause string `bson:"cause,omitempty" json:"cause,omitempty"`
 	Donations int `bson:"donations,omitempty" json:"donations,omitempty"`
+	Impact []Impact `bson:"impact,omitempty" json:"impact,omitempty"`
 	Messages []Message `bson:"messages,omitempty" json:"messages,omitempty"`
 }
 
