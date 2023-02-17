@@ -35,7 +35,7 @@ type Statistics struct {
 	Story Story `bson:"story,omitempty" json:"story,omitempty"`
 	Financials string `bson:"financials,omitempty" json:"financials,omitempty"`
 	EmployeeCount int `bson:"employeeCount,omitempty" json:"employeeCount,omitempty"`
-	References []string `bson:"refrences,omitempty" json:"refrences,omitempty"`
+	References []References `bson:"refrences,omitempty" json:"refrences,omitempty"`
 	Cause string `bson:"cause,omitempty" json:"cause,omitempty"`
 	Donations int `bson:"donations,omitempty" json:"donations,omitempty"`
 	Impact []Impact `bson:"impact,omitempty" json:"impact,omitempty"`

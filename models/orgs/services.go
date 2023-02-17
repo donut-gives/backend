@@ -303,7 +303,7 @@ func GetEmployees(org string) (int,error){
 	return findResult.Stats.EmployeeCount, nil
 }
 
-func GetRefrences(org string) ([]string,error){
+func GetRefrences(org string) ([]References,error){
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -317,9 +317,9 @@ func GetRefrences(org string) ([]string,error){
 	if err != nil {
 		
 		if err == mongo.ErrNoDocuments {
-			return []string{}, errors.New("No such organization found")
+			return nil, errors.New("No such organization found")
 		}
-		return []string{}, err
+		return nil, err
 	}
 
 	return findResult.Stats.References, nil
