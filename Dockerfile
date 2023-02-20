@@ -2,9 +2,12 @@
 
 FROM golang:1.17-alpine
 
-WORKDIR /
+WORKDIR /src
 
 COPY . .
+
+ENV PORT=3100 \
+    GIN_MODE="debug"
 
 RUN go build -o /donut-gives
 
