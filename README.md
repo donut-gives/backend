@@ -1,6 +1,13 @@
 # Donut Backend
 #### Built in ```Golang``` 🚀
 
+## Running the project
+* Clone the project
+  ```git clone https://github.com/orgdonut/backend.git```
+* Setup the  ```config.yml``` from given ```config-example.yml```
+* install dependencies using the command: ```go get .```
+* build the project: ```go build .```
+* run the server: ```go run main.go```
 ## Conventions 🤌
 * Branch Naming - braches should be named in snake_case with following tags separated by '/' at the start:
   * **feat** - indicating a new feature has been implemented in this branch
