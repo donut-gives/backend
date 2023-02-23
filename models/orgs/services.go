@@ -212,14 +212,14 @@ func GetOrgProfile(org string) (OrganizationProfile,error) {
 	return findResult, nil
 }
 
-func GetEvents(email string) ([]events.Event,error) {
+func GetEvents(donutName string) ([]events.Event,error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
 	var findResult Organization
 	err := organizationCollection.FindOne(
 		ctx,
-		bson.D{{Key: "email", Value: email}},
+		bson.D{{Key: "donutName", Value: donutName}},
 		opts,
 	).Decode(&findResult)
 	if err != nil {

@@ -280,9 +280,9 @@ func OrgForgotPassword(c *gin.Context) {
 
 func GetOrgEvents(c *gin.Context) {
 
-	email := c.Query("email")
+	org := c.Param("org")
 
-	events, err := organization.GetEvents(email)
+	events, err := organization.GetEvents(org)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

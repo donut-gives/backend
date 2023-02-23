@@ -11,7 +11,7 @@ func addEventRoutes(g *gin.RouterGroup) {
 
 	event := g.Group("/opportunity")
 
-	event.GET("/", controllers.GetOrgEvents)
+	//event.GET("/", controllers.GetOrgEvents)
 	event.GET("/share",controllers.GetSpecificOrgEvent)
 	event.POST("/create", middleware.VerifyOrgToken() ,controllers.AddOrgEvent)
 	event.POST("/apply", middleware.VerifyUserToken() , controllers.AddUserEvent)
