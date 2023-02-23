@@ -280,7 +280,7 @@ func OrgForgotPassword(c *gin.Context) {
 
 func GetOrgEvents(c *gin.Context) {
 
-	email := c.Param("email")
+	email := c.Query("email")
 
 	events, err := organization.GetEvents(email)
 
