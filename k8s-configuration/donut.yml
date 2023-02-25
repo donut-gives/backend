@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: donut-gives
+spec:
+  selector:
+    matchLabels:
+      app: donut-gives
+  template:
+    metadata:
+      labels:
+        app: donut-gives
+    spec:
+      containers:
+      - name: donut-gives
+        image: asia.gcr.io/donut-366007/donut-gives
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3100
+      imagePullSecrets:
+        - name: gcr-json-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: donut-gives-service
+spec:
+  selector:
+    app: donut-gives
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 3100
+    targetPort: 3100
+    nodePort: 30000
+
+
