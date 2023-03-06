@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: donut-gives
-        image: asia.gcr.io/donut-366007/donut-gives
+        image: asia.gcr.io/donut-366007/donut-gives:v1.1
         resources:
           limits:
             memory: "128Mi"
