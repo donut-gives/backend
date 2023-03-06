@@ -20,6 +20,8 @@ import (
 	"google.golang.org/appengine"
 )
 
+
+
 func GetUserEvents(c *gin.Context) {
 	
 	details:=struct{
@@ -88,7 +90,7 @@ func AddUserEvent(c *gin.Context) {
 
 	if(found){
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Event Already Exists",
+			"message": "Already Applied To The Event",
 		})
 		return
 	}
@@ -99,7 +101,6 @@ func AddUserEvent(c *gin.Context) {
 	key:=config.Cloud.KeyFile
 
 	ctx := appengine.NewContext(c.Request)
-
 
 	var storageClient *storage.Client 
 
@@ -161,7 +162,7 @@ func AddUserEvent(c *gin.Context) {
 		return
 	}
 
-	userInfo.Resume=url.String()
+	_=url.String()
 
 	err = users.AddEvent(user,event)
 	if(err!=nil){
@@ -182,6 +183,93 @@ func AddUserEvent(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Event Added Successfully",
 	})
+
+}
+
+func AddUserEventDetails(c *gin.Context) {
+	user:=users.GoogleUser{}
+	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userInfo:=events.UserInfo{}
+	err=json.Unmarshal([]byte(c.GetString("user")),&userInfo)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	details := struct {
+		EventId string `json:"eventId"`
+		FormFieldsType []int `json:"formFields"`
+		FormFieldsValue []interface{} `json:"formFieldsValue"`
+	}{}
+
+	err = c.BindJSON(&details)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	for i:=0;i<len(details.FormFieldsType);i++{
+		if(details.FormFieldsType[i]==1){
+			userInfo.FormFields=append(userInfo.FormFields,events.FormValue{
+				Type:details.FormFieldsType[i],
+				Value:events.ChoiceValue{
+					Choice:details.FormFieldsValue[i].(string),
+				},
+			})
+		}else if(details.FormFieldsType[i]==2){
+			userInfo.FormFields=append(userInfo.FormFields,events.FormField{
+				Type:details.FormFieldsType[i],
+				Value:events.ChoiceValue{
+					Choice:details.FormFieldsValue[i].(string),
+				},
+			})
+		}
+	}
+
+
+
+	//eventId:=c.Request.FormValue("eventId")
+	
+	event,err:=events.GetEventById(details.EventId)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	found,err:=users.CheckEventExists(user,event)
+	if(err!=nil){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+
+
+	if(found){
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Already Applied To The Event",
+		})
+		return
+	}
+
+
+}
+
+func AddUserEventMedia(c *gin.Context) {
 
 }
 

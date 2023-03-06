@@ -140,6 +140,7 @@ func OrgSignIn(c *gin.Context) {
 		"name":  org.Name,
 		"email": org.Email,
 		"photo": org.Photo,
+		"donut-name": org.DonutName,
 	}
 
 	c.JSON(http.StatusOK, gin.H{

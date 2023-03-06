@@ -98,3 +98,16 @@ func DeleteEvent(id string) error {
 	}
 	return nil
 }
+
+func InsertEvent(event *Event) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	result, err := eventsCollection.InsertOne(ctx, event)
+	if err != nil {
+		return err
+	}
+	if(result.InsertedID == nil){
+		return errors.New("Event not inserted")
+	}
+	return nil
+}

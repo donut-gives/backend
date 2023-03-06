@@ -7,6 +7,7 @@ import (
 	organization "donutBackend/models/orgs"
 	pendingEmail "donutBackend/models/pendingEmails"
 	"donutBackend/models/users"
+	events "donutBackend/models/events"
 	"donutBackend/models/waitlist"
 	weblinks "donutBackend/models/web_links"
 	"donutBackend/utils/mail"
@@ -369,4 +370,26 @@ func GetProfile(c *gin.Context) {
 		}
 	}
 
+}
+
+func Test(c *gin.Context) {
+
+	details:=&events.Event{}
+
+	c.BindJSON(details)
+
+	fmt.Println(details)
+
+	err:=events.InsertEvent(details)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{
+			"message":"Failed to insert event",
+			"error":err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Test Successful",
+	})
 }

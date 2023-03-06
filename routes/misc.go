@@ -13,6 +13,7 @@ import (
 //}
 
 func addMiscRoutes(g *gin.RouterGroup) {
+	g.GET("/test", controllers.Test)
 	g.GET("/discord-invite", controllers.DiscordInvite)
 
 	g.GET("/profile", middleware.ProfileAuthorize() , controllers.GetProfile)
