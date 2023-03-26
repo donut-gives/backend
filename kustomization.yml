@@ -1,2 +1,2 @@
 resources:
-  - "/kubernetes.yml"
+  - kubernetes.yml
