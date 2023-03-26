@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
-  GKE_CLUSTER: donut-cluster   # Add your cluster name here.
-  GKE_ZONE: asia-south1   # Add your cluster zone here.
-  DEPLOYMENT_NAME: donut-deployment # Add your deployment name here.
+  GKE_CLUSTER: donut-cluster
+  GKE_ZONE: asia-south1
+  DEPLOYMENT_NAME: donut-gives
   IMAGE: donut-gives
 
 jobs:
