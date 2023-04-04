@@ -8,6 +8,7 @@ import (
 	"donutBackend/models/users"
 	"donutBackend/utils/mail"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -207,7 +208,7 @@ func OAuthGoogleUserAndroid(c *gin.Context) {
 	if details.IdToken == "" {
 		payload, err = signInUserWithAccessToken(details.AccessToken)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": err.Error(),
 			})
 			return
@@ -215,7 +216,7 @@ func OAuthGoogleUserAndroid(c *gin.Context) {
 	} else {
 		payload, err = signInUserWithIdToken(details.IdToken)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": err.Error(),
 			})
 			return
@@ -476,12 +477,30 @@ func signInUserWithAccessToken(accessToken string) (map[string]string, error) {
 		Logger.Error("Get: " + err.Error() + "\n")
 		return nil, err
 	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		error := struct {
+			Error struct {
+				Code    int    `json:"code"`
+				Message string `json:"message"`
+			} `json:"error"`
+		}{}
+
+		defer resp.Body.Close()
+		response, _ := ioutil.ReadAll(resp.Body)
+
+		json.Unmarshal(response, &error)
+		Logger.Errorf("Cannot fetch the user info. Error code: " + string(rune(error.Error.Code)))
+		return nil, errors.New(error.Error.Message)
+	}
+
 	defer resp.Body.Close()
 	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		Logger.Error("ReadAll: " + err.Error() + "\n")
 		return nil, err
 	}
+
 	googleUser := users.GoogleUser{}
 	err = json.Unmarshal(response, &googleUser)
 	if err != nil {
