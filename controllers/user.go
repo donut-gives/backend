@@ -104,7 +104,7 @@ func AddUserEvent(c *gin.Context) {
 
 	var storageClient *storage.Client 
 
-	if(*config.Env=="prod"){
+	if(*config.Env=="prod" || *config.Env=="staging"){
 		storageClient, err = storage.NewClient(ctx)
 	}else{
 		storageClient, err = storage.NewClient(ctx, option.WithCredentialsFile(key))

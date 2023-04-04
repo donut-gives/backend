@@ -40,7 +40,7 @@ func init() {
 }
 
 func GetLinks(c *gin.Context) {
-
+	
 	links, err := weblinks.GetLinks()
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
