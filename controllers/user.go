@@ -218,24 +218,27 @@ func AddUserEventDetails(c *gin.Context) {
 		})
 		return
 	}
+	
+	//in progress
+	
 
-	for i:=0;i<len(details.FormFieldsType);i++{
-		if(details.FormFieldsType[i]==1){
-			userInfo.FormFields=append(userInfo.FormFields,events.FormValue{
-				Type:details.FormFieldsType[i],
-				Value:events.ChoiceValue{
-					Choice:details.FormFieldsValue[i].(string),
-				},
-			})
-		}else if(details.FormFieldsType[i]==2){
-			userInfo.FormFields=append(userInfo.FormFields,events.FormField{
-				Type:details.FormFieldsType[i],
-				Value:events.ChoiceValue{
-					Choice:details.FormFieldsValue[i].(string),
-				},
-			})
-		}
-	}
+	// for i:=0;i<len(details.FormFieldsType);i++{
+	// 	if(details.FormFieldsType[i]==1){
+	// 		userInfo.FormFields=append(userInfo.FormFields,events.FormValue{
+	// 			Type:details.FormFieldsType[i],
+	// 			Value:events.ChoiceValue{
+	// 				Choice:details.FormFieldsValue[i].(string),
+	// 			},
+	// 		})
+	// 	}else if(details.FormFieldsType[i]==2){
+	// 		userInfo.FormFields=append(userInfo.FormFields,events.FormField{
+	// 			Type:details.FormFieldsType[i],
+	// 			Value:events.ChoiceValue{
+	// 				Choice:details.FormFieldsValue[i].(string),
+	// 			},
+	// 		})
+	// 	}
+	// }
 
 
 

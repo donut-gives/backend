@@ -138,6 +138,7 @@ func OrgSignIn(c *gin.Context) {
 		"token": tokenString,
 		"id":    org.Id,
 		"name":  org.Name,
+		"donutName": org.DonutName,
 		"email": org.Email,
 		"photo": org.Photo,
 		"donut-name": org.DonutName,
