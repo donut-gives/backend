@@ -9,6 +9,7 @@ import (
 	"donutBackend/utils/mail"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -189,7 +190,8 @@ func OAuthGoogleUserCallback(c *gin.Context) {
 func OAuthGoogleUserAndroid(c *gin.Context) {
 
 	details := struct {
-		IdToken string `json:"id_token"`
+		IdToken     string `json:"id_token"`
+		AccessToken string `json:"access_token"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -200,14 +202,24 @@ func OAuthGoogleUserAndroid(c *gin.Context) {
 		return
 	}
 
-	//idToken := fmt.Sprint(id)
+	payload := map[string]string{}
 
-	payload, err := signInUserWithIdToken(details.IdToken)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
+	if details.IdToken == "" {
+		payload, err = signInUserWithAccessToken(details.AccessToken)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+	} else {
+		payload, err = signInUserWithIdToken(details.IdToken)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
 	}
 
 	c.Header("Content-Type", "application/json")
@@ -311,12 +323,10 @@ func OAuthGoogleAdminCallback(c *gin.Context) {
 }
 
 func AdminVerify(c *gin.Context) {
-
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Admin Verified",
 	})
-
 }
 
 type UserClaims struct {
@@ -458,4 +468,58 @@ func signInAdminWithIdToken(idToken string) (map[string]string, error) {
 		}
 		return payload, err
 	}
+}
+
+func signInUserWithAccessToken(accessToken string) (map[string]string, error) {
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken)
+	if err != nil {
+		Logger.Error("Get: " + err.Error() + "\n")
+		return nil, err
+	}
+	defer resp.Body.Close()
+	response, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		Logger.Error("ReadAll: " + err.Error() + "\n")
+		return nil, err
+	}
+	googleUser := users.GoogleUser{}
+	err = json.Unmarshal(response, &googleUser)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := users.Insert(&googleUser)
+	expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
+	// Create the JWT claims, which includes the username and expiry time
+
+	claims := &UserClaims{
+		Id:      id.(primitive.ObjectID).Hex(),
+		Name:    googleUser.Name,
+		IsAdmin: false,
+		Email:   googleUser.Email,
+		Photo:   googleUser.Photo,
+		Entity:  "user",
+		StandardClaims: jwt.StandardClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+	// Declare the token with the algorithm used for signing, and the claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Create the JWT string
+	tokenString, err := token.SignedString([]byte(config.Auth.JWTSecret))
+	if err != nil {
+		Logger.Errorf("Error while signing jwt, %s", err)
+		// If there is an error in creating the JWT return an internal server error
+		return nil, err
+	}
+	//respondWithJson(w, http.StatusCreated, place)
+	//fmt.Fprintf(w, "%s", tokenString)
+	payload := map[string]string{
+		"token": tokenString,
+		"name":  googleUser.Name,
+		"email": googleUser.Email,
+		"photo": googleUser.Photo,
+	}
+	return payload, err
 }
