@@ -16,6 +16,11 @@ type Config struct {
 	Env     string
 	Emailer EmailerStruct
 	Cloud   CloudStorageStruct
+	OpenAI  OpenAIStruct `mapstructure:"open_ai"`
+}
+
+type OpenAIStruct struct {
+	APIKey string `mapstructure:"api_key"`
 }
 
 type CloudStorageStruct struct {
@@ -78,6 +83,7 @@ var Captcha *CaptchaStruct
 var Env *string
 var Emailer *EmailerStruct
 var Cloud *CloudStorageStruct
+var OpenAI *OpenAIStruct
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -115,4 +121,5 @@ func init() {
 	Env = &configs.Env
 	Emailer = &configs.Emailer
 	Cloud = &configs.Cloud
+	OpenAI = &configs.OpenAI
 }
