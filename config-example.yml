@@ -11,3 +11,5 @@ auth:
     client_secret: "google client secret"
 captcha:
   secret: "captcha secret"
+open_ai:
+  api_key: "add api key"
