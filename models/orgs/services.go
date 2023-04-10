@@ -2,10 +2,10 @@ package organization
 
 import (
 	"context"
-	"strings"
 	"donutBackend/db"
-	"donutBackend/models/new_orgs"
-	"donutBackend/models/events"
+	org_verification "donutBackend/models/new_orgs"
+	"donutBackend/models/volunteer"
+	"strings"
 	///"donutBackend/models/users"
 	"errors"
 	"time"
@@ -16,7 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
-	
 )
 
 var organizationCollection = new(mongo.Collection)
@@ -41,8 +40,8 @@ func init() {
 
 func SetPassword(org *Organization) (interface{}, error) {
 
-	password,err := HashPassword(org.Password)
-	if err!=nil {
+	password, err := HashPassword(org.Password)
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,17 +61,17 @@ func SetPassword(org *Organization) (interface{}, error) {
 		// the collection.
 		if err == mongo.ErrNoDocuments {
 
-			existingOrg,err := orgVerification.Get(org.Email)
-			if err!=nil {
+			existingOrg, err := org_verification.Get(org.Email)
+			if err != nil {
 				return nil, err
 			}
 
-			if existingOrg.Status!="VERIFIED" {
+			if existingOrg.Status != "VERIFIED" {
 				return nil, errors.New("Organization not verified")
 			}
 
-			lowerName:=strings.ToLower(existingOrg.Name)
-			org.DonutName = strings.Split(lowerName, " ")[0]
+			lowerName := strings.ToLower(existingOrg.Name)
+			org.Username = strings.Split(lowerName, " ")[0]
 			org.Name = existingOrg.Name
 			org.Password = password
 			org.Email = existingOrg.Email
@@ -107,11 +106,11 @@ func SetPassword(org *Organization) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return result.UpsertedID, nil
 }
 
-func CheckPwd(email string,password string) (*Organization, error) {
+func CheckPwd(email string, password string) (*Organization, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	opts := options.FindOne()
@@ -124,13 +123,13 @@ func CheckPwd(email string,password string) (*Organization, error) {
 	).Decode(&findResult)
 
 	if err != nil {
-		if(err == mongo.ErrNoDocuments) {
+		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("No such organization found")
 		}
 		return nil, err
 	}
 
-	check:=VerifyPassword(password,findResult.Password)
+	check := VerifyPassword(password, findResult.Password)
 
 	findResult.Password = ""
 
@@ -141,7 +140,7 @@ func CheckPwd(email string,password string) (*Organization, error) {
 	return nil, errors.New("Password is incorrect")
 }
 
-func Find(email string) (bool, error) {
+func Find(id string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -149,96 +148,91 @@ func Find(email string) (bool, error) {
 	err := organizationCollection.FindOne(
 		ctx,
 		bson.D{
-			{Key: "email", Value: email},
+			{Key: "_id", Value: id},
 		},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return false, nil
 		}
 		return false, err
 	}
-	
+
 	return true, nil
 }
 
-func Get(email string) (Organization,error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	opts := options.FindOne()
-	var findResult Organization
-	err := organizationCollection.FindOne(
-		ctx,
-		bson.D{{Key: "email", Value: email}},
-		opts,
-	).Decode(&findResult)
-	if err != nil {
-		
-		if err == mongo.ErrNoDocuments {
-			return Organization{}, errors.New("No such organization found")
-		}
-		return Organization{}, err
-	}
-
-	findResult.Password = ""
-	
-	return findResult, nil
-}
-
-func GetOrgProfile(org string) (OrganizationProfile,error) {
+func GetOrg(username string) (OrganizationProfile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
 	var findResult OrganizationProfile
 	err := organizationCollection.FindOne(
 		ctx,
-		bson.D{{Key: "donutName", Value: org}},
+		bson.D{{Key: "username", Value: username}},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
 		if err == mongo.ErrNoDocuments {
 			return OrganizationProfile{}, errors.New("No such organization found")
 		}
 		return OrganizationProfile{}, err
 	}
-	
-	// for i:=0;i<len(findResult.Events);i++ {
-	// 	findResult.Events[i].Volunteers = nil
-	// }
 
 	return findResult, nil
 }
 
-func GetEvents(donutName string) ([]events.Event,error) {
+func GetOpportunities(username string) ([]volunteer.Opportunity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
 	var findResult Organization
 	err := organizationCollection.FindOne(
 		ctx,
-		bson.D{{Key: "donutName", Value: donutName}},
+		bson.D{{Key: "username", Value: username}},
+		opts,
+	).Decode(&findResult)
+	print(findResult.Username)
+	print(findResult.Opportunities)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			//return empty array
+			return []volunteer.Opportunity{}, errors.New("no such organization found")
+		}
+		return []volunteer.Opportunity{}, err
+	}
+	return findResult.Opportunities, nil
+}
+
+func GetOpportunity(username string, opportunityId string) (volunteer.Opportunity, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	opts := options.FindOne()
+	var findResult Organization
+	err := organizationCollection.FindOne(
+		ctx,
+		bson.D{
+			{Key: "username", Value: username},
+			{Key: "volunteer", Value: bson.D{
+				{Key: "$elemMatch", Value: bson.D{
+					{Key: "_id", Value: opportunityId}},
+				},
+			}},
+		},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
 		if err == mongo.ErrNoDocuments {
 			//return empty array
-			return []events.Event{}, errors.New("No such organization found")
+			return volunteer.Opportunity{}, errors.New("no such organization found")
 		}
-		return []events.Event{}, err
+		return volunteer.Opportunity{}, err
 	}
-	
-	for i:=0;i<len(findResult.Events);i++ {
-		findResult.Events[i].Volunteers = nil
-	}
-
-	return findResult.Events, nil
+	return findResult.Opportunities[0], nil
 }
 
-func GetStats(donutName string) (interface{},error) {
+func GetStats(donutName string) (interface{}, error) {
 
 	//get stats
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -261,7 +255,7 @@ func GetStats(donutName string) (interface{},error) {
 	return findResult.Stats, nil
 }
 
-func GetMessages(org string) ([]Message,error){
+func GetMessages(org string) ([]Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -272,7 +266,7 @@ func GetMessages(org string) ([]Message,error){
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return []Message{}, errors.New("No such organization found")
 		}
@@ -282,7 +276,7 @@ func GetMessages(org string) ([]Message,error){
 	return findResult.Stats.Messages, nil
 }
 
-func GetEmployees(org string) (int,error){
+func GetEmployees(org string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -293,7 +287,7 @@ func GetEmployees(org string) (int,error){
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return 0, errors.New("No such organization found")
 		}
@@ -303,7 +297,7 @@ func GetEmployees(org string) (int,error){
 	return findResult.Stats.EmployeeCount, nil
 }
 
-func GetRefrences(org string) ([]References,error){
+func GetReferences(org string) ([]References, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -315,7 +309,7 @@ func GetRefrences(org string) ([]References,error){
 	).Decode(&findResult)
 
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("No such organization found")
 		}
@@ -325,7 +319,7 @@ func GetRefrences(org string) ([]References,error){
 	return findResult.Stats.References, nil
 }
 
-func GetStory(org string) (interface{},error){
+func GetStory(org string) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -336,7 +330,7 @@ func GetStory(org string) (interface{},error){
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return "", errors.New("No such organization found")
 		}
@@ -346,51 +340,48 @@ func GetStory(org string) (interface{},error){
 	return findResult.Stats.Story, nil
 }
 
-func AddEvent(email string, event events.Event) (interface{},error) {
+func AddOpportunity(id string, event volunteer.Opportunity) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	event.OrgEmail = email
-
-	id , err := events.AddEvent(&event)
-	if err!=nil {
-		return nil,err
+	opId, err := volunteer.AddVolunteerOpportunity(&event)
+	if err != nil {
+		return nil, err
 	}
 
-
-	event.Id = id.(primitive.ObjectID).Hex()
-	filter := bson.D{{Key: "email", Value: email}}
+	event.Id = opId.(primitive.ObjectID).Hex()
+	filter := bson.D{{Key: "_id", Value: id}}
 	update := bson.D{
 		{Key: "$push", Value: bson.D{
-			{Key: "events", Value: event},
+			{Key: "volunteer", Value: event},
 		}},
 	}
 
 	_, err = organizationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	return id,nil
+	return id, nil
 }
 
-func AddUserToEvent(user events.UserInfo,event events.Event) (error) {
+func AddSubmission(orgId string, submission volunteer.Submission, opportunity volunteer.Opportunity) error {
 
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	option := options.Update()
 
 	filter := bson.D{
-		{Key: "email", Value: event.OrgEmail},
-		{Key: "events._id", Value: event.Id},
+		{Key: "_id", Value: orgId},
+		{Key: "volunteer._id", Value: opportunity.Id},
 	}
 	option.SetArrayFilters(options.ArrayFilters{
 		Filters: []interface{}{
-			bson.D{{Key: "elem._id", Value: event.Id}},
+			bson.D{{Key: "elem._id", Value: opportunity.Id}},
 		},
 	})
 	update := bson.D{
 		{Key: "$addToSet", Value: bson.D{
-			{Key: "events.$[elem].Volunteers", Value: user},
+			{Key: "volunteer.$[elem].Submissions", Value: submission},
 		}},
 	}
 
@@ -402,58 +393,58 @@ func AddUserToEvent(user events.UserInfo,event events.Event) (error) {
 	return nil
 }
 
-func DeleteEvent(email string, eventId string) (interface{},error) {
+func DeleteOpportunity(username string, opportunityId string) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	filter := bson.D{{Key: "email", Value: email}}
+	filter := bson.D{{Key: "username", Value: username}}
 	update := bson.D{
 		{Key: "$pull", Value: bson.D{
-			{Key: "events", Value: bson.D{
-				{Key: "eventId", Value: eventId},
+			{Key: "volunteer", Value: bson.D{
+				{Key: "_id", Value: opportunityId},
 			}},
 		}},
 	}
 
 	result, err := organizationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if result.MatchedCount == 0 {
-		return nil,errors.New("No such organization found")
+		return nil, errors.New("No such organization found")
 	}
 
-	err = events.DeleteEvent(eventId)
-	if err!=nil {
-		return nil,err
+	err = volunteer.DeleteEvent(opportunityId)
+	if err != nil {
+		return nil, err
 	}
 
-	return result.UpsertedID,nil
+	return result.UpsertedID, nil
 }
 
 func toDoc(v interface{}) (doc *bson.D, err error) {
-    data, err := bson.Marshal(v)
-    if err != nil {
-        return
-    }
+	data, err := bson.Marshal(v)
+	if err != nil {
+		return
+	}
 
-    err = bson.Unmarshal(data, &doc)
-    return
+	err = bson.Unmarshal(data, &doc)
+	return
 }
 
-func UpdateOrgProfile(org string, profile OrganizationProfile) (interface{},error) {
+func UpdateOrgProfile(username string, profile OrganizationProfile) (interface{}, error) {
 
-	profile.DonutName = org
+	profile.Username = username
 
-	primitive, err := toDoc(profile)
-	primitiveMap:=primitive.Map()
+	prim, err := toDoc(profile)
+	primitiveMap := prim.Map()
 
 	update := bson.D{
 		{Key: "$set", Value: primitiveMap},
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	filter := bson.D{{Key: "donutName", Value: org}}
+	filter := bson.D{{Key: "username", Value: username}}
 	// update := bson.D{
 	// 	{Key: "$set", Value: bson.D{
 	// 		{Key: "profile", Value: profile},
@@ -461,39 +452,36 @@ func UpdateOrgProfile(org string, profile OrganizationProfile) (interface{},erro
 	// 	}},
 	// }
 
-	
-
-
 	result, err := organizationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if result.MatchedCount == 0 {
-		return nil,errors.New("No such organization found")
+		return nil, errors.New("No such organization found")
 	}
 
-	return result.UpsertedID,nil
+	return result.UpsertedID, nil
 }
 
 //HashPassword is used to encrypt the password before it is stored in the DB
-func HashPassword(password string) (string,error) {
-    bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-    if err != nil {
-        return "", err
-    }
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return "", err
+	}
 
-    return string(bytes), nil
+	return string(bytes), nil
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
 func VerifyPassword(userPassword string, providedPassword string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
-    check := true
+	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
+	check := true
 
-    if err != nil {
-        check = false
-    }
+	if err != nil {
+		check = false
+	}
 
-    return check
+	return check
 }

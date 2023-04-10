@@ -3,9 +3,9 @@ package controllers
 import (
 	"donutBackend/config"
 	. "donutBackend/logger"
-	. "donutBackend/models/events"
 	"donutBackend/models/new_orgs"
 	"donutBackend/models/orgs"
+	. "donutBackend/models/volunteer"
 	. "donutBackend/utils/mail"
 	. "donutBackend/utils/token"
 	"encoding/json"
@@ -19,21 +19,19 @@ import (
 )
 
 type OrgClaims struct {
-	Id        string `json:"_id"`
-	Name	  string `json:"name"`
-	Email     string `json:"email"`
-	Photo     string `json:"photo"`
-	Entity	string `json:"entity"`
+	Id     string `json:"_id"`
+	Email  string `json:"email"`
+	Entity string `json:"entity"`
 	jwt.StandardClaims
 }
 
 // OrgSignUp Organizations Applying For Verification SignUp
 func OrgSignUp(c *gin.Context) {
-	var org orgVerification.Organization
-	details:=struct{
-		Tags []int `json:"tags"`
-		State int `json:"state"`
-		Org orgVerification.Organization `json:"org"`
+	var org org_verification.Organization
+	details := struct {
+		Tags  []int                         `json:"tags"`
+		State int                           `json:"state"`
+		Org   org_verification.Organization `json:"org"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -44,9 +42,9 @@ func OrgSignUp(c *gin.Context) {
 		return
 	}
 
-	org=details.Org
+	org = details.Org
 
-	id, err := orgVerification.Insert(&org, details.State, details.Tags)
+	id, err := org_verification.Insert(&org, details.State, details.Tags)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -114,10 +112,9 @@ func OrgSignIn(c *gin.Context) {
 	expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &OrgClaims{
-		Id:        org.Id,
-		Email:     org.Email,
-		Photo:     org.Photo,
-		Entity:    "org",
+		Id:     org.Id,
+		Email:  org.Email,
+		Entity: "org",
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -135,13 +132,13 @@ func OrgSignIn(c *gin.Context) {
 	//respondWithJson(w, http.StatusCreated, place)
 	//fmt.Fprintf(w, "%s", tokenString)
 	payload := map[string]string{
-		"token": tokenString,
-		"id":    org.Id,
-		"name":  org.Name,
-		"donutName": org.DonutName,
-		"email": org.Email,
-		"photo": org.Photo,
-		"donut-name": org.DonutName,
+		"token":      tokenString,
+		"id":         org.Id,
+		"name":       org.Name,
+		"username":   org.Username,
+		"email":      org.Email,
+		"photo":      org.Photo,
+		"donut-name": org.Username,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -167,11 +164,11 @@ func OrgVerify(c *gin.Context) {
 
 	var org interface{}
 
-	if(details.VerificationStatus == "accepted"){
-		org,err = orgVerification.Verify(details.Email)
-	}else if (details.VerificationStatus == "rejected"){
-		org,err = orgVerification.Reject(details.Email)
-	}else{
+	if details.VerificationStatus == "accepted" {
+		org, err = org_verification.Verify(details.Email)
+	} else if details.VerificationStatus == "rejected" {
+		org, err = org_verification.Reject(details.Email)
+	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid Verification Status",
 		})
@@ -205,9 +202,9 @@ func OrgVerify(c *gin.Context) {
 			})
 			return
 		}
-		err = SendMail(details.Email, "Successfully Verified","text/plain", "Your Organization has been successfully verified "+tokenString)
+		err = SendMail(details.Email, "Successfully Verified", "text/plain", "Your Organization has been successfully verified "+tokenString)
 	} else {
-		err = SendMail(details.Email, "Rejected From Donut","text/plain", "Your Organization has unfortunately been rejected")
+		err = SendMail(details.Email, "Rejected From Donut", "text/plain", "Your Organization has unfortunately been rejected")
 	}
 
 	if err != nil {
@@ -222,7 +219,6 @@ func OrgVerify(c *gin.Context) {
 		"data":    org,
 	})
 }
-
 
 func OrgForgotPassword(c *gin.Context) {
 
@@ -273,18 +269,17 @@ func OrgForgotPassword(c *gin.Context) {
 		return
 	}
 
-	err = SendMail(details.Email, "Password Reset","text/plain", "Click the following link to reset password "+tokenString)
+	err = SendMail(details.Email, "Password Reset", "text/plain", "Click the following link to reset password "+tokenString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password Reset Mail Sent Successfully",
 	})
 }
 
-func GetOrgEvents(c *gin.Context) {
+func GetOrgOpportunities(c *gin.Context) {
+	username := c.Param("username")
 
-	org := c.Param("org")
-
-	events, err := organization.GetEvents(org)
+	opportunities, err := organization.GetOpportunities(username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -292,64 +287,31 @@ func GetOrgEvents(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Events fetched successfully",
-		"data":    events,
+		"message": "Opportunities fetched successfully",
+		"data":    opportunities,
 	})
 }
 
-func GetSpecificOrgEvent(c *gin.Context) {
+func GetOrgOpportunity(c *gin.Context) {
+	username := c.Param("username")
+	opportunityId := c.Param("id")
 
-	email := c.Param("email")
-	eventId := c.Param("eventId")
-	include_more := c.Query("include_more")
+	opportunity, err := organization.GetOpportunity(username, opportunityId)
 
-	events, err := organization.GetEvents(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-
-	// //check if event exists
-	var event Event
-	var eventArray []Event
-	for _, e := range events {
-		if e.Id == eventId {
-			event = e
-			
-		} else {
-			eventArray = append(eventArray, e)
-		}
-	}
-
-	if include_more == "true" {
-
-	} else if (include_more == "false") || (include_more == "") {
-		eventArray = nil
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "include_more parameter value not recognized",
-		})
-	}
-	
-	returnJSON := struct {
-		Event Event `json:"event"`
-		Events []Event `json:"events"`
-	}{
-		Event: event,
-		Events: eventArray,
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Events fetched successfully",
-		"data":   returnJSON,
+		"message": "VolunteerOpportunity fetched successfully",
+		"data":    opportunity,
 	})
 }
 
-func AddOrgEvent(c *gin.Context) {
+func AddOpportunity(c *gin.Context) {
 
 	org := organization.Organization{}
 	err := json.Unmarshal([]byte(c.GetString("org")), &org)
@@ -361,7 +323,7 @@ func AddOrgEvent(c *gin.Context) {
 	}
 
 	details := struct {
-		Event Event `json:"event"`
+		Volunteer Opportunity `json:"volunteer"`
 	}{}
 
 	err = c.BindJSON(&details)
@@ -372,18 +334,7 @@ func AddOrgEvent(c *gin.Context) {
 		return
 	}
 
-	details.Event.OrgEmail = org.Email
-	// jwtClaims,err:=ExtractTokenInfo(c.GetHeader("token"))
-	// if(err!=nil){
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"message": err.Error(),
-	// 	})
-	// 	return
-	// }
-
-	// email:=jwtClaims["email"].(string)
-
-	event, err := organization.AddEvent(org.Email, details.Event)
+	event, err := organization.AddOpportunity(org.Id, details.Volunteer)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -393,7 +344,7 @@ func AddOrgEvent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Event added successfully",
+		"message": "VolunteerOpportunity added successfully",
 		"data":    event,
 	})
 }
@@ -422,7 +373,7 @@ func DeleteOrgEvent(c *gin.Context) {
 
 	email := jwtClaims["email"].(string)
 
-	event, err := organization.DeleteEvent(email, details.EventId)
+	event, err := organization.DeleteOpportunity(email, details.EventId)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -432,12 +383,12 @@ func DeleteOrgEvent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Event deleted successfully",
+		"message": "VolunteerOpportunity deleted successfully",
 		"data":    event,
 	})
 }
 
-func GetStats(c *gin.Context){
+func GetStats(c *gin.Context) {
 
 	org := c.Param("org")
 
@@ -461,7 +412,7 @@ func GetOrgProfile(c *gin.Context) {
 
 	org := c.Param("org")
 
-	orgProfile, err := organization.GetOrgProfile(org)
+	orgProfile, err := organization.GetOrg(org)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -518,7 +469,7 @@ func GetRefrences(c *gin.Context) {
 
 	org := c.Param("org")
 
-	refrences, err := organization.GetRefrences(org)
+	refrences, err := organization.GetReferences(org)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -565,7 +516,7 @@ func UpdateOrgProfile(c *gin.Context) {
 
 	orgName := c.Param("org")
 
-	if orgName != org.DonutName {
+	if orgName != org.Username {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "You are not authorized to update this profile",
 		})

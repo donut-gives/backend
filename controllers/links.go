@@ -1,15 +1,13 @@
 package controllers
 
 import (
-	weblinks "donutBackend/models/web_links"
+	weblinks "donutBackend/models/weblinks"
 
 	"net/http"
 	//"sync"
 
 	"github.com/gin-gonic/gin"
 )
-
-
 
 // type Container struct {
 // 	LinkId string `json:"linkId"`
@@ -23,7 +21,7 @@ import (
 // var mutex sync.Mutex
 
 func init() {
-	
+
 	// links,err:=weblinks.GetLinks()
 	// if err!=nil{
 	// 	panic(err)
@@ -33,14 +31,14 @@ func init() {
 	// 	containers=append(containers,Container{
 	// 		LinkId:link.Id,
 	// 	})
-		
+
 	// 	linkmap[link.Id]=count
 	// 	count = count +1
 	// }
 }
 
 func GetLinks(c *gin.Context) {
-	
+
 	links, err := weblinks.GetLinks()
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
@@ -58,8 +56,8 @@ func GetLinks(c *gin.Context) {
 }
 
 func AddLink(c *gin.Context) {
-	
-	details:=struct{
+
+	details := struct {
 		Name string `json:"name"`
 	}{}
 
@@ -71,8 +69,7 @@ func AddLink(c *gin.Context) {
 		return
 	}
 
-	
-	link, err := weblinks.AddLink(details.Name,"TRUE")
+	link, err := weblinks.AddLink(details.Name, "TRUE")
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed to Add Link",
@@ -90,9 +87,9 @@ func AddLink(c *gin.Context) {
 
 func UpdateLink(c *gin.Context) {
 
-	details:=struct{
+	details := struct {
 		LinkId string `json:"link_id"`
-		Name string `json:"name"`
+		Name   string `json:"name"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -103,7 +100,7 @@ func UpdateLink(c *gin.Context) {
 		return
 	}
 
-	link, err := weblinks.UpdateLink(details.LinkId,details.Name)
+	link, err := weblinks.UpdateLink(details.LinkId, details.Name)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
 			"message": "Failed to Update Link",
@@ -120,9 +117,9 @@ func UpdateLink(c *gin.Context) {
 }
 
 func DeleteLink(c *gin.Context) {
-	
-	details:=struct{
-		LinkId  string `json:"link_id"`
+
+	details := struct {
+		LinkId string `json:"link_id"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -153,9 +150,9 @@ func DeleteLink(c *gin.Context) {
 }
 
 func IncLinkCounter(c *gin.Context) {
-	
-	details:=struct{
-		LinkId  string `json:"tag"`
+
+	details := struct {
+		LinkId string `json:"tag"`
 	}{}
 
 	err := c.BindJSON(&details)
@@ -180,4 +177,3 @@ func IncLinkCounter(c *gin.Context) {
 	})
 	return
 }
-
