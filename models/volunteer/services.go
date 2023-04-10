@@ -1,4 +1,4 @@
-package events
+package volunteer
 
 import (
 	"context"
@@ -19,20 +19,18 @@ import (
 var eventsCollection = new(mongo.Collection)
 
 func init() {
-	eventsCollection = db.Get().Collection("events")
-
-	
+	eventsCollection = db.Get().Collection("volunteer")
 }
 
-func GetEventById(id string) (Event, error) {
+func GetEventById(id string) (Opportunity, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOne()
 
 	eventId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return Event{}, err
+		return Opportunity{}, err
 	}
-	var findResult Event
+	var findResult Opportunity
 	err = eventsCollection.FindOne(
 		ctx,
 		bson.D{{Key: "_id", Value: eventId}},
@@ -42,18 +40,18 @@ func GetEventById(id string) (Event, error) {
 		// ErrNoDocuments means that the filter did not match any documents in
 		// the collection.
 		if err == mongo.ErrNoDocuments {
-			return Event{}, errors.New("No event found")
+			return Opportunity{}, errors.New("No event found")
 		}
-		return Event{}, err
+		return Opportunity{}, err
 	}
 	return findResult, nil
 }
 
-func GetEvents() ([]Event, error) {
+func GetEvents() ([]Opportunity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.Find()
-	var findResult []Event
+	var findResult []Opportunity
 	cur, err := eventsCollection.Find(
 		ctx,
 		bson.D{},
@@ -63,7 +61,7 @@ func GetEvents() ([]Event, error) {
 		return nil, err
 	}
 	for cur.Next(ctx) {
-		var result Event
+		var result Opportunity
 		err := cur.Decode(&result)
 		if err != nil {
 			return nil, err
@@ -73,13 +71,13 @@ func GetEvents() ([]Event, error) {
 	return findResult, nil
 }
 
-func AddEvent(event *Event) (interface{}, error) {
+func AddVolunteerOpportunity(volunteer *Opportunity) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	result, err := eventsCollection.InsertOne(ctx, event)
+	result, err := eventsCollection.InsertOne(ctx, volunteer)
 	if err != nil {
-		if(mongo.IsDuplicateKeyError(err)){
-			return nil, errors.New("Event already exists")
+		if mongo.IsDuplicateKeyError(err) {
+			return nil, errors.New("VolunteerOpportunity already exists")
 		}
 		return nil, err
 	}
@@ -93,21 +91,21 @@ func DeleteEvent(id string) error {
 	if err != nil {
 		return err
 	}
-	if(result.DeletedCount == 0){
-		return errors.New("Event not found")
+	if result.DeletedCount == 0 {
+		return errors.New("VolunteerOpportunity not found")
 	}
 	return nil
 }
 
-func InsertEvent(event *Event) error {
+func InsertEvent(event *Opportunity) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	result, err := eventsCollection.InsertOne(ctx, event)
 	if err != nil {
 		return err
 	}
-	if(result.InsertedID == nil){
-		return errors.New("Event not inserted")
+	if result.InsertedID == nil {
+		return errors.New("VolunteerOpportunity not inserted")
 	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package emailsender
+package email_sender
 
 import (
 	"context"

@@ -17,6 +17,7 @@ import (
 
 var weblinksCollection = new(mongo.Collection)
 var baseUrl = "https://donut.com"
+
 func init() {
 	weblinksCollection = db.Get().Collection("weblinks")
 
@@ -32,7 +33,7 @@ func init() {
 	if err != nil {
 		Logger.Errorf("Error creating email index in organizationsList collection: %v", err)
 	}
-	
+
 }
 
 //get link by id
@@ -58,6 +59,7 @@ func GetLink(id string) (Link, error) {
 	}
 	return findResult, nil
 }
+
 //increment link count
 // func IncrementLinkCount(id string) (error) {
 // 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
@@ -84,7 +86,7 @@ func GetLink(id string) (Link, error) {
 // 	return nil
 // }
 
-func IncrementLinkCount(id string) (error) {
+func IncrementLinkCount(id string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.Update()
 
@@ -122,7 +124,7 @@ func GetLinks() ([]Link, error) {
 		ctx,
 		bson.D{},
 		opts,
-	)	
+	)
 	if err != nil {
 		return []Link{}, err
 	}
@@ -143,7 +145,7 @@ func GetLinks() ([]Link, error) {
 }
 
 //add or update link
-func AddOrUpdateLink(link Link) (Link,bool, error) {
+func AddOrUpdateLink(link Link) (Link, bool, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndUpdate()
 	opts.SetReturnDocument(options.After)
@@ -156,7 +158,7 @@ func AddOrUpdateLink(link Link) (Link,bool, error) {
 	} else {
 		linkId, err = primitive.ObjectIDFromHex(link.Id)
 		if err != nil {
-			return  Link{},false,err
+			return Link{}, false, err
 		}
 	}
 
@@ -173,21 +175,21 @@ func AddOrUpdateLink(link Link) (Link,bool, error) {
 			link.Count = 1
 			result, err := weblinksCollection.InsertOne(ctx, link)
 			if err != nil {
-				return Link{},false, err
+				return Link{}, false, err
 			}
-			oid,ok := result.InsertedID.(primitive.ObjectID)
+			oid, ok := result.InsertedID.(primitive.ObjectID)
 			if !ok {
-				return Link{},false, errors.New("Error converting to object id")
+				return Link{}, false, errors.New("Error converting to object id")
 			}
 			link.Id = oid.Hex()
-			return link,true, nil
+			return link, true, nil
 		}
-		return Link{},false, err
+		return Link{}, false, err
 	}
-	return findResult,false, nil
+	return findResult, false, nil
 }
 
-func AddLink(name string,internal string) (Link, error) {
+func AddLink(name string, internal string) (Link, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndUpdate()
 	opts.SetReturnDocument(options.After)
@@ -195,8 +197,8 @@ func AddLink(name string,internal string) (Link, error) {
 	//linkId := primitive.NewObjectID()
 	//cretae link
 	link := Link{
-		Name: name,
-		Count: 1,
+		Name:     name,
+		Count:    1,
 		Internal: internal,
 	}
 	result, err := weblinksCollection.InsertOne(ctx, link)
@@ -207,7 +209,7 @@ func AddLink(name string,internal string) (Link, error) {
 		}
 		return Link{}, err
 	}
-	oid,ok := result.InsertedID.(primitive.ObjectID)
+	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return Link{}, errors.New("Error converting to object id")
 	}
@@ -215,7 +217,7 @@ func AddLink(name string,internal string) (Link, error) {
 	return link, nil
 }
 
-func UpdateLink(id string,name string) (Link, error) {
+func UpdateLink(id string, name string) (Link, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndUpdate()
 	opts.SetReturnDocument(options.After)

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/option"
 
 	"donutBackend/config"
-	"donutBackend/models/emailSender"
+	"donutBackend/models/email_sender"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
@@ -28,12 +28,12 @@ var GoogleOauthConfig = &oauth2.Config{
 }
 
 func RefreshAccessToken() error {
-	email, err := emailsender.GetEmail()
+	email, err := email_sender.GetEmail()
 	if err != nil {
 		return err
 	}
 
-	jwttoken, err := emailsender.GetToken(email)
+	jwttoken, err := email_sender.GetToken(email)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func RefreshAccessToken() error {
 		jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
 		jwtTokenString, err := jwtToken.SignedString([]byte(config.Auth.JWTSecret))
 		if err == nil {
-			emailsender.UpdateToken(email, jwtTokenString)
+			email_sender.UpdateToken(email, jwtTokenString)
 		}
 	}
 

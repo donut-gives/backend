@@ -4,7 +4,7 @@ import (
 	"context"
 	"donutBackend/db"
 	. "donutBackend/logger"
-	events "donutBackend/models/events"
+	events "donutBackend/models/volunteer"
 	"errors"
 	"time"
 
@@ -19,23 +19,23 @@ var usersCollection = new(mongo.Collection)
 func init() {
 	usersCollection = db.Get().Collection("users")
 	//create email index
-	indexview:=usersCollection.Indexes()
+	indexview := usersCollection.Indexes()
 	index := mongo.IndexModel{
 		Keys: bson.M{
 			"email": 1,
 		},
 		Options: options.Index().SetUnique(true),
 	}
-	_,err:=indexview.CreateOne(context.Background(), index)
-	if err!=nil{
-		Logger.Errorf("Error creating index for users collection: %v",err)
+	_, err := indexview.CreateOne(context.Background(), index)
+	if err != nil {
+		Logger.Errorf("Error creating index for users collection: %v", err)
 	}
 
 }
 
 // Insert : Create a new user
 func Insert(user *GoogleUser) (interface{}, error) {
-	
+
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	opts := options.FindOne()
@@ -67,28 +67,28 @@ func Insert(user *GoogleUser) (interface{}, error) {
 	return id, nil
 }
 
-func Find(email string) (GoogleUser,error) {
+func Find(id string) (GoogleUser, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
 	var findResult GoogleUser
 	err := usersCollection.FindOne(
 		ctx,
-		bson.D{{Key: "email", Value: email}},
+		bson.D{{Key: "_id", Value: id}},
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		
+
 		if err == mongo.ErrNoDocuments {
 			return GoogleUser{}, errors.New("User not found")
 		}
 		return GoogleUser{}, err
 	}
-	
+
 	return findResult, nil
 }
 
-func GetUserProfile(email string) (GoogleUserProfile,error) {
+func GetUserProfile(email string) (GoogleUserProfile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -99,7 +99,7 @@ func GetUserProfile(email string) (GoogleUserProfile,error) {
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		if(err == mongo.ErrNoDocuments){
+		if err == mongo.ErrNoDocuments {
 			return GoogleUserProfile{}, errors.New("User not found")
 		}
 		return GoogleUserProfile{}, err
@@ -108,7 +108,7 @@ func GetUserProfile(email string) (GoogleUserProfile,error) {
 	return findResult, nil
 }
 
-func GetEvents(email string) ([]events.Event, error) {
+func GetEvents(email string) ([]events.Opportunity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -119,7 +119,7 @@ func GetEvents(email string) ([]events.Event, error) {
 		opts,
 	).Decode(&findResult)
 	if err != nil {
-		if(err == mongo.ErrNoDocuments){
+		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("User not found")
 		}
 		return nil, err
@@ -128,7 +128,7 @@ func GetEvents(email string) ([]events.Event, error) {
 	return findResult.Events, nil
 }
 
-func CheckEventExists(user GoogleUser, event events.Event) (bool,error) {
+func CheckEventExists(user GoogleUser, event events.Opportunity) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
@@ -142,19 +142,17 @@ func CheckEventExists(user GoogleUser, event events.Event) (bool,error) {
 		return false, err
 	}
 
-	for _,e := range findResult.Events{
-		if e.Id == event.Id{
+	for _, e := range findResult.Events {
+		if e.Id == event.Id {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-
-func AddEvent(user GoogleUser, event events.Event) (error) {
+func AddEvent(user GoogleUser, event events.Opportunity) error {
 
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	
 
 	option := options.FindOneAndUpdate()
 	option.SetReturnDocument(options.After)
@@ -162,7 +160,7 @@ func AddEvent(user GoogleUser, event events.Event) (error) {
 	filter := bson.D{{Key: "email", Value: user.Email}}
 	update := bson.D{
 		{Key: "$addToSet", Value: bson.D{
-			{Key: "events", Value: event},
+			{Key: "volunteer", Value: event},
 		}},
 	}
 
@@ -180,13 +178,13 @@ func AddEvent(user GoogleUser, event events.Event) (error) {
 	return nil
 }
 
-func DeleteEvent(email string, eventId string) (error) {
-	
+func DeleteEvent(email string, eventId string) error {
+
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOne()
 
 	var find_result bson.M
-	
+
 	err := usersCollection.FindOne(
 		ctx,
 		bson.D{{Key: "email", Value: email}},
@@ -202,7 +200,7 @@ func DeleteEvent(email string, eventId string) (error) {
 	filter := bson.D{{Key: "email", Value: email}}
 	update := bson.D{
 		{Key: "$pull", Value: bson.D{
-			{Key: "events", Value: eventId},
+			{Key: "volunteer", Value: eventId},
 		}},
 	}
 
@@ -220,10 +218,9 @@ func DeleteEvent(email string, eventId string) (error) {
 	return nil
 }
 
-func AddBookmark(user GoogleUser, bookmark events.Event) (error) {
+func AddBookmark(user GoogleUser, bookmark events.Opportunity) error {
 
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	
 
 	option := options.FindOneAndUpdate()
 	option.SetReturnDocument(options.After)
@@ -260,7 +257,7 @@ func InsertTransaction(userId string, transaction *Transaction) (interface{}, er
 	opts := options.FindOne()
 
 	var find_result bson.M
-	
+
 	err = usersCollection.FindOne(
 		ctx,
 		bson.D{{Key: "_id", Value: userIdObj}},
@@ -300,7 +297,7 @@ func UpdatePaymentStatus(userId string, transactionId string, status string) (in
 	if err != nil {
 		return nil, err
 	}
-	
+
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOne()
 
@@ -352,7 +349,7 @@ func UpdateWalletBalance(userId string, amount float64) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOne()
 

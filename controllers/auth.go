@@ -4,7 +4,7 @@ import (
 	"donutBackend/config"
 	. "donutBackend/logger"
 	"donutBackend/models/admins"
-	emailsender "donutBackend/models/emailSender"
+	emailsender "donutBackend/models/email_sender"
 	"donutBackend/models/users"
 	"donutBackend/utils/mail"
 	"encoding/json"
@@ -332,17 +332,9 @@ func AdminVerify(c *gin.Context) {
 
 type UserClaims struct {
 	Id      string `json:"_id"`
-	Name    string `json:"name"`
 	IsAdmin bool   `json:"isAdmin"`
 	Email   string `json:"email"`
-	Photo   string `json:"photo"`
 	Entity  string `json:"entity"`
-	jwt.StandardClaims
-}
-
-type AdminClaim struct {
-	IsAdmin bool   `json:"isAdmin"`
-	Email   string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -372,10 +364,8 @@ func signInUserWithIdToken(idToken string) (map[string]string, error) {
 
 		claims := &UserClaims{
 			Id:      id.(primitive.ObjectID).Hex(),
-			Name:    googleUser.Name,
 			IsAdmin: false,
 			Email:   googleUser.Email,
-			Photo:   googleUser.Photo,
 			Entity:  "user",
 			StandardClaims: jwt.StandardClaims{
 				// In JWT, the expiry time is expressed as unix milliseconds
@@ -444,9 +434,11 @@ func signInAdminWithIdToken(idToken string) (map[string]string, error) {
 		expirationTime := time.Now().Add(60 * 24 * 60 * time.Minute)
 		// Create the JWT claims, which includes the username and expiry time
 
-		claims := &AdminClaim{
+		claims := &UserClaims{
+			Id:      googleUser.Id,
 			Email:   googleUser.Email,
 			IsAdmin: true,
+			Entity:  "user",
 			StandardClaims: jwt.StandardClaims{
 				// In JWT, the expiry time is expressed as unix milliseconds
 				ExpiresAt: expirationTime.Unix(),
@@ -513,10 +505,8 @@ func signInUserWithAccessToken(accessToken string) (map[string]string, error) {
 
 	claims := &UserClaims{
 		Id:      id.(primitive.ObjectID).Hex(),
-		Name:    googleUser.Name,
 		IsAdmin: false,
 		Email:   googleUser.Email,
-		Photo:   googleUser.Photo,
 		Entity:  "user",
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds

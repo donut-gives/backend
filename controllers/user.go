@@ -1,30 +1,16 @@
 package controllers
 
 import (
-	"crypto/sha256"
-	"donutBackend/config"
-	"donutBackend/models/events"
-	organization "donutBackend/models/orgs"
 	"donutBackend/models/users"
-	"fmt"
-
-	"io"
+	"donutBackend/models/volunteer"
 	"encoding/json"
-	"net/http"
 	"github.com/gin-gonic/gin"
-
-	"net/url"
-
-	"cloud.google.com/go/storage"
-	"google.golang.org/api/option"
-	"google.golang.org/appengine"
+	"net/http"
 )
 
-
-
 func GetUserEvents(c *gin.Context) {
-	
-	details:=struct{
+
+	details := struct {
 		Email string `json:"email"`
 	}{}
 
@@ -36,7 +22,7 @@ func GetUserEvents(c *gin.Context) {
 		return
 	}
 
-	events,err := users.GetEvents(details.Email)
+	events, err := users.GetEvents(details.Email)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": err.Error(),
@@ -45,160 +31,24 @@ func GetUserEvents(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Events Fetched Successfully",
-		"events": events,
+		"message":   "VolunteerOpportunity Fetched Successfully",
+		"volunteer": events,
 	})
-}
-
-func AddUserEvent(c *gin.Context) {
-
-	user:=users.GoogleUser{}
-	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	userInfo:=events.UserInfo{}
-	err=json.Unmarshal([]byte(c.GetString("user")),&userInfo)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	eventId:=c.Request.FormValue("eventId")
-	
-	event,err:=events.GetEventById(eventId)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	found,err:=users.CheckEventExists(user,event)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if(found){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Already Applied To The Event",
-		})
-		return
-	}
-
-	
-
-	bucket := config.Cloud.UserBucket  //your bucket name
-	key:=config.Cloud.KeyFile
-
-	ctx := appengine.NewContext(c.Request)
-
-	var storageClient *storage.Client 
-
-	if(*config.Env=="prod" || *config.Env=="staging"){
-		storageClient, err = storage.NewClient(ctx)
-	}else{
-		storageClient, err = storage.NewClient(ctx, option.WithCredentialsFile(key))
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"error":   true,
-		})
-		return
-	}
-
-	f, _, err := c.Request.FormFile("resume")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"error":   true,
-		})
-		return
-	}
-
-	defer f.Close()
-
-
-	fileName:=user.Email+"_"+eventId+".pdf"
-	hash:=sha256.Sum256([]byte(fileName))
-	hashedFileName:=fmt.Sprintf("%x",hash)
-
-
-
-	storageWriter := storageClient.Bucket(bucket).Object(hashedFileName).NewWriter(ctx)
-
-	if _, err := io.Copy(storageWriter, f); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"error":   true,
-		})
-		return
-	}
-
-	if err := storageWriter.Close(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"error":   true,
-		})
-		return
-	}
-
-	url, err := url.Parse("https://storage.googleapis.com/" + bucket + "/" + storageWriter.Attrs().Name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"Error":   true,
-		})
-		return
-	}
-
-	_=url.String()
-
-	err = users.AddEvent(user,event)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	err=organization.AddUserToEvent(userInfo,event)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-		"message": "Event Added Successfully",
-	})
-
 }
 
 func AddUserEventDetails(c *gin.Context) {
-	user:=users.GoogleUser{}
-	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
-	if(err!=nil){
+	user := users.GoogleUser{}
+	err := json.Unmarshal([]byte(c.GetString("user")), &user)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	userInfo:=events.UserInfo{}
-	err=json.Unmarshal([]byte(c.GetString("user")),&userInfo)
-	if(err!=nil){
+	userInfo := volunteer.Submission{}
+	err = json.Unmarshal([]byte(c.GetString("user")), &userInfo)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -206,8 +56,8 @@ func AddUserEventDetails(c *gin.Context) {
 	}
 
 	details := struct {
-		EventId string `json:"eventId"`
-		FormFieldsType []int `json:"formFields"`
+		EventId         string        `json:"eventId"`
+		FormFieldsType  []int         `json:"formFields"`
 		FormFieldsValue []interface{} `json:"formFieldsValue"`
 	}{}
 
@@ -218,57 +68,51 @@ func AddUserEventDetails(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	//in progress
-	
 
 	// for i:=0;i<len(details.FormFieldsType);i++{
 	// 	if(details.FormFieldsType[i]==1){
-	// 		userInfo.FormFields=append(userInfo.FormFields,events.FormValue{
+	// 		userInfo.FormField=append(userInfo.FormField,volunteer.FormValue{
 	// 			Type:details.FormFieldsType[i],
-	// 			Value:events.ChoiceValue{
+	// 			Value:volunteer.ChoiceValue{
 	// 				Choice:details.FormFieldsValue[i].(string),
 	// 			},
 	// 		})
 	// 	}else if(details.FormFieldsType[i]==2){
-	// 		userInfo.FormFields=append(userInfo.FormFields,events.FormField{
+	// 		userInfo.FormField=append(userInfo.FormField,volunteer.FormField{
 	// 			Type:details.FormFieldsType[i],
-	// 			Value:events.ChoiceValue{
+	// 			Value:volunteer.ChoiceValue{
 	// 				Choice:details.FormFieldsValue[i].(string),
 	// 			},
 	// 		})
 	// 	}
 	// }
 
-
-
 	//eventId:=c.Request.FormValue("eventId")
-	
-	event,err:=events.GetEventById(details.EventId)
-	if(err!=nil){
+
+	event, err := volunteer.GetEventById(details.EventId)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	found,err:=users.CheckEventExists(user,event)
-	if(err!=nil){
+	found, err := users.CheckEventExists(user, event)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-
-
-	if(found){
+	if found {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Already Applied To The Event",
+			"message": "Already Applied To The VolunteerOpportunity",
 		})
 		return
 	}
-
 
 }
 
@@ -277,9 +121,9 @@ func AddUserEventMedia(c *gin.Context) {
 }
 
 func DeleteUserEvent(c *gin.Context) {
-	
-	details:=struct{
-		Email string `json:"email"`
+
+	details := struct {
+		Email   string `json:"email"`
 		EventId string `json:"event_id"`
 	}{}
 
@@ -291,7 +135,7 @@ func DeleteUserEvent(c *gin.Context) {
 		return
 	}
 
-	err = users.DeleteEvent(details.Email,details.EventId)
+	err = users.DeleteEvent(details.Email, details.EventId)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": err.Error(),
@@ -300,44 +144,43 @@ func DeleteUserEvent(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Event Deleted Successfully",
+		"message": "VolunteerOpportunity Deleted Successfully",
 	})
 }
 
 func UserAddBookmark(c *gin.Context) {
-	
+
 	c.GetString("user")
-	user:=users.GoogleUser{}
-	err:=json.Unmarshal([]byte(c.GetString("user")),&user)
-	if(err!=nil){
+	user := users.GoogleUser{}
+	err := json.Unmarshal([]byte(c.GetString("user")), &user)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-
-	details:=struct{
+	details := struct {
 		EventId string `json:"eventId"`
 	}{}
 
 	err = c.BindJSON(&details)
-	if(err!=nil){
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	
-	event,err:=events.GetEventById(details.EventId)
-	if(err!=nil){
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	err = users.AddBookmark(user,event)
+	event, err := volunteer.GetEventById(details.EventId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = users.AddBookmark(user, event)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": err.Error(),
@@ -349,4 +192,3 @@ func UserAddBookmark(c *gin.Context) {
 		"message": "Bookmark Added Successfully",
 	})
 }
-
