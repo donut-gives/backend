@@ -27,10 +27,10 @@ func Get() *gin.Engine {
 	{
 		addAuthRoutes(v1)
 		//addPaymentRoutes(v1)
-		
+
 		addOrganizationRoutes(v1)
 		addUserRoutes(v1)
-		addEventRoutes(v1)
+		addVolunteerRoutes(v1)
 		addLinkRoutes(v1)
 		addAnalyticsRoutes(v1)
 		addMiscRoutes(v1)

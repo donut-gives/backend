@@ -2,8 +2,8 @@ package token
 
 import (
 	"donutBackend/config"
-	"donutBackend/models/users"
 	"donutBackend/models/orgs"
+	"donutBackend/models/users"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -68,7 +68,7 @@ func UserFromToken(tokenString string) (string, error) {
 		return "", err
 	}
 
-	user, err := users.Find(token["email"].(string))
+	user, err := users.Find(token["_id"].(string))
 	if err != nil {
 		return "", err
 	}
@@ -83,22 +83,20 @@ func UserFromToken(tokenString string) (string, error) {
 }
 
 func OrgFromToken(tokenString string) (string, error) {
-	token,err:=ExtractTokenInfo(tokenString)
+	token, err := ExtractTokenInfo(tokenString)
 	if err != nil {
 		return "", err
 	}
 
-	
-	org,err :=organization.Get(token["email"].(string))
+	org, err := organization.Find(token["_id"].(string))
 	if err != nil {
 		return "", err
 	}
-	
-	//marshall
-	orgString,err:=json.Marshal(&org)
+
+	orgString, err := json.Marshal(&org)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(orgString), nil
 }

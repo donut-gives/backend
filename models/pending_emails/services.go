@@ -1,14 +1,14 @@
-package pendingemails
+package pending_emails
 
 import (
 	"context"
 	"donutBackend/db"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
-	"errors"
 )
 
 var pendingEmailCollection = new(mongo.Collection)
@@ -31,7 +31,7 @@ func Insert(pending PendingEmail) (interface{}, error) {
 	result, err := pendingEmailCollection.InsertOne(ctx, pending)
 
 	if err != nil {
-		if(mongo.IsDuplicateKeyError(err)){
+		if mongo.IsDuplicateKeyError(err) {
 			return nil, errors.New("Already In Waitlist")
 		}
 		return nil, err
@@ -41,4 +41,3 @@ func Insert(pending PendingEmail) (interface{}, error) {
 	stringId := id.(primitive.ObjectID).Hex()
 	return stringId, nil
 }
-

@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"donutBackend/models/events"
+	"donutBackend/models/volunteer"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetFeedEvents(c *gin.Context) {
-	
-	events, err := events.GetEvents()
+
+	events, err := volunteer.GetEvents()
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": err.Error(),
@@ -17,7 +17,7 @@ func GetFeedEvents(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Events Fetched Successfully",
-		"events": events,
-	})	
+		"message":   "VolunteerOpportunity Fetched Successfully",
+		"volunteer": events,
+	})
 }

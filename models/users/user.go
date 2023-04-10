@@ -2,7 +2,7 @@ package users
 
 //import "go.mongodb.org/mongo-driver/bson/primitive"
 import (
-	"donutBackend/models/events"
+	"donutBackend/models/volunteer"
 )
 
 type Transaction struct {
@@ -16,21 +16,21 @@ type Transaction struct {
 }
 
 type GoogleUser struct {
-	Id          string `json:"_id"`
-	Email        string        `bson:"email,omitempty" json:"email,omitempty"`
-	Verified     bool          `bson:"emailVerified,omitempty" json:"emailVerified,omitempty"`
-	Name         string        `bson:"name,omitempty" json:"name,omitempty"`
-	Photo        string        `bson:"picture,omitempty" json:"picture,omitempty"`
-	FirstName    string        `bson:"fitstName,omitempty" json:"firstName,omitempty"`
-	LastName     string        `bson:"lastName,omitempty" json:"lastName,omitempty"`
-	Wallet       float64       `bson:"wallet,omitempty" json:"wallet,omitempty"`
-	Transactions []Transaction `bson:"transactions,omitempty" json:"transactions,omitempty"`
-	Events       []events.Event       `bson:"events,omitempty" json:"events,omitempty"`
+	Id           string                  `json:"_id"`
+	Email        string                  `bson:"email,omitempty" json:"email,omitempty"`
+	Verified     bool                    `bson:"emailVerified,omitempty" json:"emailVerified,omitempty"`
+	Name         string                  `bson:"name,omitempty" json:"name,omitempty"`
+	Photo        string                  `bson:"picture,omitempty" json:"picture,omitempty"`
+	FirstName    string                  `bson:"fitstName,omitempty" json:"firstName,omitempty"`
+	LastName     string                  `bson:"lastName,omitempty" json:"lastName,omitempty"`
+	Wallet       float64                 `bson:"wallet,omitempty" json:"wallet,omitempty"`
+	Transactions []Transaction           `bson:"transactions,omitempty" json:"transactions,omitempty"`
+	Events       []volunteer.Opportunity `bson:"volunteer,omitempty" json:"volunteer,omitempty"`
 }
 
 type GoogleUserProfile struct {
-	Name         string        `bson:"name,omitempty" json:"name,omitempty"`
-	Photo        string        `bson:"picture,omitempty" json:"picture,omitempty"`
-	FirstName    string        `bson:"fitstName,omitempty" json:"firstName,omitempty"`
-	LastName     string        `bson:"lastName,omitempty" json:"lastName,omitempty"`
+	Name      string `bson:"name,omitempty" json:"name,omitempty"`
+	Photo     string `bson:"picture,omitempty" json:"picture,omitempty"`
+	FirstName string `bson:"fitstName,omitempty" json:"firstName,omitempty"`
+	LastName  string `bson:"lastName,omitempty" json:"lastName,omitempty"`
 }

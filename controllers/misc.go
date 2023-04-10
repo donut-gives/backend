@@ -2,14 +2,14 @@ package controllers
 
 import (
 	. "donutBackend/logger"
-	emailsender "donutBackend/models/emailSender"
+	emailsender "donutBackend/models/email_sender"
 	"donutBackend/models/messages"
 	organization "donutBackend/models/orgs"
-	pendingEmail "donutBackend/models/pendingEmails"
+	pendingEmail "donutBackend/models/pending_emails"
 	"donutBackend/models/users"
-	events "donutBackend/models/events"
+	events "donutBackend/models/volunteer"
 	"donutBackend/models/waitlist"
-	weblinks "donutBackend/models/web_links"
+	weblinks "donutBackend/models/weblinks"
 	"donutBackend/utils/mail"
 	email "donutBackend/utils/mail"
 	"fmt"
@@ -294,7 +294,7 @@ func GetProfile(c *gin.Context) {
 				return
 			}
 
-			orgProfile, err := organization.GetOrgProfile(org.Email)
+			orgProfile, err := organization.GetOrg(org.Email)
 			if err != nil {
 				c.JSON(http.StatusBadGateway, gin.H{
 					"message": "Failed to Get Org Profile",
@@ -346,7 +346,7 @@ func GetProfile(c *gin.Context) {
 
 		} else if target == "org" {
 
-			orgProfile, err := organization.GetOrgProfile(email)
+			orgProfile, err := organization.GetOrg(email)
 			if err != nil {
 				c.JSON(http.StatusBadGateway, gin.H{
 					"message": "Failed to Get Org Profile",
@@ -374,17 +374,17 @@ func GetProfile(c *gin.Context) {
 
 func Test(c *gin.Context) {
 
-	details:=&events.Event{}
+	details := &events.Opportunity{}
 
 	c.BindJSON(details)
 
 	fmt.Println(details)
 
-	err:=events.InsertEvent(details)
-	if err!=nil{
-		c.JSON(http.StatusBadRequest,gin.H{
-			"message":"Failed to insert event",
-			"error":err.Error(),
+	err := events.InsertEvent(details)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to insert event",
+			"error":   err.Error(),
 		})
 		return
 	}
