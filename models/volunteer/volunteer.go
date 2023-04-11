@@ -98,7 +98,7 @@ type Submission struct {
 	Email      string      `bson:"email,omitempty" json:"email,omitempty"`
 	Name       string      `bson:"name,omitempty" json:"name,omitempty"`
 	Photo      string      `bson:"picture,omitempty" json:"picture,omitempty"`
-	FormFields []FormValue `bson:"formFields,omitempty" json:"formFields,omitempty"`
+	FormFields []FormValue `bson:"form_fields,omitempty" json:"form_fields,omitempty"`
 }
 
 type Opportunity struct {
@@ -106,6 +106,6 @@ type Opportunity struct {
 	Title       string       `bson:"title,omitempty" json:"title,omitempty"`
 	Description string       `bson:"description,omitempty" json:"description,omitempty"`
 	Location    string       `bson:"location,omitempty" json:"location,omitempty"`
-	FormFields  []FormField  `bson:"formFields,omitempty" json:"formFields,omitempty"`
+	FormFields  []FormField  `bson:"form_fields,omitempty" json:"form_fields,omitempty"`
 	Submissions []Submission `bson:"users,omitempty" json:"users,omitempty"`
 }
