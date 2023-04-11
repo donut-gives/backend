@@ -410,9 +410,9 @@ func GetStats(c *gin.Context) {
 
 func GetOrgProfile(c *gin.Context) {
 
-	org := c.Param("org")
+	username := c.Param("username")
 
-	orgProfile, err := organization.GetOrg(org)
+	orgProfile, err := organization.GetOrg(username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

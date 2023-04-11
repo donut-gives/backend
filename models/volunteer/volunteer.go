@@ -1,8 +1,8 @@
 package volunteer
 
 type MediaMeta struct {
-	AllowedFileTypes []string `json:"allowedFileTypes"`
-	MaxFileSize      int      `json:"maxFileSize"`
+	AllowedFileTypes []string `json:"allowed_file_types"`
+	MaxFileSize      int      `json:"max_file_size"`
 }
 
 type MediaValue struct {
@@ -10,18 +10,18 @@ type MediaValue struct {
 }
 
 type StringTextMeta struct {
-	MaxChar  int    `json:"maxChar"`
-	MaxWords int    `json:"maxWords"`
-	MinChar  int    `json:"minChar"`
-	MinWords int    `json:"minWords"`
+	MaxChar  int    `json:"max_char"`
+	MaxWords int    `json:"max_words"`
+	MinChar  int    `json:"min_char"`
+	MinWords int    `json:"min_words"`
 	Prefix   string `json:"prefix"`
 	Suffix   string `json:"suffix"`
 	Default  int    `json:"default"`
 }
 
 type NumberTextMeta struct {
-	UpperLimit int    `json:"upperLimit"`
-	LowerLimit int    `json:"lowerLimit"`
+	UpperLimit int    `json:"upper_limit"`
+	LowerLimit int    `json:"lower_limit"`
 	Prefix     string `json:"prefix"`
 	Suffix     string `json:"suffix"`
 	Default    int    `json:"default"`
@@ -52,12 +52,12 @@ type DropdownValue struct {
 
 type RangeMeta struct {
 	LeastValue int `json:"leastValue"`
-	MaxValue   int `json:"maxValue"`
+	MaxValue   int `json:"max_value"`
 }
 
 type RangeValue struct {
-	LowerValue int `json:"lowerValue"`
-	UpperValue int `json:"upperValue"`
+	LowerValue int `json:"lower_value"`
+	UpperValue int `json:"upper_value"`
 }
 
 type ChoiceMeta struct {
@@ -71,7 +71,7 @@ type ChoiceValue struct {
 }
 
 type UrlMeta struct {
-	BaseUrl string `json:"baseUrl"`
+	BaseUrl string `json:"base_url"`
 }
 
 type UrlValue struct {
@@ -86,7 +86,7 @@ type FormValue struct {
 }
 
 // FormField don't bind into this directly from body rather use the Type Array to create FormField
-// during request and bind meta separately and then add this FormField to the VolunteerOpportunity
+// during request and bind meta separately and then add this FormField to Opportunity
 type FormField struct {
 	Type     string      `json:"type"`
 	Required bool        `json:"required"` //try string if false not inserting in database
