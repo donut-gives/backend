@@ -48,8 +48,8 @@ jobs:
             version: "0.0.1"
             desc: "Shaping new gen change makers"
           db:
-            url: "${{ secrets.DB_STAGING_URL }}"
-            name: "${{ secrets.DB_STAGING_NAME }}"
+            url: "${{ secrets.DB_URL_STAGING }}"
+            name: "${{ secrets.DB_NAME_STAGING }}"
           auth:
             jwt_secret: "${{ secrets.JWT_SECRET_STAGING }}"
             google:
@@ -62,6 +62,12 @@ jobs:
             userbucket : "${{ secrets.GCLOUD_BUCKET_STAGING }}"
           captcha:
             secret: "${{ secrets.RECAPTCHA_SITE_SECRET_STAGING }}"
+          EOF
+
+    - run: |
+          cat > .env << EOF
+          PORT=3100
+          GIN_MODE="debug"
           EOF
 
     # Build the Docker image
