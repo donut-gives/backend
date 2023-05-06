@@ -1,12 +1,10 @@
 package routes
 
 import (
-	//"donutBackend/controllers"
-	//"donutBackend/middleware"
+	//"github.com/donut-gives/backend/controllers"
+	//"github.com/donut-gives/backend/middleware"
 	"github.com/gin-gonic/gin"
 )
-
-
 
 func addUserRoutes(g *gin.RouterGroup) {
 

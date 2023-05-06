@@ -2,9 +2,9 @@ package org
 
 import (
 	"context"
-	"donutbackend/pkg/db/mongodb"
-	"donutbackend/pkg/utils"
 	"errors"
+	"github.com/donut-gives/backend/pkg/db/mongodb"
+	"github.com/donut-gives/backend/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"

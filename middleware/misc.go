@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	//"donutBackend/models/users"
-	. "donutbackend/utils/token"
+	//"github.com/donut-gives/backend/models/users"
+	. "github.com/donut-gives/backend/utils/token"
 	//"encoding/json"
 
 	"net/http"

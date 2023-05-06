@@ -1,8 +1,8 @@
 package organization
 
 import (
-	"donutbackend/models/volunteer"
-	. "donutbackend/utils/location"
+	"github.com/donut-gives/backend/models/volunteer"
+	. "github.com/donut-gives/backend/utils/location"
 )
 
 type Message struct {
@@ -49,7 +49,6 @@ type Organization struct {
 	Photo         string                  `bson:"photo,omitempty" json:"photo,omitempty"`
 	Location      string                  `bson:"location,omitempty" json:"location,omitempty"`
 	Tags          []string                `bson:"tags,omitempty" json:"tags,omitempty"`
-	Coordinates   Point                   `json:"coordinates" bson:"coordinates"`
 	Opportunities []volunteer.Opportunity `bson:"opportunities,omitempty" json:"opportunities,omitempty"`
 	Stats         Statistics              `bson:"stats,omitempty" json:"stats,omitempty"`
 	DonateLink    string                  `bson:"donate_link,omitempty" json:"donate_link,omitempty"`

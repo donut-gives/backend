@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"donutbackend/config"
-	. "donutbackend/logger"
-	"donutbackend/models/new_orgs"
-	"donutbackend/models/orgs"
-	. "donutbackend/models/volunteer"
-	. "donutbackend/utils/mail"
-	. "donutbackend/utils/token"
 	"encoding/json"
+	"github.com/donut-gives/backend/config"
+	. "github.com/donut-gives/backend/logger"
+	"github.com/donut-gives/backend/models/new_orgs"
+	"github.com/donut-gives/backend/models/orgs"
+	. "github.com/donut-gives/backend/models/volunteer"
+	. "github.com/donut-gives/backend/utils/mail"
+	. "github.com/donut-gives/backend/utils/token"
 
 	"net/http"
 	"time"

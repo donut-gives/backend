@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"donutbackend/controllers"
-	"donutbackend/middleware"
-	. "donutbackend/utils/enum"
+	"github.com/donut-gives/backend/controllers"
+	"github.com/donut-gives/backend/middleware"
+	. "github.com/donut-gives/backend/utils/enum"
 
-	//"donutBackend/middleware"
+	//"github.com/donut-gives/backend/middleware"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,11 +1,11 @@
 package token
 
 import (
-	"donutbackend/config"
-	"donutbackend/models/orgs"
-	"donutbackend/models/users"
 	"encoding/json"
 	"errors"
+	"github.com/donut-gives/backend/config"
+	"github.com/donut-gives/backend/models/orgs"
+	"github.com/donut-gives/backend/models/users"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"

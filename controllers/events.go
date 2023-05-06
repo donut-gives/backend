@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"donutbackend/models/volunteer"
+	"github.com/donut-gives/backend/models/volunteer"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,9 +2,9 @@ package volunteer
 
 import (
 	"context"
-	"donutbackend/db"
+	"github.com/donut-gives/backend/db"
 
-	//. "donutBackend/logger"
+	//. "github.com/donut-gives/backend/logger"
 	"errors"
 	"time"
 

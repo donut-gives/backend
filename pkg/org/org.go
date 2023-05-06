@@ -1,7 +1,7 @@
 package org
 
 import (
-	"donutbackend/pkg/volunteer"
+	"github.com/donut-gives/backend/pkg/volunteer"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -50,17 +50,17 @@ type Profile struct {
 }
 
 type ProfileWithStyle struct {
-	Description string     `bson:"description,omitempty" json:"description,omitempty"`
-	Name        string     `bson:"name,omitempty" json:"name,omitempty"`
-	Username    string     `bson:"username,omitempty" json:"username,omitempty"`
-	Photo       string     `bson:"photo,omitempty" json:"photo,omitempty"`
-	Location    string     `bson:"location,omitempty" json:"location,omitempty"`
-	Tags        []string   `bson:"tags,omitempty" json:"tags,omitempty"`
-	Cause       string     `bson:"cause,omitempty" json:"cause,omitempty"`
-	Stats       Statistics `bson:"stats,omitempty" json:"stats,omitempty"`
-	DonateLink  string     `bson:"donate_link,omitempty" json:"donate_link,omitempty"`
-	Style       string     `bson:"style,omitempty" json:"style,omitempty"`
-	Decoration	interface{}	`bson:"decoration,omitempty" json:"decoration,omitempty"`
+	Description string      `bson:"description,omitempty" json:"description,omitempty"`
+	Name        string      `bson:"name,omitempty" json:"name,omitempty"`
+	Username    string      `bson:"username,omitempty" json:"username,omitempty"`
+	Photo       string      `bson:"photo,omitempty" json:"photo,omitempty"`
+	Location    string      `bson:"location,omitempty" json:"location,omitempty"`
+	Tags        []string    `bson:"tags,omitempty" json:"tags,omitempty"`
+	Cause       string      `bson:"cause,omitempty" json:"cause,omitempty"`
+	Stats       Statistics  `bson:"stats,omitempty" json:"stats,omitempty"`
+	DonateLink  string      `bson:"donate_link,omitempty" json:"donate_link,omitempty"`
+	Style       string      `bson:"style,omitempty" json:"style,omitempty"`
+	Decoration  interface{} `bson:"decoration,omitempty" json:"decoration,omitempty"`
 }
 
 type Organization struct {
@@ -79,7 +79,7 @@ type Organization struct {
 	DonateLink    string                  `bson:"donate_link,omitempty" json:"donate_link,omitempty"`
 	Opportunities []volunteer.Opportunity `bson:"opportunities,omitempty" json:"opportunities,omitempty"`
 	Style         Style                   `bson:"style,omitempty" json:"style,omitempty"`
-	Decoration	interface{}	`bson:"decoration,omitempty" json:"decoration,omitempty"`
+	Decoration    interface{}             `bson:"decoration,omitempty" json:"decoration,omitempty"`
 }
 
 func (profile *Profile) Map() (map[string]interface{}, error) {

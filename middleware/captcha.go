@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"donutbackend/config"
-	"donutbackend/logger"
 	"encoding/json"
+	"github.com/donut-gives/backend/config"
+	"github.com/donut-gives/backend/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"io/ioutil"

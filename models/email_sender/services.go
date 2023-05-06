@@ -2,7 +2,7 @@ package email_sender
 
 import (
 	"context"
-	"donutbackend/db"
+	"github.com/donut-gives/backend/db"
 	"go.mongodb.org/mongo-driver/bson"
 	//"go.mongodb.org/mongodb-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

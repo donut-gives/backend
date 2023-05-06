@@ -2,15 +2,15 @@ package organization
 
 import (
 	"context"
-	"donutbackend/db"
-	org_verification "donutbackend/models/new_orgs"
-	"donutbackend/models/volunteer"
+	"github.com/donut-gives/backend/db"
+	org_verification "github.com/donut-gives/backend/models/new_orgs"
+	"github.com/donut-gives/backend/models/volunteer"
 	"strings"
-	///"donutBackend/models/users"
+	///"github.com/donut-gives/backend/models/users"
 	"errors"
 	"time"
 
-	. "donutbackend/logger"
+	. "github.com/donut-gives/backend/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -463,7 +463,7 @@ func UpdateOrgProfile(username string, profile Profile) (interface{}, error) {
 	return result.UpsertedID, nil
 }
 
-//HashPassword is used to encrypt the password before it is stored in the DB
+// HashPassword is used to encrypt the password before it is stored in the DB
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -473,7 +473,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-//VerifyPassword checks the input password while verifying it with the passward in the DB.
+// VerifyPassword checks the input password while verifying it with the passward in the DB.
 func VerifyPassword(userPassword string, providedPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
 	check := true

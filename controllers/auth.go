@@ -1,15 +1,15 @@
 package controllers
 
 import (
-	"donutbackend/config"
-	. "donutbackend/logger"
-	"donutbackend/models/admins"
-	emailsender "donutbackend/models/email_sender"
-	"donutbackend/models/users"
-	"donutbackend/utils/mail"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/donut-gives/backend/config"
+	. "github.com/donut-gives/backend/logger"
+	"github.com/donut-gives/backend/models/admins"
+	emailsender "github.com/donut-gives/backend/models/email_sender"
+	"github.com/donut-gives/backend/models/users"
+	"github.com/donut-gives/backend/utils/mail"
 	"io/ioutil"
 	"net/http"
 	"strings"

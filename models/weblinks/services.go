@@ -2,12 +2,12 @@ package weblinks
 
 import (
 	"context"
-	"donutbackend/db"
 	"errors"
+	"github.com/donut-gives/backend/db"
 	"strings"
 	"time"
 
-	. "donutbackend/logger"
+	. "github.com/donut-gives/backend/logger"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -36,7 +36,7 @@ func init() {
 
 }
 
-//get link by id
+// get link by id
 func GetLink(id string) (Link, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOne()
@@ -114,7 +114,7 @@ func IncrementLinkCount(id string) error {
 	return nil
 }
 
-//get all links
+// get all links
 func GetLinks() ([]Link, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.Find()
@@ -144,7 +144,7 @@ func GetLinks() ([]Link, error) {
 	return findResult, nil
 }
 
-//add or update link
+// add or update link
 func AddOrUpdateLink(link Link) (Link, bool, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndUpdate()
@@ -248,7 +248,7 @@ func UpdateLink(id string, name string) (Link, error) {
 	return findResult, nil
 }
 
-//delete link
+// delete link
 func DeleteLink(id string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	opts := options.FindOneAndDelete()
