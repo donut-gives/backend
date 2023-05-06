@@ -2,8 +2,8 @@ package pending_emails
 
 import (
 	"context"
-	"donutBackend/db"
 	"errors"
+	"github.com/donut-gives/backend/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

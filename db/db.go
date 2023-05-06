@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"donutBackend/config"
-	"donutBackend/logger"
+	"github.com/donut-gives/backend/config"
+	"github.com/donut-gives/backend/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"sync"

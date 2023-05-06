@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"donutBackend/controllers"
+	"github.com/donut-gives/backend/controllers"
 	"github.com/gin-gonic/gin"
 )
 

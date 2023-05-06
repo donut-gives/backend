@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"donutBackend/controllers"
-	"donutBackend/middleware"
+	"github.com/donut-gives/backend/controllers"
+	"github.com/donut-gives/backend/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +16,8 @@ func addMiscRoutes(g *gin.RouterGroup) {
 	g.GET("/test", controllers.Test)
 	g.GET("/discord-invite", controllers.DiscordInvite)
 
-	g.GET("/profile", middleware.ProfileAuthorize() , controllers.GetProfile)
-  
+	g.GET("/profile", middleware.ProfileAuthorize(), controllers.GetProfile)
+
 	//g.Use(middleware.VerifyCaptcha())
 	g.POST("/join-waitlist", controllers.JoinWaitlist)
 	g.POST("/contact-us", controllers.ContactUs)

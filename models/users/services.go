@@ -2,10 +2,10 @@ package users
 
 import (
 	"context"
-	"donutBackend/db"
-	. "donutBackend/logger"
-	events "donutBackend/models/volunteer"
 	"errors"
+	"github.com/donut-gives/backend/db"
+	. "github.com/donut-gives/backend/logger"
+	events "github.com/donut-gives/backend/models/volunteer"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -246,7 +246,7 @@ func AddBookmark(user GoogleUser, bookmark events.Opportunity) error {
 	return nil
 }
 
-//Update : Insert a new transaction
+// Update : Insert a new transaction
 func InsertTransaction(userId string, transaction *Transaction) (interface{}, error) {
 	userIdObj, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
@@ -291,7 +291,7 @@ func InsertTransaction(userId string, transaction *Transaction) (interface{}, er
 	return updatedDocument, nil
 }
 
-//Update : Transaction Status
+// Update : Transaction Status
 func UpdatePaymentStatus(userId string, transactionId string, status string) (interface{}, error) {
 	userIdObj, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
@@ -343,7 +343,7 @@ func UpdatePaymentStatus(userId string, transactionId string, status string) (in
 	return updatedDocument, nil
 }
 
-//Update Wallet Balance
+// Update Wallet Balance
 func UpdateWalletBalance(userId string, amount float64) (interface{}, error) {
 	userIdObj, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {

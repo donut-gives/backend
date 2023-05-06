@@ -78,18 +78,14 @@ type UrlValue struct {
 	Url string `json:"url"`
 }
 
-// FormValue don't convert type field to int rather take a separate array in the body of request to
-// indicate the type of each field to use ENUMs and set Type string on the basis of this
 type FormValue struct {
 	Type  string      `json:"type"`
 	Value interface{} `json:"value"`
 }
 
-// FormField don't bind into this directly from body rather use the Type Array to create FormField
-// during request and bind meta separately and then add this FormField to Opportunity
 type FormField struct {
 	Type     string      `json:"type"`
-	Required bool        `json:"required"` //try string if false not inserting in database
+	Required bool        `json:"required"`
 	Title    string      `json:"title"`
 	Meta     interface{} `json:"meta"`
 }

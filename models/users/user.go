@@ -1,8 +1,8 @@
 package users
 
-//import "go.mongodb.org/mongo-driver/bson/primitive"
+//import "go.mongodb.org/mongodb-driver/bson/primitive"
 import (
-	"donutBackend/models/volunteer"
+	"github.com/donut-gives/backend/models/volunteer"
 )
 
 type Transaction struct {

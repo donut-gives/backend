@@ -6,7 +6,7 @@ on:
       - staging
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GKE_CLUSTER: donut-cluster
   GKE_ZONE: asia-south1
   DEPLOYMENT_NAME: donut-gives
@@ -25,8 +25,8 @@ jobs:
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
       with:
-        service_account_key: ${{ secrets.GCP_SERVICE_KEY_STAGING }}
-        project_id: ${{ secrets.GCP_PROJECT_ID_STAGING }}
+        service_account_key: ${{ secrets.GCP_SERVICE_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
     # Configure Docker to use the gcloud command-line tool as a credential
     # helper for authentication
@@ -38,7 +38,7 @@ jobs:
       with:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GKE_ZONE }}
-        credentials: ${{ secrets.GCP_SERVICE_KEY_STAGING }}
+        credentials: ${{ secrets.GCP_SERVICE_KEY }}
         
     # Adding config
     - run: |

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"donutBackend/models/users"
-	"donutBackend/models/volunteer"
 	"encoding/json"
+	"github.com/donut-gives/backend/models/users"
+	"github.com/donut-gives/backend/models/volunteer"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
