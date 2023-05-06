@@ -1,17 +1,17 @@
 package controllers
 
 import (
-	. "donutBackend/logger"
-	emailsender "donutBackend/models/email_sender"
-	"donutBackend/models/messages"
-	organization "donutBackend/models/orgs"
-	pendingEmail "donutBackend/models/pending_emails"
-	"donutBackend/models/users"
-	events "donutBackend/models/volunteer"
-	"donutBackend/models/waitlist"
-	weblinks "donutBackend/models/weblinks"
-	"donutBackend/utils/mail"
-	email "donutBackend/utils/mail"
+	. "donutbackend/logger"
+	emailsender "donutbackend/models/email_sender"
+	"donutbackend/models/messages"
+	organization "donutbackend/models/orgs"
+	pendingEmail "donutbackend/models/pending_emails"
+	"donutbackend/models/users"
+	events "donutbackend/models/volunteer"
+	"donutbackend/models/waitlist"
+	weblinks "donutbackend/models/weblinks"
+	"donutbackend/utils/mail"
+	email "donutbackend/utils/mail"
 	"fmt"
 	"strings"
 	"time"
@@ -304,7 +304,7 @@ func GetProfile(c *gin.Context) {
 			}
 
 			returnJSON := struct {
-				Profile  organization.OrganizationProfile
+				Profile  organization.Profile
 				Verified string
 			}{
 				Profile:  orgProfile,
@@ -356,7 +356,7 @@ func GetProfile(c *gin.Context) {
 			}
 
 			returnJSON := struct {
-				Profile  organization.OrganizationProfile
+				Profile  organization.Profile
 				Verified string
 			}{
 				Profile:  orgProfile,

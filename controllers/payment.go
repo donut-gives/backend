@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"donutBackend/config"
-	"donutBackend/models/users"
+	"donutbackend/config"
+	"donutbackend/models/users"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	//"donutBackend/models/users"
-	. "donutBackend/utils/token"
+	. "donutbackend/utils/token"
 	//"encoding/json"
 
 	"net/http"
@@ -32,17 +32,16 @@ func VerifyUserToken() gin.HandlerFunc {
 		// 	RespondWithError(c, http.StatusUnauthorized, err.Error())
 		// 	return
 		// }
-		userString,err:=UserFromToken(c.GetHeader("token"))
+		userString, err := UserFromToken(c.GetHeader("token"))
 		if err != nil {
 			RespondWithError(c, http.StatusUnauthorized, err.Error())
 			return
 		}
 
 		c.Set("user", userString)
-		c.Set("request","user")
+		c.Set("request", "user")
 
 		c.Next()
 
 	}
 }
-

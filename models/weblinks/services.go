@@ -2,12 +2,12 @@ package weblinks
 
 import (
 	"context"
-	"donutBackend/db"
+	"donutbackend/db"
 	"errors"
 	"strings"
 	"time"
 
-	. "donutBackend/logger"
+	. "donutbackend/logger"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -78,7 +78,7 @@ func GetLink(id string) (Link, error) {
 // 		opts,
 // 	).Decode(&findResult)
 // 	if err != nil {
-// 		if err == mongo.ErrNoDocuments {
+// 		if err == mongodb.ErrNoDocuments {
 // 			return errors.New("No link found")
 // 		}
 // 		return err

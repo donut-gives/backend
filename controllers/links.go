@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	weblinks "donutBackend/models/weblinks"
+	weblinks "donutbackend/models/weblinks"
 
 	"net/http"
 	//"sync"

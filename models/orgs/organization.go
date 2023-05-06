@@ -1,8 +1,8 @@
 package organization
 
 import (
-	"donutBackend/models/volunteer"
-	. "donutBackend/utils/location"
+	"donutbackend/models/volunteer"
+	. "donutbackend/utils/location"
 )
 
 type Message struct {
@@ -31,10 +31,8 @@ type Impact struct {
 
 type Statistics struct {
 	Story         Story        `bson:"story,omitempty" json:"story,omitempty"`
-	Financials    string       `bson:"financials,omitempty" json:"financials,omitempty"`
 	EmployeeCount int          `bson:"employee_count,omitempty" json:"employee_count,omitempty"`
 	References    []References `bson:"references,omitempty" json:"references,omitempty"`
-	Cause         string       `bson:"cause,omitempty" json:"cause,omitempty"`
 	Donations     int          `bson:"donations,omitempty" json:"donations,omitempty"`
 	Impact        []Impact     `bson:"impact,omitempty" json:"impact,omitempty"`
 	Messages      []Message    `bson:"messages,omitempty" json:"messages,omitempty"`
@@ -57,7 +55,7 @@ type Organization struct {
 	DonateLink    string                  `bson:"donate_link,omitempty" json:"donate_link,omitempty"`
 }
 
-type OrganizationProfile struct {
+type Profile struct {
 	Description string     `bson:"description,omitempty" json:"description,omitempty"`
 	Name        string     `bson:"name,omitempty" json:"name,omitempty"`
 	Username    string     `bson:"username,omitempty" json:"username,omitempty"`
@@ -66,5 +64,5 @@ type OrganizationProfile struct {
 	Tags        []string   `bson:"tags,omitempty" json:"tags,omitempty"`
 	Coordinates Point      `json:"coordinates" bson:"coordinates"`
 	Stats       Statistics `bson:"stats,omitempty" json:"stats,omitempty"`
-	DonateLink  string     `bson:"donate_lLink,omitempty" json:"donate_link,omitempty"`
+	DonateLink  string     `bson:"donate_link,omitempty" json:"donate_link,omitempty"`
 }

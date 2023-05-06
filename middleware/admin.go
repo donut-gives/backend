@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"donutBackend/models/admins"
-	emailsender "donutBackend/models/email_sender"
-	. "donutBackend/utils/enum"
-	. "donutBackend/utils/token"
+	"donutbackend/models/admins"
+	emailsender "donutbackend/models/email_sender"
+	. "donutbackend/utils/enum"
+	. "donutbackend/utils/token"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

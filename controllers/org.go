@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"donutBackend/config"
-	. "donutBackend/logger"
-	"donutBackend/models/new_orgs"
-	"donutBackend/models/orgs"
-	. "donutBackend/models/volunteer"
-	. "donutBackend/utils/mail"
-	. "donutBackend/utils/token"
+	"donutbackend/config"
+	. "donutbackend/logger"
+	"donutbackend/models/new_orgs"
+	"donutbackend/models/orgs"
+	. "donutbackend/models/volunteer"
+	. "donutbackend/utils/mail"
+	. "donutbackend/utils/token"
 	"encoding/json"
 
 	"net/http"
@@ -524,7 +524,7 @@ func UpdateOrgProfile(c *gin.Context) {
 	}
 
 	details := struct {
-		Profile organization.OrganizationProfile `json:"profile"`
+		Profile organization.Profile `json:"profile"`
 	}{}
 
 	err = c.BindJSON(&details)

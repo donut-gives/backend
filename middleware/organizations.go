@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"donutBackend/models/new_orgs"
-	"donutBackend/models/orgs"
-	. "donutBackend/utils/token"
+	"donutbackend/models/new_orgs"
+	"donutbackend/models/orgs"
+	. "donutbackend/utils/token"
 	//"encoding/json"
 
 	//"errors"

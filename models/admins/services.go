@@ -2,8 +2,8 @@ package admin
 
 import (
 	"context"
-	"donutBackend/db"
-	. "donutBackend/logger"
+	"donutbackend/db"
+	. "donutbackend/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,7 +29,7 @@ func init() {
 	}
 }
 
-func Find(email string) (bool,[]string,error) {
+func Find(email string) (bool, []string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()

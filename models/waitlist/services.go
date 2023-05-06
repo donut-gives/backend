@@ -2,13 +2,13 @@ package waitlist
 
 import (
 	"context"
-	"donutBackend/db"
+	"donutbackend/db"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
-	"errors"
 )
 
 var waitlistCollection = new(mongo.Collection)
@@ -31,7 +31,7 @@ func Insert(user WaitlistedUser) (interface{}, error) {
 	result, err := waitlistCollection.InsertOne(ctx, user)
 
 	if err != nil {
-		if(mongo.IsDuplicateKeyError(err)){
+		if mongo.IsDuplicateKeyError(err) {
 			return nil, errors.New("Already In Waitlist")
 		}
 		return nil, err

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"donutBackend/config"
-	"donutBackend/logger"
-	"donutBackend/routes"
+	"donutbackend/config"
+	"donutbackend/logger"
+	"donutbackend/routes"
 	_ "golang.org/x/oauth2"
 	"strings"
 )

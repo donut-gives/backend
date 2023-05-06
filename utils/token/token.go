@@ -1,9 +1,9 @@
 package token
 
 import (
-	"donutBackend/config"
-	"donutBackend/models/orgs"
-	"donutBackend/models/users"
+	"donutbackend/config"
+	"donutbackend/models/orgs"
+	"donutbackend/models/users"
 	"encoding/json"
 	"errors"
 	"strings"

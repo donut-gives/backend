@@ -1,9 +1,8 @@
-module donutBackend
+module donutbackend
 
 go 1.16
 
 require (
-	cloud.google.com/go/storage v1.27.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
@@ -19,8 +18,6 @@ require (
 	golang.org/x/net v0.0.0-20220921203646-d300de134e69
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	google.golang.org/api v0.97.0
-	google.golang.org/appengine v1.6.7
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
 )

@@ -2,7 +2,7 @@ package messages
 
 import (
 	"context"
-	"donutBackend/db"
+	"donutbackend/db"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"time"

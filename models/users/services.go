@@ -2,9 +2,9 @@ package users
 
 import (
 	"context"
-	"donutBackend/db"
-	. "donutBackend/logger"
-	events "donutBackend/models/volunteer"
+	"donutbackend/db"
+	. "donutbackend/logger"
+	events "donutbackend/models/volunteer"
 	"errors"
 	"time"
 

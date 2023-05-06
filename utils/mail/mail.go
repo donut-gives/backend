@@ -2,13 +2,13 @@ package mail
 
 import (
 	"context"
-	"donutBackend/logger"
+	"donutbackend/logger"
 	"encoding/base64"
 	"fmt"
 	"google.golang.org/api/option"
 
-	"donutBackend/config"
-	"donutBackend/models/email_sender"
+	"donutbackend/config"
+	"donutbackend/models/email_sender"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"

@@ -1,4 +1,4 @@
-package db
+package mongodb
 
 import (
 	"context"
@@ -14,7 +14,7 @@ var lock = &sync.Mutex{}
 
 var db *mongo.Database
 
-func Get() *mongo.Database {
+func get() *mongo.Database {
 	if db == nil {
 		lock.Lock()
 		defer lock.Unlock()

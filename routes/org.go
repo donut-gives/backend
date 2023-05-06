@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"donutBackend/controllers"
-	"donutBackend/middleware"
-	. "donutBackend/utils/enum"
+	"donutbackend/controllers"
+	"donutbackend/middleware"
+	. "donutbackend/utils/enum"
 
 	//"donutBackend/middleware"
 	"github.com/gin-gonic/gin"

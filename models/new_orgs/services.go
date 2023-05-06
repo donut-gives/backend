@@ -2,14 +2,14 @@ package org_verification
 
 import (
 	"context"
-	"donutBackend/db"
+	"donutbackend/db"
 	"errors"
 	"time"
 
-	. "donutBackend/logger"
+	. "donutbackend/logger"
 
 	"go.mongodb.org/mongo-driver/bson"
-	//"go.mongodb.org/mongo-driver/bson/primitive"
+	//"go.mongodb.org/mongodb-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

@@ -3,7 +3,7 @@ app:
   version: "0.0.1-dev"
   desc: "Shaping new gen change makers"
 db:
-  url: "mongo url"
+  url: "mongodb url"
 auth:
   jwt_secret: "secret"
   google:
