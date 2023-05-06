@@ -6,7 +6,7 @@ on:
       - staging
 
 env:
-  GKE_CLUSTER: donut-cluster
+  GKE_CLUSTER: donut-asia-cluster
   GKE_ZONE: asia-south1
   DEPLOYMENT_NAME: donutserver
   IMAGE: donutserver
