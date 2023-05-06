@@ -10,6 +10,10 @@ COPY go.sum ./
 
 RUN go mod download
 
+COPY config.yml ./
+
+COPY .env ./
+
 COPY cmd ./cmd
 
 COPY pkg ./pkg
