@@ -10,10 +10,6 @@ COPY go.sum ./
 
 RUN go mod download
 
-COPY config.yml ./
-
-COPY .env ./
-
 COPY cmd ./cmd
 
 COPY pkg ./pkg
@@ -45,6 +41,10 @@ FROM gcr.io/distroless/base-debian11 AS build-release-stage
 WORKDIR /
 
 COPY --from=build-stage /bin/donutserver /donutserver
+
+COPY config.yml ./
+
+COPY .env ./ 
 
 EXPOSE 3100
 
