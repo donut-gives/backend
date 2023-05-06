@@ -6,7 +6,7 @@ on:
       - staging
 
 env:
-  PROJECT_ID: $GCP_PROJECT_ID
+  PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
   GKE_CLUSTER: donut-cluster
   GKE_ZONE: asia-south1
   DEPLOYMENT_NAME: donutserver
