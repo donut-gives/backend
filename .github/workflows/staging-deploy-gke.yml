@@ -64,6 +64,12 @@ jobs:
             secret: "${{ secrets.RECAPTCHA_SITE_SECRET_STAGING }}"
           EOF
 
+    - run: |
+          cat > .env << EOF
+          PORT=3100
+          GIN_MODE="debug"
+          EOF
+
     # Build the Docker image
     - name: Build
       run: |-

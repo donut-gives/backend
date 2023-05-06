@@ -12,6 +12,8 @@ RUN go mod download
 
 COPY config.yml ./
 
+COPY .env ./
+
 COPY cmd ./cmd
 
 COPY pkg ./pkg
@@ -43,9 +45,6 @@ FROM gcr.io/distroless/base-debian11 AS build-release-stage
 WORKDIR /
 
 COPY --from=build-stage /bin/donutserver /donutserver
-
-ENV PORT=3100 \
-    GIN_MODE="debug"
 
 EXPOSE 3100
 
