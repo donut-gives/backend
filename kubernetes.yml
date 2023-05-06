@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: donut-gives
+  name: donutserver
 spec:
   selector:
     matchLabels:
-      app: donut-gives
+      app: donutserver
   template:
     metadata:
       labels:
-        app: donut-gives
+        app: donutserver
     spec:
       containers:
       - name: donut-gives
-        image: asia.gcr.io/donut-366007/donut-gives:v1.1
+        image: asia.gcr.io/donut-gives/donutserver:v1.1
         resources:
           limits:
             memory: "128Mi"
@@ -26,10 +26,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: donut-gives-service
+  name: donutserver-loadbalancer
 spec:
   selector:
-    app: donut-gives
+    app: donutserver
   type: LoadBalancer
   ports:
   - protocol: TCP

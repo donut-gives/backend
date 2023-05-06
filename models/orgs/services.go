@@ -2,15 +2,15 @@ package organization
 
 import (
 	"context"
-	"donutBackend/db"
-	org_verification "donutBackend/models/new_orgs"
-	"donutBackend/models/volunteer"
+	"github.com/donut-gives/backend/db"
+	org_verification "github.com/donut-gives/backend/models/new_orgs"
+	"github.com/donut-gives/backend/models/volunteer"
 	"strings"
-	///"donutBackend/models/users"
+	///"github.com/donut-gives/backend/models/users"
 	"errors"
 	"time"
 
-	. "donutBackend/logger"
+	. "github.com/donut-gives/backend/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -27,7 +27,7 @@ func init() {
 	index := mongo.IndexModel{
 		Keys: bson.D{
 			{Key: "email", Value: 1},
-			{Key: "donutName", Value: 1},
+			{Key: "username", Value: 1},
 		},
 		Options: options.Index().SetUnique(true),
 	}
@@ -79,7 +79,6 @@ func SetPassword(org *Organization) (interface{}, error) {
 			org.Tags = existingOrg.Tags
 			org.Location = existingOrg.Location
 			org.Description = existingOrg.Description
-			org.Coordinates = existingOrg.Coordinates
 
 			result, err := organizationCollection.InsertOne(ctx, org)
 			if err != nil {
@@ -163,11 +162,11 @@ func Find(id string) (bool, error) {
 	return true, nil
 }
 
-func GetOrg(username string) (OrganizationProfile, error) {
+func GetOrg(username string) (Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	opts := options.FindOne()
-	var findResult OrganizationProfile
+	var findResult Profile
 	err := organizationCollection.FindOne(
 		ctx,
 		bson.D{{Key: "username", Value: username}},
@@ -175,9 +174,9 @@ func GetOrg(username string) (OrganizationProfile, error) {
 	).Decode(&findResult)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return OrganizationProfile{}, errors.New("No such organization found")
+			return Profile{}, errors.New("No such organization found")
 		}
-		return OrganizationProfile{}, err
+		return Profile{}, err
 	}
 
 	return findResult, nil
@@ -432,7 +431,7 @@ func toDoc(v interface{}) (doc *bson.D, err error) {
 	return
 }
 
-func UpdateOrgProfile(username string, profile OrganizationProfile) (interface{}, error) {
+func UpdateOrgProfile(username string, profile Profile) (interface{}, error) {
 
 	profile.Username = username
 
@@ -464,7 +463,7 @@ func UpdateOrgProfile(username string, profile OrganizationProfile) (interface{}
 	return result.UpsertedID, nil
 }
 
-//HashPassword is used to encrypt the password before it is stored in the DB
+// HashPassword is used to encrypt the password before it is stored in the DB
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -474,7 +473,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-//VerifyPassword checks the input password while verifying it with the passward in the DB.
+// VerifyPassword checks the input password while verifying it with the passward in the DB.
 func VerifyPassword(userPassword string, providedPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
 	check := true

@@ -1,18 +1,18 @@
 package controllers
 
 import (
-	. "donutBackend/logger"
-	emailsender "donutBackend/models/email_sender"
-	"donutBackend/models/messages"
-	organization "donutBackend/models/orgs"
-	pendingEmail "donutBackend/models/pending_emails"
-	"donutBackend/models/users"
-	events "donutBackend/models/volunteer"
-	"donutBackend/models/waitlist"
-	weblinks "donutBackend/models/weblinks"
-	"donutBackend/utils/mail"
-	email "donutBackend/utils/mail"
 	"fmt"
+	. "github.com/donut-gives/backend/logger"
+	emailsender "github.com/donut-gives/backend/models/email_sender"
+	"github.com/donut-gives/backend/models/messages"
+	organization "github.com/donut-gives/backend/models/orgs"
+	pendingEmail "github.com/donut-gives/backend/models/pending_emails"
+	"github.com/donut-gives/backend/models/users"
+	events "github.com/donut-gives/backend/models/volunteer"
+	"github.com/donut-gives/backend/models/waitlist"
+	weblinks "github.com/donut-gives/backend/models/weblinks"
+	"github.com/donut-gives/backend/utils/mail"
+	email "github.com/donut-gives/backend/utils/mail"
 	"strings"
 	"time"
 
@@ -304,7 +304,7 @@ func GetProfile(c *gin.Context) {
 			}
 
 			returnJSON := struct {
-				Profile  organization.OrganizationProfile
+				Profile  organization.Profile
 				Verified string
 			}{
 				Profile:  orgProfile,
@@ -356,7 +356,7 @@ func GetProfile(c *gin.Context) {
 			}
 
 			returnJSON := struct {
-				Profile  organization.OrganizationProfile
+				Profile  organization.Profile
 				Verified string
 			}{
 				Profile:  orgProfile,

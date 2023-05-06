@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"donutBackend/config"
-	"donutBackend/models/users"
 	"encoding/json"
 	"fmt"
+	"github.com/donut-gives/backend/config"
+	"github.com/donut-gives/backend/models/users"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
