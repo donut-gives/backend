@@ -12,8 +12,8 @@ spec:
         app: donutserver
     spec:
       containers:
-      - name: donut-gives
-        image: asia.gcr.io/donut-gives/donutserver:v1.1
+      - name: donutserver
+        image: asia.gcr.io/PROJECT_ID/IMAGE:TAG
         resources:
           limits:
             memory: "128Mi"
