@@ -1,0 +1,22 @@
+name: Create PR to dev Branch
+
+on:
+  push:
+    branches-ignore: [ main, staging, dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: Merge with dev
+          title: Merge with dev
+          body: |
+              This PR is automatically created by a GitHub Action.
+              It merges the latest changes from the main branch into the dev branch.
+          base: dev
+#          branch: ${{ github.ref_name }}
