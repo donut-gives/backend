@@ -18,5 +18,4 @@ jobs:
           body: |
               This PR is automatically created by a GitHub Action.
               It merges the latest changes from the main branch into the dev branch.
-          base: ${{ github.ref_name }}
-          branch: dev
+          base: dev
