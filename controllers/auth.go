@@ -10,7 +10,7 @@ import (
 	emailsender "github.com/donut-gives/backend/models/email_sender"
 	"github.com/donut-gives/backend/models/users"
 	"github.com/donut-gives/backend/utils/mail"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -479,7 +479,7 @@ func signInUserWithAccessToken(accessToken string) (map[string]string, error) {
 		}{}
 
 		defer resp.Body.Close()
-		response, _ := ioutil.ReadAll(resp.Body)
+		response, _ := io.ReadAll(resp.Body)
 
 		json.Unmarshal(response, &error)
 		Logger.Errorf("Cannot fetch the user info. Error code: " + string(rune(error.Error.Code)))
@@ -487,7 +487,7 @@ func signInUserWithAccessToken(accessToken string) (map[string]string, error) {
 	}
 
 	defer resp.Body.Close()
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := io.ReadAll(resp.Body)
 	if err != nil {
 		Logger.Error("ReadAll: " + err.Error() + "\n")
 		return nil, err
